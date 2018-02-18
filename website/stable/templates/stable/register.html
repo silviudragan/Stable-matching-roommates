@@ -8,6 +8,17 @@ body{
     background-color: #99CCFF;
 }
 </style>
+<script>
+    var check_passwords = function() {
+      if (document.getElementById('password').value !=
+        document.getElementById('re_password').value) {
+        document.getElementById('message').style.color = 'red';
+        document.getElementById('message').innerHTML = 'Passwords do not match.';
+      } else {
+        document.getElementById('message').innerHTML = '';
+      }
+    }
+</script>
 
 <div class="container" style="margin-top: 10%">
 
@@ -32,7 +43,7 @@ body{
             <div class="col-md-4 inputGroupContainer">
                 <div class="input-group">
                   <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-                  <input name="password" placeholder="Parola" class="form-control"  type="password">
+                  <input name="password" id="password" placeholder="Parola" class="form-control"  type="password" onkeyup='check_passwords();'>
                 </div>
             </div>
         </div>
@@ -42,9 +53,17 @@ body{
             <div class="col-md-4 inputGroupContainer">
                 <div class="input-group">
                   <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-                  <input name="re_parola" placeholder="Reintroduceti parola" class="form-control"  type="password">
+                  <input name="re_password" id="re_password" placeholder="Reintroduceti parola" class="form-control"  type="password" onkeyup='check_passwords();'>
                 </div>
+                <span id='message'></span>
             </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-md-4 control-label"></label>
+                <div class="col-md-4">
+                    <p> <font color="red">{{ mesaj }}</font> </p>
+                </div>
         </div>
 
         <div class="form-group">
