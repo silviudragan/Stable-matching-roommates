@@ -1,40 +1,7 @@
-{% load staticfiles %}
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-<link href='https://fonts.googleapis.com/css?family=Satisfy' rel='stylesheet' type='text/css'>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-<link rel="stylesheet" type="text/css" href ="{% static 'stable/style.css' %}" />
-
-<nav class="navbar navbar-light" style="background-color: #0000FF;">
-    <div class="container">
-
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#NavBar">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="{% url 'index' %}"> Licenta </a>
-        </div>
-
-        <div class="collapse navbar-collapse" id="NavBar">
-            <ul class="nav navbar-nav">
-                <li class="active">
-                    <a href="{% url 'index' %}">
-                        <span class="glyphicon glyphicon-cd" aria-hidden="true"></span>&nbsp;
-                        Home
-                    </a>
-                </li>
-                <li class="">
-                    <a href="{% url 'index' %}">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;
-                        Profile
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+{% extends 'stable/base.html' %}
+{% block title %} Acasa {% endblock %}
+{% block body %}
 <ul>
     <p> {{ salut }} </p>
 </ul>
+{% endblock %}

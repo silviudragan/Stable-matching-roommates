@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from .forms import UserForm, LoginForm
 from django.views.generic import View
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 
 
 def index(request):
@@ -29,7 +29,7 @@ class Login(View):
 
         if user is not None:
             login(request, user)
-            return render(request, 'stable/index.html')
+            return redirect('index')
         else:
             return render(request, 'stable/login.html')
 
@@ -78,3 +78,9 @@ class UserFormView(View):
                     login(request, user)
                     return redirect('index')
         return render(request, self.template_name, {'form': form})
+
+
+class Logout(View):
+    def get(self, request):
+        logout(request)
+        return redirect('login')
