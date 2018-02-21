@@ -84,3 +84,13 @@ class Logout(View):
     def get(self, request):
         logout(request)
         return redirect('login')
+
+
+class Profil(View):
+    template_name = 'stable/profil.html'
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+    def post(self, request):
+        pass
