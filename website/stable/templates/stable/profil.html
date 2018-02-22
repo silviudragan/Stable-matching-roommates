@@ -1,10 +1,29 @@
 {% extends 'stable/base.html' %}
 {% block title %} Profil {% endblock %}
+
+{% block profil %}
+    <center><h4> Profil </h4><br></center>
+    <h4>Utilizator: {{ student.0.0 }}</h4>
+    <h4>Nume: {{ student.0.1 }}</h4>
+    <h4>Prenume: {{ student.0.2 }}</h4>
+    <h4>Numar matricol: {{ student.0.3 }}</h4>
+    <h4>An: {{ student.0.4 }}</h4>
+    <h4>Grupa: {{ student.0.5 }}</h4>
+{% endblock %}
+
 {% block body %}
 
-<ul>
-    <p> {{ salut }} </p>
-    <p> This text is styled with some of the text formatting properties. The heading uses the text-align, text-transform, and color properties. The paragraph is indented, aligned, and the space between characters is specified. The underline is removed from this colored "Try it Yourself" link. </p>
-</ul>
+
+    <h4><small>Noutati</small></h4>
+    <div class="btn-group">
+        <button type="button" class="btn btn-primary">Recenziile facute</button>
+        <button type="button" class="btn btn-primary">Recenziile primite</button>
+    </div>
+    <hr>
+    <h2>Stiri camin</h2>
+    <h5><span class="glyphicon glyphicon-time"></span> Post by Silviu Dragan, Feb 2, 2018.</h5>
+    <h5><span class="label label-danger">Coleg</span> <span class="label label-primary">C12</span></h5><br>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+    <br><br>
 
 {% endblock %}
