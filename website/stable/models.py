@@ -7,6 +7,7 @@ class Student(models.Model):
     numar_matricol = models.CharField(max_length=30)
     an = models.IntegerField()
     grupa = models.CharField(max_length=5)
+    sex = models.CharField(max_length=5)
 
     def __str__(self):
-        return self.nume + ' ' + self.prenume + ' - ' + self.numar_matricol
+        return self.numar_matricol + ' - ' + self.nume + ' ' + self.prenume

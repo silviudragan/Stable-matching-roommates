@@ -1,8 +1,15 @@
 {% extends 'stable/base.html' %}
 {% block title %} Profil {% endblock %}
+{% load staticfiles %}
 
 {% block profil %}
+
     <center><h4> Profil </h4><br></center>
+    {% if student.0.6 == 'F' %}
+        <img src="{% static 'stable/images/3.jpg' %}" class="img-responsive" alt="">
+    {% else %}
+        <img src="{% static 'stable/images/3.png' %}" class="img-responsive" alt="">
+    {% endif %}
     <h4>Utilizator: {{ student.0.0 }}</h4>
     <h4>Nume: {{ student.0.1 }}</h4>
     <h4>Prenume: {{ student.0.2 }}</h4>
