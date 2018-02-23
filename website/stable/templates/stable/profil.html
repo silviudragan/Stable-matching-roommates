@@ -16,8 +16,14 @@
     <h4>Numar matricol: {{ student.0.3 }}</h4>
     <h4>An: {{ student.0.4 }}</h4>
     <h4>Grupa: {{ student.0.5 }}</h4>
+    {% if student %}
+    {% else %}
+        <br>
+        <center>
+            <a href="{% url 'login' %}" class="btn btn-primary btn-lg active" role="button"> Login </a>
+        </center>
+    {% endif %}
 {% endblock %}
-
 {% block body %}
 
 
