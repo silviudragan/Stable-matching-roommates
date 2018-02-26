@@ -1,10 +1,12 @@
 import MySQLdb
+from django.core.files.storage import FileSystemStorage
 from django.db.backends import mysql
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from .forms import UserForm, LoginForm
 from django.views.generic import View
 from django.contrib.auth import authenticate, login, logout
+from .models import Student
 username = ""
 conn = MySQLdb.connect(host="localhost",
                                  user="root",
@@ -95,12 +97,19 @@ class Profil(View):
     template_name = 'stable/profil.html'
 
     def get(self, request):
-        global username
 
-        c = conn.cursor()
-        c.execute("SELECT * FROM stable_student where numar_matricol= %s", [username])
-        student = c.fetchall()
+        student = Student.objects.get(numar_matricol=username)
         return render(request, self.template_name, {'student': student})
 
     def post(self, request):
-        pass
+        c = conn.cursor()
+        try:
+            poza_profil = request.FILES['poza_profil']
+            fs = FileSystemStorage()
+            fs.save(poza_profil.name, poza_profil)
+            c.execute("UPDATE stable_student set poza_profil=%s where numar_matricol=%s", [poza_profil, username])
+            conn.commit()
+        except Exception:
+            pass
+        student = Student.objects.get(numar_matricol=username)
+        return render(request, self.template_name, {'student': student})

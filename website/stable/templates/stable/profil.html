@@ -5,17 +5,34 @@
 {% block profil %}
 
     <center><h4> Profil </h4><br></center>
-    {% if student.0.6 == 'F' %}
-        <img src="{% static 'stable/images/3.jpg' %}" class="img-responsive" alt="">
+    {% if student.poza_profil|length > 3 %}
+        <img src="{{ student.poza_profil.url }}" class="img-responsive" alt="">
     {% else %}
-        <img src="{% static 'stable/images/3.png' %}" class="img-responsive" alt="">
+        {% if student.0.6 == 'F' %}
+            <img src="{% static 'stable/images/3.jpg' %}" class="img-responsive" alt="">
+        {% else %}
+            <img src="{% static 'stable/images/3.png' %}" class="img-responsive" alt="">
+        {% endif %}
     {% endif %}
-    <h4>Utilizator: {{ student.0.0 }}</h4>
-    <h4>Nume: {{ student.0.1 }}</h4>
-    <h4>Prenume: {{ student.0.2 }}</h4>
-    <h4>Numar matricol: {{ student.0.3 }}</h4>
-    <h4>An: {{ student.0.4 }}</h4>
-    <h4>Grupa: {{ student.0.5 }}</h4>
+
+    <a href="#infoContent" data-toggle="collapse"> Schimba poza de profil </a>
+    <div id="infoContent" class="collapse">
+        <form class="form-horizontal" action="" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <span class="text-danger small"> {{student.errors}}</span>
+            <input type="file" name="poza_profil">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-success"> Incarca poza </button>
+            </div>
+        </form>
+    </div>
+    <h4>Nume: {{ student.nume }}</h4>
+    <h4>Prenume: {{ student.prenume }}</h4>
+    <h4>Numar matricol: {{ student.numar_matricol }}</h4>
+    <h4>An: {{ student.an }}</h4>
+    <h4>Grupa: {{ student.grupa }}</h4>
+
+
     {% if student %}
     {% else %}
         <br>
