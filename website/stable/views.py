@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from .forms import UserForm, LoginForm
 from django.views.generic import View
 from django.contrib.auth import authenticate, login, logout
-from .models import Student
+from .models import Student, Recenzie
 username = ""
 conn = MySQLdb.connect(host="localhost",
                                  user="root",
@@ -110,6 +110,33 @@ class Profil(View):
             c.execute("UPDATE stable_student set poza_profil=%s where numar_matricol=%s", [poza_profil, username])
             conn.commit()
         except Exception:
-            pass
+            pass  # nu a fost incarcat nimic
         student = Student.objects.get(numar_matricol=username)
         return render(request, self.template_name, {'student': student})
+
+
+class Recenzii(View):
+    template_name = 'stable/recenzie.html'
+
+    def get(self, request):
+        student = Student.objects.get(numar_matricol=username)
+        c = conn.cursor()
+        c.execute("SELECT * FROM stable_recenzie")
+        recenzii = []
+        for recenzie in c.fetchall():
+            recenzii.append(list(recenzie))
+        for i in range(0, len(recenzii)):
+            # aflam numele expeditorului
+            c.execute("SELECT prenume, nume FROM stable_student where numar_matricol=%s", [recenzii[i][1]])
+            nume = c.fetchone()
+            recenzii[i][1] = nume[0] + ' ' + nume[1]
+
+            # aflam numele destinatarului
+            c.execute("SELECT prenume, nume FROM stable_student where numar_matricol=%s", [recenzii[i][2]])
+            nume = c.fetchone()
+            recenzii[i][2] = nume[0] + ' ' + nume[1]
+        c.close()
+        return render(request, self.template_name, {'student': student, 'recenzii': recenzii})
+
+    def post(self, request):
+        pass

@@ -1,0 +1,22 @@
+{% extends 'stable/base.html' %}
+{% block title %} Acasa {% endblock %}
+{% block body %}
+
+
+<div class="btn-group">
+    <button type="button" class="btn btn-primary">Recenziile facute </button>
+    <button type="button" class="btn btn-primary">Recenziile primite </button>
+    <button type="button" class="btn btn-primary">Ultimele recenzii </button>
+</div>
+
+
+<h4>&nbsp; Noutati</h4><hr>
+{% for rec in recenzii %}
+    <h5><span class="glyphicon glyphicon-time"></span> Post by {{rec.1}}, {{rec.4}}.</h5>
+    <h5>To: {{ rec.2 }} </h5>
+    <h5><span class="label label-danger">Coleg</span> <span class="label label-primary">C12</span></h5><br>
+    <p> {{ rec.3 }}</p>
+    <hr>
+{% endfor %}
+
+{% endblock %}
