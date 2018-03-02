@@ -8,7 +8,41 @@
     <button type="button" class="btn btn-primary">Recenziile primite </button>
     <button type="button" class="btn btn-primary">Ultimele recenzii </button>
 </div>
-
+<button type="button" class="btn btn-secondary" data-toggle="collapse" data-target="#addRecenzie" style="float: right; margin-right:40px;">Adauga o recenzie</button>
+<div id="addRecenzie" class="collapse">
+    <form class="form-horizontal" action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+       <br>
+        <div class="container-fluid">
+            <div class="col-sm-8">
+                <div class="form-group">
+                  <label>Numele colegului:</label>
+                  <select class="form-control" name="numeColeg">
+                    {% for coleg in colegi %}
+                        <option>{{ coleg }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Calificativ:</label>
+                  <select class="form-control" name="notaColeg">
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                    <label>Example textarea</label>
+                    <textarea class="form-control" name="mesajColeg" rows="3"></textarea>
+                </div>
+                <center><button type="submit" class="btn btn-success"> Incarca recenzie </button></center>
+            </div>
+        </div>
+    </form>
+    <br><br>
+</div>
 
 <h4>&nbsp; Noutati</h4><hr>
 {% for rec in recenzii %}

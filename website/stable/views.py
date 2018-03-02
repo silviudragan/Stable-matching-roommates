@@ -1,4 +1,5 @@
 import MySQLdb
+import datetime
 from django.core.files.storage import FileSystemStorage
 from django.db.backends import mysql
 from django.http import HttpResponse
@@ -98,7 +99,10 @@ class Profil(View):
 
     def get(self, request):
 
-        student = Student.objects.get(numar_matricol=username)
+        try:
+            student = Student.objects.get(numar_matricol=username)
+        except Exception:
+            return render(request, self.template_name)
         return render(request, self.template_name, {'student': student})
 
     def post(self, request):
@@ -115,28 +119,74 @@ class Profil(View):
         return render(request, self.template_name, {'student': student})
 
 
+# o lista cu colegii de camera cu care a stat sau inca sta studentul cu respectivul numar matricol
+def colegii_de_camera(nr_matricol):
+    c = conn.cursor()
+    c.execute("SELECT * from stable_coleg where coleg1=%s or coleg2=%s", [nr_matricol, nr_matricol])
+    data = c.fetchall()
+    nr_matricol_colegi = []
+    for coleg in data:
+        if coleg[1] == nr_matricol:
+            nr_matricol_colegi.append(coleg[2])
+        else:
+            nr_matricol_colegi.append(coleg[1])
+    colegi = []
+    for coleg in nr_matricol_colegi:
+        c.execute("SELECT nume, prenume FROM stable_student where numar_matricol=%s", [coleg])
+        data = c.fetchone()
+        nume = data[0] + ' ' + data[1]
+        colegi.append(nume)
+    c.close()
+    return colegi
+
+
+def obtine_recenzii():
+    recenzii = []
+    c = conn.cursor()
+    c.execute("SELECT * FROM stable_recenzie order by data desc")
+    for recenzie in c.fetchall():
+        recenzii.append(list(recenzie))
+    for i in range(0, len(recenzii)):
+        # aflam numele expeditorului
+        c.execute("SELECT prenume, nume FROM stable_student where numar_matricol=%s", [recenzii[i][1]])
+        nume = c.fetchone()
+        recenzii[i][1] = nume[0] + ' ' + nume[1]
+
+        # aflam numele destinatarului
+        c.execute("SELECT prenume, nume FROM stable_student where numar_matricol=%s", [recenzii[i][2]])
+        nume = c.fetchone()
+        recenzii[i][2] = nume[0] + ' ' + nume[1]
+    c.close()
+    return recenzii
+
+
 class Recenzii(View):
     template_name = 'stable/recenzie.html'
 
     def get(self, request):
         student = Student.objects.get(numar_matricol=username)
-        c = conn.cursor()
-        c.execute("SELECT * FROM stable_recenzie")
-        recenzii = []
-        for recenzie in c.fetchall():
-            recenzii.append(list(recenzie))
-        for i in range(0, len(recenzii)):
-            # aflam numele expeditorului
-            c.execute("SELECT prenume, nume FROM stable_student where numar_matricol=%s", [recenzii[i][1]])
-            nume = c.fetchone()
-            recenzii[i][1] = nume[0] + ' ' + nume[1]
-
-            # aflam numele destinatarului
-            c.execute("SELECT prenume, nume FROM stable_student where numar_matricol=%s", [recenzii[i][2]])
-            nume = c.fetchone()
-            recenzii[i][2] = nume[0] + ' ' + nume[1]
-        c.close()
-        return render(request, self.template_name, {'student': student, 'recenzii': recenzii})
+        recenzii = obtine_recenzii()
+        colegi = colegii_de_camera(username)
+        return render(request, self.template_name, {'student': student, 'recenzii': recenzii, 'colegi': colegi})
 
     def post(self, request):
-        pass
+        nume_coleg = request.POST.get('numeColeg', '')
+        calificativ = request.POST.get('notaColeg', '')
+        mesaj = request.POST.get('mesajColeg', '')
+# revizuit split-ul pentru diferite forme de nume
+        data = nume_coleg.split()
+        nume = data[0]
+        prenume = data[1]
+        c = conn.cursor()
+        c.execute("SELECT numar_matricol from stable_student where nume=%s and prenume=%s", [nume, prenume])
+        nr_matricol = c.fetchone()
+        c.execute("INSERT into stable_recenzie(from_uid, to_uid, mesaj, calificativ, data) "
+                  "VALUES(%s, %s, %s, %s, %s)", [username, nr_matricol, mesaj, calificativ, datetime.date.today()])
+        conn.commit()
+        c.close()
+        #Recenzii.get(self, request)
+        student = Student.objects.get(numar_matricol=username)
+        recenzii = obtine_recenzii()
+        colegi = colegii_de_camera(username)
+        return render(request, self.template_name, {'student': student, 'recenzii': recenzii, 'colegi': colegi,
+                                                    'nume': nume_coleg, 'nota': calificativ, 'mesaj': mesaj})
