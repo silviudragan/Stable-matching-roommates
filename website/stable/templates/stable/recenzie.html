@@ -1,5 +1,19 @@
 {% extends 'stable/base.html' %}
 {% block title %} Recenzii {% endblock %}
+
+{% block javascript %}
+    <script>
+        function showCustomer(str) {
+            if(str != ""){
+                data = "<h3> Vor urma detalii despre " + str + " </h3>"
+                $(".result").html(data);
+            }
+            else
+                $(".result").html("");
+        }
+    </script>
+{% endblock %}
+
 {% block body %}
 
 
@@ -14,14 +28,17 @@
         {% csrf_token %}
        <br>
         <div class="container-fluid">
-            <div class="col-sm-8">
+            <div class="col-sm-6">
                 <div class="form-group">
                   <label>Numele colegului:</label>
-                  <select class="form-control" name="numeColeg">
-                    {% for coleg in colegi %}
-                        <option>{{ coleg }}</option>
-                    {% endfor %}
-                  </select>
+                  <form action="">
+                      <select class="form-control" name="numeColeg" onchange="showCustomer(this.value)">
+                        <option value="">Alege un student:</option>
+                        {% for coleg in colegi %}
+                            <option>{{ coleg }}</option>
+                        {% endfor %}
+                      </select>
+                  </form>
                 </div>
                 <div class="form-group">
                   <label>Calificativ:</label>
@@ -38,6 +55,9 @@
                     <textarea class="form-control" name="mesajColeg" rows="3"></textarea>
                 </div>
                 <center><button type="submit" class="btn btn-success"> Incarca recenzie </button></center>
+            </div>
+            <div class="col-sm-6">
+                <div class="result"></div>
             </div>
         </div>
     </form>
