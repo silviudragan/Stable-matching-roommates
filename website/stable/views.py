@@ -3,6 +3,7 @@ import datetime
 from django.core.files.storage import FileSystemStorage
 from django.db.backends import mysql
 from django.http import HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from .forms import UserForm, LoginForm
 from django.views.generic import View
@@ -120,13 +121,13 @@ class Profil(View):
 
 
 # o lista cu colegii de camera cu care a stat sau inca sta studentul cu respectivul numar matricol
-def colegii_de_camera(nr_matricol):
+def colegii_de_camera():
     c = conn.cursor()
-    c.execute("SELECT * from stable_coleg where coleg1=%s or coleg2=%s", [nr_matricol, nr_matricol])
+    c.execute("SELECT * from stable_coleg where coleg1=%s or coleg2=%s", [username, username])
     data = c.fetchall()
     nr_matricol_colegi = []
     for coleg in data:
-        if coleg[1] == nr_matricol:
+        if coleg[1] == username:
             nr_matricol_colegi.append(coleg[2])
         else:
             nr_matricol_colegi.append(coleg[1])
@@ -166,7 +167,7 @@ class Recenzii(View):
     def get(self, request):
         student = Student.objects.get(numar_matricol=username)
         recenzii = obtine_recenzii()
-        colegi = colegii_de_camera(username)
+        colegi = colegii_de_camera()
         return render(request, self.template_name, {'student': student, 'recenzii': recenzii, 'colegi': colegi})
 
     def post(self, request):
@@ -190,3 +191,26 @@ class Recenzii(View):
         colegi = colegii_de_camera(username)
         return render(request, self.template_name, {'student': student, 'recenzii': recenzii, 'colegi': colegi,
                                                     'nume': nume_coleg, 'nota': calificativ, 'mesaj': mesaj})
+
+
+def display_info_coleg(request):
+    coleg = request.GET.get('numeColeg', None)
+    nume = coleg.split()
+    c = conn.cursor()
+    c.execute("SELECT * from stable_student where nume=%s and prenume=%s", [nume[0], nume[1]])
+    rez = c.fetchone()
+    nr_matricol = rez[3]
+    c.close()
+    data = {
+        'Nume:': rez[1],
+        'Prenume:': rez[2],
+        'An:': rez[4],
+        'Grupa:': rez[5],
+        'Poza:': rez[7],
+    }
+    if data['Poza:'] == "1":
+        if rez[6] == "M":
+            data['Poza:'] = "3.png"
+        else:
+            data['Poza:'] = "4.jpg"
+    return JsonResponse(data)

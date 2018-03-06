@@ -5,11 +5,31 @@
     <script>
         function showCustomer(str) {
             if(str != ""){
-                data = "<h3> Vor urma detalii despre " + str + " </h3>"
-                $(".result").html(data);
+                $.ajax({
+                    url: '/ajax/validate_username/',
+                    type: 'get',
+                    data: {
+                      'numeColeg': str
+                    },
+                    dataType: 'json',
+                  }).done(function(data){
+                    var tabel = "<table>";
+                    for(it in data){
+                        if(it != "Poza:")
+                        {
+                            tabel += "<tr><td><b>" + it + "</b></td>";
+                            tabel += "<td>"  + data[it] + "</td></tr>";
+                        }
+                        else
+                        {
+                             $('.result2').html('<img src="/media/' + data[it] + '" height="250" width="200" />');
+                        }
+                    }
+                    tabel += "</table>"
+                    $('.result').html(tabel);
+                  });
             }
-            else
-                $(".result").html("");
+
         }
     </script>
 {% endblock %}
@@ -56,7 +76,10 @@
                 </div>
                 <center><button type="submit" class="btn btn-success"> Incarca recenzie </button></center>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-3">
+                <div class="result2"></div>
+            </div>
+            <div class="col-sm-3">
                 <div class="result"></div>
             </div>
         </div>
