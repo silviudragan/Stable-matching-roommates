@@ -188,7 +188,7 @@ class Recenzii(View):
         #Recenzii.get(self, request)
         student = Student.objects.get(numar_matricol=username)
         recenzii = obtine_recenzii()
-        colegi = colegii_de_camera(username)
+        colegi = colegii_de_camera()
         return render(request, self.template_name, {'student': student, 'recenzii': recenzii, 'colegi': colegi,
                                                     'nume': nume_coleg, 'nota': calificativ, 'mesaj': mesaj})
 
