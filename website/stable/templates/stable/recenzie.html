@@ -22,23 +22,71 @@
                         }
                         else
                         {
-                             $('.result2').html('<img src="/media/' + data[it] + '" height="250" width="200" />');
+                             $('.result2').html('<img src="/media/' + data[it] + '" height="245" width="180" />');
                         }
                     }
                     tabel += "</table>"
                     $('.result').html(tabel);
                   });
             }
+        }
 
+        function recenziiFacute(nr_matricol){
+            var index = 0;
+            var iterator = 0;
+            var rez = "";
+            $.ajax({
+                    url: '/ajax/recenzii_facute/',
+                    type: 'get',
+                    data: {
+                      'nr_matricol': nr_matricol
+                    },
+                    dataType: 'json',
+                  }).done(function(data){
+                    console.log(data);
+                    var date = [];
+                    for(it in data){
+                        if(iterator % 6 == 4){ //nume de la
+                            date.push(data[it]);
+                        }
+                        iterator = iterator + 1;
+                    }
+                    iterator = 0;
+                    console.log(date);
+                    for(it in data){
+
+                        console.log(iterator%6);
+                        if(iterator % 6 == 1){ //nume de la
+                            rez += "<h5><span class='glyphicon glyphicon-time'></span> Post by " + data[it] + ", " + date[index] + ".</h5>";
+                            index = index + 1;
+                        }
+                        if(iterator % 6 == 2){ //nume pt rec
+                            rez += "<h5>To:"+ data[it] + "</h5>";
+                        }
+                        if(iterator % 6 == 3){ //nume
+                            rez += "<h5><span class='label label-danger'>Coleg</span> <span class='label label-primary'>C12</span></h5>";
+                            rez += "<p>" + data[it] + "</p>";
+                        }
+                        if(iterator % 6 == 5){ //nume
+                            rez += "<h5><span class='glyphicon glyphicon-star'></span>" + data[it] + "/5</h5>";
+                            rez += "<hr>";
+                        }
+                        iterator = iterator + 1;
+                    }
+
+
+                    $('.recenziiFacute').html(rez);
+                  });
         }
     </script>
+
 {% endblock %}
 
 {% block body %}
 
 
 <div class="btn-group">
-    <button type="button" class="btn btn-primary">Recenziile facute </button>
+    <button type="button" class="btn btn-primary" onclick="recenziiFacute('{{ nr_matricol }}')">Recenziile facute </button>
     <button type="button" class="btn btn-primary">Recenziile primite </button>
     <button type="button" class="btn btn-primary">Ultimele recenzii </button>
 </div>
@@ -87,7 +135,24 @@
     <br><br>
 </div>
 
+{% if warning %}
+    <br><br>
+    <div class="alert">
+      <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+      {{ warning }}
+    </div>
+{% endif %}
+{% if succes %}
+    <br><br>
+    <div class="success">
+      <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+      {{ succes }}
+    </div>
+{% endif %}
+
 <h4>&nbsp; Noutati</h4><hr>
+<div class="recenziiFacute"></div>
+<h2>STOP </h2>
 {% for rec in recenzii %}
     <h5><span class="glyphicon glyphicon-time"></span> Post by {{rec.1}}, {{rec.4}}.</h5>
     <h5>To: {{ rec.2 }} </h5>

@@ -9,11 +9,12 @@ from .forms import UserForm, LoginForm
 from django.views.generic import View
 from django.contrib.auth import authenticate, login, logout
 from .models import Student, Recenzie
+
 username = ""
 conn = MySQLdb.connect(host="localhost",
-                                 user="root",
-                                 passwd="Silviu01",
-                                 db="test")
+                       user="root",
+                       passwd="Silviu01",
+                       db="test")
 
 
 def index(request):
@@ -168,30 +169,48 @@ class Recenzii(View):
         student = Student.objects.get(numar_matricol=username)
         recenzii = obtine_recenzii()
         colegi = colegii_de_camera()
-        return render(request, self.template_name, {'student': student, 'recenzii': recenzii, 'colegi': colegi})
+        return render(request, self.template_name, {'student': student, 'recenzii': recenzii, 'colegi': colegi,
+                                                    'nr_matricol': username})
 
     def post(self, request):
         nume_coleg = request.POST.get('numeColeg', '')
         calificativ = request.POST.get('notaColeg', '')
         mesaj = request.POST.get('mesajColeg', '')
-# revizuit split-ul pentru diferite forme de nume
+        # revizuit split-ul pentru diferite forme de nume
         data = nume_coleg.split()
         nume = data[0]
         prenume = data[1]
         c = conn.cursor()
+
+        c.execute("SELECT numar_matricol from stable_student where nume=%s and prenume=%s", [nume, prenume])
+        nr_matricol = c.fetchone()
+
+        colegi = colegii_de_camera()
+        student = Student.objects.get(numar_matricol=username)
+        c.execute("SELECT * from stable_recenzie where from_uid=%s and to_uid=%s", [username, nr_matricol])
+        data = c.fetchone()
+
+        if data:
+            recenzii = obtine_recenzii()
+            warning = "Exista deja o recenzie facuta pentru " + nume + " " + prenume
+            return render(request, self.template_name, {'student': student, 'recenzii': recenzii, 'colegi': colegi,
+                                                        'warning': warning, "nr_matricol": username})
+
         c.execute("SELECT numar_matricol from stable_student where nume=%s and prenume=%s", [nume, prenume])
         nr_matricol = c.fetchone()
         c.execute("INSERT into stable_recenzie(from_uid, to_uid, mesaj, calificativ, data) "
                   "VALUES(%s, %s, %s, %s, %s)", [username, nr_matricol, mesaj, calificativ, datetime.date.today()])
         conn.commit()
         c.close()
-        #Recenzii.get(self, request)
-        student = Student.objects.get(numar_matricol=username)
         recenzii = obtine_recenzii()
-        colegi = colegii_de_camera()
+        succes = "Recenzia pentru " + nume + " " + prenume + " a fost adaugata."
         return render(request, self.template_name, {'student': student, 'recenzii': recenzii, 'colegi': colegi,
-                                                    'nume': nume_coleg, 'nota': calificativ, 'mesaj': mesaj})
+                                                    'succes': succes, "nr_matricol": username})
 
+
+###############################################################################################################
+######################################## Functii pentru apelurile AJAX ########################################
+###############################################################################################################
 
 def display_info_coleg(request):
     coleg = request.GET.get('numeColeg', None)
@@ -213,4 +232,35 @@ def display_info_coleg(request):
             data['Poza:'] = "3.png"
         else:
             data['Poza:'] = "4.jpg"
+    return JsonResponse(data)
+
+
+def recenzii_facute(request):
+    nr_matricol = request.GET.get('nr_matricol', None)
+
+    recenzii = []
+    c = conn.cursor()
+
+    c.execute("SELECT * FROM stable_recenzie where from_uid=%s order by data desc", [nr_matricol])
+    for recenzie in c.fetchall():
+        recenzii.append(list(recenzie))
+    for i in range(0, len(recenzii)):
+        # aflam numele expeditorului
+        c.execute("SELECT prenume, nume FROM stable_student where numar_matricol=%s", [recenzii[i][1]])
+        nume = c.fetchone()
+        recenzii[i][1] = nume[0] + ' ' + nume[1]
+
+        # aflam numele destinatarului
+        c.execute("SELECT prenume, nume FROM stable_student where numar_matricol=%s", [recenzii[i][2]])
+        nume = c.fetchone()
+        recenzii[i][2] = nume[0] + ' ' + nume[1]
+    c.close()
+
+    data = {}
+    it = 0
+    for rec in recenzii:
+        for i in rec:
+            eticheta = 'info' + str(it)
+            it += 1
+            data[eticheta] = i
     return JsonResponse(data)
