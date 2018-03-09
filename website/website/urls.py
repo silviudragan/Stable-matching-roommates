@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^logout/$', views.Logout.as_view(), name='logout'),
     url(r'^ajax/validate_username/$', views.display_info_coleg, name='display_info_coleg'),
     url(r'^ajax/recenzii_facute/$', views.recenzii_facute, name='recenzii_facute'),
+    url(r'^ajax/recenzii_primite/$', views.recenzii_primite, name='recenzii_primite'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

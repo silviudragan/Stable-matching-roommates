@@ -264,3 +264,34 @@ def recenzii_facute(request):
             it += 1
             data[eticheta] = i
     return JsonResponse(data)
+
+
+def recenzii_primite(request):
+    nr_matricol = request.GET.get('nr_matricol', None)
+
+    recenzii = []
+    c = conn.cursor()
+
+    c.execute("SELECT * FROM stable_recenzie where to_uid=%s order by data desc", [nr_matricol])
+    for recenzie in c.fetchall():
+        recenzii.append(list(recenzie))
+    for i in range(0, len(recenzii)):
+        # aflam numele expeditorului
+        c.execute("SELECT prenume, nume FROM stable_student where numar_matricol=%s", [recenzii[i][1]])
+        nume = c.fetchone()
+        recenzii[i][1] = nume[0] + ' ' + nume[1]
+
+        # aflam numele destinatarului
+        c.execute("SELECT prenume, nume FROM stable_student where numar_matricol=%s", [recenzii[i][2]])
+        nume = c.fetchone()
+        recenzii[i][2] = nume[0] + ' ' + nume[1]
+    c.close()
+
+    data = {}
+    it = 0
+    for rec in recenzii:
+        for i in rec:
+            eticheta = 'info' + str(it)
+            it += 1
+            data[eticheta] = i
+    return JsonResponse(data)
