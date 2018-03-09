@@ -121,3 +121,48 @@ function recenziiPrimite(nr_matricol){
             $('.recenziiRealizate').html(rez);
           });
 }
+
+function toateRecenziile(){
+    var index = 0;
+    var iterator = 0;
+    var rez = "";
+    $.ajax({
+            url: '/ajax/toate_recenziile/',
+            type: 'get',
+            dataType: 'json',
+          }).done(function(data){
+            console.log(data);
+            var date = [];
+            for(it in data){
+                if(iterator % 6 == 4){ //nume de la
+                    date.push(data[it]);
+                }
+                iterator = iterator + 1;
+            }
+            iterator = 0;
+            console.log(date);
+            for(it in data){
+
+                console.log(iterator%6);
+                if(iterator % 6 == 1){ //nume de la
+                    rez += "<h5><span class='glyphicon glyphicon-time'></span> Post by " + data[it] + ", " + date[index] + ".</h5>";
+                    index = index + 1;
+                }
+                if(iterator % 6 == 2){ //nume pt rec
+                    rez += "<h5>To:"+ data[it] + "</h5>";
+                }
+                if(iterator % 6 == 3){ //text
+                    rez += "<h5><span class='label label-danger'>Coleg</span> <span class='label label-primary'>C12</span></h5>";
+                    rez += "<p>" + data[it] + "</p>";
+                }
+                if(iterator % 6 == 5){ //stele
+                    rez += "<h5><span class='glyphicon glyphicon-star'></span>" + data[it] + "/5</h5>";
+                    rez += "<hr>";
+                }
+                iterator = iterator + 1;
+            }
+
+
+            $('.recenziiRealizate').html(rez);
+          });
+}
