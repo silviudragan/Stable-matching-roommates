@@ -18,10 +18,7 @@ conn = MySQLdb.connect(host="localhost",
 
 
 def index(request):
-    context = {
-        'salut': "Buna ziua"
-    }
-    return render(request, 'stable/index.html', context)
+    return render(request, 'stable/index.html')
 
 
 class Login(View):
