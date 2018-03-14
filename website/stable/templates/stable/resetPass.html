@@ -28,11 +28,11 @@ body{
 
     <form class="well form-horizontal" action="" method="post">
     {% csrf_token %}
-        <center><h2><b> Formular de inregistrare </b></h2></center><br>
+        <center><h2><b> Formular de resetare a parolei </b></h2></center><br>
 
 
         <div class="form-group">
-          <label class="col-md-4 control-label">Număr matricol</label>
+          <label class="col-md-4 control-label">Cod Verificare</label>
           <div class="col-md-4 inputGroupContainer">
             <div class="input-group">
               <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
@@ -72,20 +72,11 @@ body{
         </div>
         {% endif %}
 
-        <div class="form-group">
-          <label class="col-md-4 control-label"></label>
-            <div class="col-md-4">
-                <a href="#infoContent" data-toggle="collapse"> De retinut! </a>
-                <div id="infoContent" class="collapse">
-                    Studentii din anul 1 daca au uitat parola nu vor putea sa o recupereze pana cand nu vor avea cont de webmail.
-                </div>
-            </div>
-        </div>
 
         <div class="form-group">
           <label class="col-md-4 control-label"></label>
           <div class="col-md-4"><br>
-            <center><button type="submit" class="btn btn-warning" > Inregistrare <span class="glyphicon glyphicon-send"></span></button></center>
+            <center><button type="submit" class="btn btn-warning" > Schimbare parola <span class="glyphicon glyphicon-send"></span></button></center>
           </div>
         </div>
 

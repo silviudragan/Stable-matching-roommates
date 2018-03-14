@@ -11,6 +11,7 @@ from django.contrib.auth import authenticate, login, logout
 from .models import Student, Recenzie
 
 username = ""
+email = ""
 conn = MySQLdb.connect(host="localhost",
                        user="root",
                        passwd="Silviu01",
@@ -31,15 +32,21 @@ class Login(View):
 
     def post(self, request):
         global username
-        username = request.POST.get('nr_matricol', '')
-        password = request.POST.get('parola', '')
-        user = authenticate(username=username, password=password)
+        username = request.POST.get('nr_matricol', None)
+        password = request.POST.get('parola', None)
+        emailRecParola = request.POST.get('emailRecParola', None)
+        if emailRecParola is None:
+            user = authenticate(username=username, password=password)
 
-        if user is not None:
-            login(request, user)
-            return redirect('index')
+            if user is not None:
+                login(request, user)
+                return redirect('index')
+            else:
+                return render(request, 'stable/login.html')
         else:
-            return render(request, 'stable/login.html')
+            global email
+            email = emailRecParola
+            return redirect('resetPass')
 
 
 class UserFormView(View):
@@ -321,3 +328,13 @@ def toate_recenziile(request):
             it += 1
             data[eticheta] = i
     return JsonResponse(data)
+
+
+class ResetPass(View):
+    template_name = 'stable/resetPass.html'
+
+    def get(self, request):
+        return render(request, self.template_name, {'email': email})
+
+    def post(self, request):
+        pass

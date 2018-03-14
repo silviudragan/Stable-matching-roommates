@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^login/$', views.Login.as_view(), name='login'),
     url(r'^register/$', views.UserFormView.as_view(), name='register'),
     url(r'^logout/$', views.Logout.as_view(), name='logout'),
+    url(r'^resetPass/$', views.ResetPass.as_view(), name='resetPass'),
     url(r'^ajax/validate_username/$', views.display_info_coleg, name='display_info_coleg'),
     url(r'^ajax/recenzii_facute/$', views.recenzii_facute, name='recenzii_facute'),
     url(r'^ajax/recenzii_primite/$', views.recenzii_primite, name='recenzii_primite'),
