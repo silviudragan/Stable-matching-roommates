@@ -5,6 +5,8 @@
 {% load staticfiles %}
 {% block head %}
 <link rel="shortcut icon" type="image/png" href="{% static 'stable/images/5.png' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css.css' %}">
+<script src="{% static 'javascript.js' %}"></script>
 {% endblock %}
 <style>
 body{
@@ -53,16 +55,35 @@ body{
                     <a data-toggle="modal" data-target="#myModal" style="margin-left:20%;">Recuperare parola</a>
                 </div>
             </div>
-
-
         </div>
+
+        <center>
+            <div style="text-align: center;">
+                {% if mesaj_reset %}
+                    <br><br>
+                    <div class="success">
+                      <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                      {{ mesaj_reset }}
+                    </div>
+                {% endif %}
+
+                {% if mesaj_email %}
+                    <br><br>
+                    <div class="alert">
+                      <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                      {{ mesaj_email }}
+                    </div>
+                {% endif %}
+            </div>
+        </center>
 
         <div class="form-group">
           <label class="col-md-4 control-label"></label>
-          <div class="col-md-4"><br>
+          <div class="col-md-4">
             <center><button type="submit" class="btn btn-warning" > Logare <span class="glyphicon glyphicon-log-in"></span></button></center>
           </div>
         </div>
+
 
     </form>
 

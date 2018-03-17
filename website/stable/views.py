@@ -1,5 +1,10 @@
+import random
+import string
+
 import MySQLdb
 import datetime
+
+from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.db.backends import mysql
 from django.http import HttpResponse
@@ -46,6 +51,9 @@ class Login(View):
         else:
             global email
             email = emailRecParola
+            if "@info.uaic.ro" not in email:
+                mesaj = "Emailul introdus nu este falid sau nu apartine domeniului facultatii."
+                return render(request, 'stable/login.html', {'mesaj_email': mesaj})
             return redirect('resetPass')
 
 
@@ -329,12 +337,74 @@ def toate_recenziile(request):
             data[eticheta] = i
     return JsonResponse(data)
 
+###############################################################################################################
+###############################################################################################################
+###############################################################################################################
+
+
+def trimite_email(destinatar, cod_verificare):
+    import smtplib
+    gmail_user = "stablematchingroommates@gmail.com"
+    gmail_pwd = "StableRommates135680"
+    SUBJECT = "Resetare parola"
+    TEXT = "Foloseste codul urmator pentru resetarea parolei: " + cod_verificare + "."
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.ehlo()
+
+    server = smtplib.SMTP_SSL('smtp.googlemail.com', 465)
+
+    server.login(gmail_user, gmail_pwd)
+    BODY = '\r\n'.join(['To: %s' % destinatar,
+                        'From: %s' % gmail_user,
+                        'Subject: %s' % SUBJECT,
+                        '', TEXT])
+
+    server.sendmail(gmail_user, destinatar, BODY)
+
+    print('email sent')
+
+
+def id_generator(size=7, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
+
 
 class ResetPass(View):
     template_name = 'stable/resetPass.html'
 
     def get(self, request):
+        cod_verificare = id_generator()
+        c = conn.cursor()
+
+        c.execute("UPDATE stable_student set cod_reset_parola=%s", [cod_verificare])
+        conn.commit()
+        c.close()
+
+        trimite_email(email, cod_verificare)
         return render(request, self.template_name, {'email': email})
 
     def post(self, request):
-        pass
+        codVerificare = request.POST.get('codVerificare', '')
+        password = request.POST.get('password', '')
+        re_password = request.POST.get('re_password', '')
+
+        c = conn.cursor()
+        c.execute("SELECT cod_reset_parola, numar_matricol from stable_student where email=%s", [email])
+        cod_valid, username = c.fetchone()
+
+        if codVerificare == cod_valid:
+            if password == re_password:
+                user = User.objects.get(username=username)
+                user.set_password(password)
+                user.save()
+                c.execute("UPDATE stable_student set cod_reset_parola=''")
+                conn.commit()
+                mesaj = "Parola a fost schimbata cu succes"
+                return redirect('login')
+                # return render(request, 'stable/login.html', {'mesaj_reset': mesaj})
+
+            mesaj = "Parolele nu se potrivesc"
+            return render(request, 'stable/resetPass.html', {'mesaj_reset': mesaj})
+
+        c.close()
+        mesaj = "Codul de verificare nu este valid"
+        return render(request, 'stable/resetPass.html', {'mesaj_reset': mesaj})

@@ -9,6 +9,8 @@ class Student(models.Model):
     grupa = models.CharField(max_length=5)
     sex = models.CharField(max_length=5)
     poza_profil = models.FileField(default='1')
+    email = models.CharField(max_length=50, default="")
+    cod_reset_parola = models.CharField(max_length=8, default="")
 
     def __str__(self):
         return self.numar_matricol + ' - ' + self.nume + ' ' + self.prenume
