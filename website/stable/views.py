@@ -32,8 +32,9 @@ class Login(View):
     template_name = 'stable/login.html'
 
     def get(self, request):
+        succes_email = request.GET.get('p', None)
         form = self.form_class(None)
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {'form': form, 'succes_email': succes_email})
 
     def post(self, request):
         global username
@@ -51,7 +52,8 @@ class Login(View):
         else:
             global email
             email = emailRecParola
-            if "@info.uaic.ro" not in email:
+# if "@info.uaic.ro" not in email: ##################################################
+            if "@yahoo.com" not in email:
                 mesaj = "Emailul introdus nu este falid sau nu apartine domeniului facultatii."
                 return render(request, 'stable/login.html', {'mesaj_email': mesaj})
             return redirect('resetPass')
@@ -398,8 +400,9 @@ class ResetPass(View):
                 user.save()
                 c.execute("UPDATE stable_student set cod_reset_parola=''")
                 conn.commit()
-                mesaj = "Parola a fost schimbata cu succes"
-                return redirect('login')
+                mesaj = "succes"
+                return redirect('/login/?p=%s' % mesaj)
+                # return redirect('login')
                 # return render(request, 'stable/login.html', {'mesaj_reset': mesaj})
 
             mesaj = "Parolele nu se potrivesc"
