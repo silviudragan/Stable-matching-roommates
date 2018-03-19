@@ -10,6 +10,7 @@ from django.db.backends import mysql
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
+
 from .forms import UserForm, LoginForm
 from django.views.generic import View
 from django.contrib.auth import authenticate, login, logout
@@ -53,7 +54,7 @@ class Login(View):
             global email
             email = emailRecParola
 # if "@info.uaic.ro" not in email: ##################################################
-            if "@yahoo.com" not in email:
+            if "@yahoo.com" not in email and "gmail" not in email:
                 mesaj = "Emailul introdus nu este falid sau nu apartine domeniului facultatii."
                 return render(request, 'stable/login.html', {'mesaj_email': mesaj})
             return redirect('resetPass')
@@ -117,9 +118,25 @@ class Profil(View):
 
         try:
             student = Student.objects.get(numar_matricol=username)
+            c = conn.cursor()
+            c.execute("SELECT * from stable_repartizare where numar_matricol=%s", [username])
+            data = c.fetchall()
+
+            colegi_camin = []
+            if len(data) == 0:
+                warning = "Din nefericire nu aveti loc in camin"
+            else:
+                c.execute("SELECT s.nume, s.prenume from stable_student s "
+                          "join stable_repartizare r on r.numar_matricol = s.numar_matricol "
+                          "where r.camin=%s and s.numar_matricol!=%s", [data[0][2], username])
+                data = c.fetchall()
+                for it in data:
+                    colegi_camin.append(it[0] + ' ' + it[1])
+            c.close()
         except Exception:
             return render(request, self.template_name)
-        return render(request, self.template_name, {'student': student})
+
+        return render(request, self.template_name, {'student': student, 'colegi_camin': colegi_camin})
 
     def post(self, request):
         c = conn.cursor()
@@ -192,6 +209,14 @@ class Recenzii(View):
         mesaj = request.POST.get('mesajColeg', '')
         # revizuit split-ul pentru diferite forme de nume
         data = nume_coleg.split()
+
+        if nume_coleg == '':
+            student = Student.objects.get(numar_matricol=username)
+            recenzii = obtine_recenzii()
+            colegi = colegii_de_camera()
+            warning = "Nu a fost selectat nici un nume pentru recenzie"
+            return render(request, self.template_name, {'student': student, 'recenzii': recenzii, 'colegi': colegi,
+                                                        'warning': warning, "nr_matricol": username})
         nume = data[0]
         prenume = data[1]
         c = conn.cursor()
@@ -338,6 +363,12 @@ def toate_recenziile(request):
             it += 1
             data[eticheta] = i
     return JsonResponse(data)
+
+
+def preferinte_student(request):
+    nume_preferinte = request.GET.get('nume_preferinte', None)
+    print(nume_preferinte.split('+')[:-1])
+    return JsonResponse({})
 
 ###############################################################################################################
 ###############################################################################################################

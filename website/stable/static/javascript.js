@@ -219,7 +219,6 @@ function recenziiFacute(nr_matricol){
             console.log(date);
             for(it in data){
 
-                console.log(iterator%6);
                 if(iterator % 6 == 1){ //nume de la
                     rez += "<h5><span class='glyphicon glyphicon-time'></span> Post by " + data[it] + ", " + date[index] + ".</h5>";
                     index = index + 1;
@@ -267,7 +266,6 @@ function recenziiPrimite(nr_matricol){
             console.log(date);
             for(it in data){
 
-                console.log(iterator%6);
                 if(iterator % 6 == 1){ //nume de la
                     rez += "<h5><span class='glyphicon glyphicon-time'></span> Post by " + data[it] + ", " + date[index] + ".</h5>";
                     index = index + 1;
@@ -312,7 +310,6 @@ function toateRecenziile(){
             console.log(date);
             for(it in data){
 
-                console.log(iterator%6);
                 if(iterator % 6 == 1){ //nume de la
                     rez += "<h5><span class='glyphicon glyphicon-time'></span> Post by " + data[it] + ", " + date[index] + ".</h5>";
                     index = index + 1;
@@ -334,4 +331,50 @@ function toateRecenziile(){
 
             $('.recenziiRealizate').html(rez);
           });
+}
+
+function adaugareFavorit() {
+
+    var nameValue = document.getElementById("studenti").value;
+    var studenti = document.getElementById("studenti");
+    studenti.remove(studenti.selectedIndex);
+    var x = document.getElementById("favoriti");
+    options = x.getElementsByTagName("option");
+
+    var c = document.createElement("option");
+
+    if(nameValue.length > 0){
+        c.text = nameValue;
+        x.options.add(c, options.length);
+    }
+
+//    var queryString = document.getElementById("favoriti");
+//    options = queryString.getElementsByTagName("option");
+//    console.log(options[1].text);
+}
+
+function salvareFavoriti(){
+
+    var queryString = document.getElementById("favoriti");
+    options = queryString.getElementsByTagName("option");
+
+    var nume_preferinte = "";
+    for(i = 0; i < options.length; i++){
+        nume_preferinte += options[i].text + "+";
+    }
+    console.log(nume_preferinte);
+
+    if(options.length > 0){
+        $.ajax({
+                url: '/ajax/preferinte_student/',
+                type: 'get',
+                data: {
+                  'nume_preferinte': nume_preferinte,
+                },
+                dataType: 'json',
+              }).done(function(data){
+                    console.log(data);
+                });
+    }
+    console.log(nume_preferinte);
 }

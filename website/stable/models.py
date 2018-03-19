@@ -10,7 +10,7 @@ class Student(models.Model):
     sex = models.CharField(max_length=5)
     poza_profil = models.FileField(default='1')
     email = models.CharField(max_length=50, default="")
-    cod_reset_parola = models.CharField(max_length=8, default="")
+    cod_reset_parola = models.CharField(max_length=8, default="", blank=True)
 
     def __str__(self):
         return self.numar_matricol + ' - ' + self.nume + ' ' + self.prenume
@@ -24,7 +24,7 @@ class Recenzie(models.Model):
     data = models.DateField(u"Conversation Date", auto_now_add=True, blank=True)
 
     def __str__(self):
-        return self.from_uid + ' to ' + self.to_uid
+        return self.from_uid + ' catre ' + self.to_uid
 
 
 class Coleg(models.Model):
@@ -33,4 +33,18 @@ class Coleg(models.Model):
     coleg2 = models.CharField(max_length=30)
 
     def __str__(self):
-        return self.coleg1 + ' with ' +self.coleg2
+        return self.coleg1 + ' cu ' +self.coleg2
+
+
+class Repartizare(models.Model):
+    numar_matricol = models.CharField(max_length=30)
+    camin = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.numar_matricol + ' in ' + self.camin
+
+
+class Preferinte(models.Model):
+    numar_matricol = models.CharField(max_length=30)
+    uid_preferinta = models.CharField(max_length=30)
+    importanta = models.IntegerField()

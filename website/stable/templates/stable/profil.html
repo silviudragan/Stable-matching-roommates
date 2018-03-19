@@ -3,6 +3,7 @@
 {% load staticfiles %}
 
 {% block head %}
+{% csrf_token %}
 <link rel="shortcut icon" type="image/png" href="{% static 'stable/images/9.png' %}"/>
 {% endblock %}
 
@@ -47,6 +48,27 @@
 {% endblock %}
 {% block body %}
 
+    <div class="container-fluid">
+      <div class="row content">
+        <div class="col-md-4">
+            <form id="test">
+              <select id="studenti" size="8" style="width:50%;">
+                {% for item in colegi_camin %}
+                    <option> {{ item }}</option>
+                {% endfor %}
+              </select>
+            </form>
+            <button type="button" onclick="adaugareFavorit()"> Adauga persoana </button>
+        </div>
 
+        <div class="col-md-4">
+            <form>
+                <select id="favoriti" size="8" style="width:50%;">
+                </select>
+            </form>
+            <button type="button" onclick="salvareFavoriti()"> Incarca lista </button>
+        </div>
+      </div>
+    </div>
 
 {% endblock %}

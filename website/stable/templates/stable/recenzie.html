@@ -4,6 +4,11 @@
 
 {% block head %}
 <link rel="shortcut icon" type="image/png" href="{% static 'stable/images/6.png' %}"/>
+<style>
+table, th, td {
+    border: 1px solid black;
+}
+</style>
 {% endblock %}
 
 {% block body %}
@@ -79,8 +84,8 @@
 <div class="recenziiRealizate"></div>
 <h2>STOP </h2>
 {% for rec in recenzii %}
-    <h5><span class="glyphicon glyphicon-time"></span> Post by {{rec.1}}, {{rec.4}}.</h5>
-    <h5>To: {{ rec.2 }} </h5>
+    <h5><span class="glyphicon glyphicon-time"></span> Postat de {{rec.1}}, {{rec.4}}.</h5>
+    <h5>Către: {{ rec.2 }} </h5>
     <h5><span class="label label-danger">Coleg</span> <span class="label label-primary">C12</span></h5><br>
     <p> {{ rec.3 }}</p>
     <hr>
