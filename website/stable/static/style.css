@@ -1,0 +1,95 @@
+.row.content {height: 1200px}
+
+.sidenav {
+  background-color: #f1f1f1;
+  height: 100%;
+}
+
+footer {
+  background-color: #555;
+  color: white;
+  padding: 15px;
+}
+
+@media screen and (max-width: 767px) {
+  .sidenav {
+    height: auto;
+    padding: 15px;
+  }
+  .row.content {height: auto;}
+}
+
+/* alert cand exista deja o recenzie pentru o persoana */
+.alert {
+    padding: 15px;
+    background-color: #f44336; /* Red */
+    color: white;
+    margin-bottom: 15px;
+}
+
+.success{
+    padding: 15px;
+    background-color: #3333ff; /* Red */
+    color: white;
+    margin-bottom: 15px;
+}
+
+.closebtn {
+    margin-left: 15px;
+    color: white;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 25px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.closebtn:hover {
+    color: black;
+}
+
+
+#snackbarWarn{
+    visibility: hidden;
+    min-width: 250px;
+    margin-left: -265px;
+    background-color: Tomato;
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 80px;
+    font-size: 17px;
+}
+
+#snackbarSucces{
+    visibility: hidden;
+    min-width: 250px;
+    margin-left: -180px;
+    background-color: MediumSeaGreen;
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 80px;
+    font-size: 17px;
+}
+
+#snackbarWarn.show {
+    visibility: visible;
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+#snackbarSucces.show {
+    visibility: visible;
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}

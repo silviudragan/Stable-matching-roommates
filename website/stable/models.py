@@ -48,3 +48,6 @@ class Preferinte(models.Model):
     numar_matricol = models.CharField(max_length=30)
     uid_preferinta = models.CharField(max_length=30)
     importanta = models.IntegerField()
+
+    def __str__(self):
+        return self.numar_matricol + ' -> ' + self.uid_preferinta

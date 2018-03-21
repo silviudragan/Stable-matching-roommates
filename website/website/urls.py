@@ -4,6 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from stable import views
+from stable import administrator
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -12,6 +13,7 @@ urlpatterns = [
     url(r'^register/$', views.UserFormView.as_view(), name='register'),
     url(r'^logout/$', views.Logout.as_view(), name='logout'),
     url(r'^resetPass/$', views.ResetPass.as_view(), name='resetPass'),
+    url(r'^administrator/$', administrator.Administrator.as_view(), name='administrator'),
     url(r'^ajax/validate_username/$', views.display_info_coleg, name='display_info_coleg'),
     url(r'^ajax/recenzii_facute/$', views.recenzii_facute, name='recenzii_facute'),
     url(r'^ajax/recenzii_primite/$', views.recenzii_primite, name='recenzii_primite'),

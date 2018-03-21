@@ -47,6 +47,8 @@ class Login(View):
 
             if user is not None:
                 login(request, user)
+                if username == "admin":
+                    return redirect('administrator')
                 return redirect('index')
             else:
                 return render(request, 'stable/login.html')
@@ -247,9 +249,20 @@ class Recenzii(View):
                                                     'succes': succes, "nr_matricol": username})
 
 
+def aflare_nr_matricol(nume):
+    data = nume.split()
+    prenume = data[1:]
+    nume = data[0]
+    c = conn.cursor()
+    c.execute("SELECT numar_matricol from stable_student where nume=%s and prenume=%s", [nume, prenume])
+    data = c.fetchone()
+    c.close()
+    return data
+
 ###############################################################################################################
 ######################################## Functii pentru apelurile AJAX ########################################
 ###############################################################################################################
+
 
 def display_info_coleg(request):
     coleg = request.GET.get('numeColeg', None)
@@ -367,7 +380,15 @@ def toate_recenziile(request):
 
 def preferinte_student(request):
     nume_preferinte = request.GET.get('nume_preferinte', None)
-    print(nume_preferinte.split('+')[:-1])
+    lista_preferinte = nume_preferinte.split('+')[:-1]
+    c = conn.cursor()
+    importanta = 1
+    for item in lista_preferinte:
+        nr_matricol = aflare_nr_matricol(item)
+        c.execute('INSERT into stable_preferinte (numar_matricol, uid_preferinta, importanta) values (%s, %s, %s)', [username, nr_matricol, importanta])
+        importanta += 1
+    conn.commit()
+    c.close()
     return JsonResponse({})
 
 ###############################################################################################################
