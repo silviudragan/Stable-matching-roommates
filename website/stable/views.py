@@ -6,6 +6,7 @@ import datetime
 
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
+from django.core.paginator import Paginator
 from django.db.backends import mysql
 from django.http import HttpResponse
 from django.http import JsonResponse
@@ -194,18 +195,21 @@ def obtine_recenzii():
     c.close()
     return recenzii
 
-
+ITEMS_ON_PAGE = 3
 class Recenzii(View):
     template_name = 'stable/recenzie.html'
 
     def get(self, request):
+        page = request.GET.get('page', 1)
         student = Student.objects.get(numar_matricol=username)
         recenzii = obtine_recenzii()
+        p = Paginator(recenzii, ITEMS_ON_PAGE)
         colegi = colegii_de_camera()
-        return render(request, self.template_name, {'student': student, 'recenzii': recenzii, 'colegi': colegi,
+        return render(request, self.template_name, {'student': student, 'recenzii': p.page(page), 'colegi': colegi,
                                                     'nr_matricol': username})
 
     def post(self, request):
+        page = request.GET.get('page', 1)
         nume_coleg = request.POST.get('numeColeg', '')
         calificativ = request.POST.get('notaColeg', '')
         mesaj = request.POST.get('mesajColeg', '')
@@ -216,8 +220,9 @@ class Recenzii(View):
             student = Student.objects.get(numar_matricol=username)
             recenzii = obtine_recenzii()
             colegi = colegii_de_camera()
+            p = Paginator(recenzii, ITEMS_ON_PAGE)
             warning = "Nu a fost selectat nici un nume pentru recenzie"
-            return render(request, self.template_name, {'student': student, 'recenzii': recenzii, 'colegi': colegi,
+            return render(request, self.template_name, {'student': student, 'recenzii': p.page(page), 'colegi': colegi,
                                                         'warning': warning, "nr_matricol": username})
         nume = data[0]
         prenume = data[1]
@@ -234,7 +239,8 @@ class Recenzii(View):
         if data:
             recenzii = obtine_recenzii()
             warning = "Exista deja o recenzie facuta pentru " + nume + " " + prenume
-            return render(request, self.template_name, {'student': student, 'recenzii': recenzii, 'colegi': colegi,
+            p = Paginator(recenzii, ITEMS_ON_PAGE)
+            return render(request, self.template_name, {'student': student, 'recenzii': p.page(page), 'colegi': colegi,
                                                         'warning': warning, "nr_matricol": username})
 
         c.execute("SELECT numar_matricol from stable_student where nume=%s and prenume=%s", [nume, prenume])
@@ -245,7 +251,8 @@ class Recenzii(View):
         c.close()
         recenzii = obtine_recenzii()
         succes = "Recenzia pentru " + nume + " " + prenume + " a fost adaugata."
-        return render(request, self.template_name, {'student': student, 'recenzii': recenzii, 'colegi': colegi,
+        p = Paginator(recenzii, ITEMS_ON_PAGE)
+        return render(request, self.template_name, {'student': student, 'recenzii': p.page(page), 'colegi': colegi,
                                                     'succes': succes, "nr_matricol": username})
 
 
