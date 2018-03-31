@@ -119,25 +119,25 @@ class Profil(View):
 
     def get(self, request):
 
-        try:
-            student = Student.objects.get(numar_matricol=username)
-            c = conn.cursor()
-            c.execute("SELECT * from stable_repartizare where numar_matricol=%s", [username])
-            data = c.fetchall()
+        if len(username) == 0:
+            return redirect('login')
+        
+        student = Student.objects.get(numar_matricol=username)
+        c = conn.cursor()
+        c.execute("SELECT * from stable_repartizare where numar_matricol=%s", [username])
+        data = c.fetchall()
 
-            colegi_camin = []
-            if len(data) == 0:
-                warning = "Din nefericire nu aveti loc in camin"
-            else:
-                c.execute("SELECT s.nume, s.prenume from stable_student s "
-                          "join stable_repartizare r on r.numar_matricol = s.numar_matricol "
-                          "where r.camin=%s and s.numar_matricol!=%s", [data[0][2], username])
-                data = c.fetchall()
-                for it in data:
-                    colegi_camin.append(it[0] + ' ' + it[1])
-            c.close()
-        except Exception:
-            return render(request, self.template_name)
+        colegi_camin = []
+        if len(data) == 0:
+            warning = "Din nefericire nu aveti loc in camin"
+        else:
+            c.execute("SELECT s.nume, s.prenume from stable_student s "
+                      "join stable_repartizare r on r.numar_matricol = s.numar_matricol "
+                      "where r.camin=%s and s.numar_matricol!=%s", [data[0][2], username])
+            data = c.fetchall()
+            for it in data:
+                colegi_camin.append(it[0] + ' ' + it[1])
+        c.close()
 
         return render(request, self.template_name, {'student': student, 'colegi_camin': colegi_camin})
 
@@ -204,6 +204,9 @@ class Recenzii(View):
 
     def get(self, request):
         page = request.GET.get('page', 1)
+        if len(username) == 0:
+            return redirect('login')
+
         student = Student.objects.get(numar_matricol=username)
         recenzii = obtine_recenzii()
         p = Paginator(recenzii, ITEMS_ON_PAGE)
