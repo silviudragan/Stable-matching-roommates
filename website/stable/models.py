@@ -51,3 +51,4 @@ class Preferinte(models.Model):
 
     def __str__(self):
         return self.numar_matricol + ' -> ' + self.uid_preferinta
+

@@ -56,7 +56,7 @@ class Login(View):
         else:
             global email
             email = emailRecParola
-# if "@info.uaic.ro" not in email: ##################################################
+            # if "@info.uaic.ro" not in email: ##################################################
             if "@yahoo.com" not in email and "gmail" not in email:
                 mesaj = "Emailul introdus nu este falid sau nu apartine domeniului facultatii."
                 return render(request, 'stable/login.html', {'mesaj_email': mesaj})
@@ -195,7 +195,10 @@ def obtine_recenzii():
     c.close()
     return recenzii
 
+
 ITEMS_ON_PAGE = 3
+
+
 class Recenzii(View):
     template_name = 'stable/recenzie.html'
 
@@ -265,6 +268,7 @@ def aflare_nr_matricol(nume):
     data = c.fetchone()
     c.close()
     return data
+
 
 ###############################################################################################################
 ######################################## Functii pentru apelurile AJAX ########################################
@@ -392,11 +396,13 @@ def preferinte_student(request):
     importanta = 1
     for item in lista_preferinte:
         nr_matricol = aflare_nr_matricol(item)
-        c.execute('INSERT into stable_preferinte (numar_matricol, uid_preferinta, importanta) values (%s, %s, %s)', [username, nr_matricol, importanta])
+        c.execute('INSERT into stable_preferinte (numar_matricol, uid_preferinta, importanta) values (%s, %s, %s)',
+                  [username, nr_matricol, importanta])
         importanta += 1
     conn.commit()
     c.close()
     return JsonResponse({})
+
 
 ###############################################################################################################
 ###############################################################################################################
@@ -404,6 +410,8 @@ def preferinte_student(request):
 
 
 def trimite_email(destinatar, cod_verificare):
+    # implementare care a functionat pentru o perioada de timp, iar dupa din motive necunoscute nu a mai functionat
+    """
     import smtplib
     gmail_user = "stablematchingroommates@gmail.com"
     gmail_pwd = "StableRommates135680"
@@ -421,7 +429,26 @@ def trimite_email(destinatar, cod_verificare):
                         '', TEXT])
 
     server.sendmail(gmail_user, destinatar, BODY)
+    """
 
+    import smtplib
+    fromaddr = 'stablematchingroommates@gmail.com'
+    toaddrs = destinatar
+    msg = "Foloseste codul urmator pentru resetarea parolei: " + cod_verificare + "."
+    username = 'stablematchingroommates@gmail.com'
+    password = 'StableRommates135680'
+    SUBJECT = "Resetare parola"
+
+    server = smtplib.SMTP('smtp.gmail.com:587')
+    server.ehlo()
+    BODY = '\r\n'.join(['To: %s' % destinatar,
+                        'From: %s' % fromaddr,
+                        'Subject: %s' % SUBJECT,
+                        '', msg])
+    server.starttls()
+    server.login(username, password)
+    server.sendmail(fromaddr, toaddrs, BODY)
+    server.quit()
     print('email sent')
 
 

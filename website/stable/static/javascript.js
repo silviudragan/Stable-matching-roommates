@@ -237,7 +237,7 @@ function recenziiFacute(nr_matricol){
                 iterator = iterator + 1;
             }
 
-
+            $( "testare" ).empty();
             $('.recenziiRealizate').html(rez);
           });
 }

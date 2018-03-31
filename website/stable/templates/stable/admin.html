@@ -28,11 +28,35 @@
             <div class="text-danger">Please correct the error{{ form.errors|pluralize }} below.</div>
         {% endif %}
 
-        <form class="well form-horizontal" action="" method="post">
+        <form class="well form-horizontal" action="" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <center><h2><b> Administrator </b></h2></center><br>
+                <button type="submit" class="btn btn-secondary" style="float: left; margin-left:40px;">Repartizare camin</button><br><br>
+
             <p>...to be done</p>
+
         </form>
 
     </div>
+    {% if mesaj_succes %}
+        <script>
+            window.onload = function(){
+                var x = document.getElementById("snackbarSucces")
+                x.className = "show";
+                setTimeout(function(){ x.className = x.className.replace("show", ""); }, 4000);
+            };
+        </script>
+        <div id="snackbarSucces"> {{ mesaj_succes }}</div>
+    {% endif %}
+
+    {% if mesaj_warning %}
+        <script>
+            window.onload = function(){
+                var x = document.getElementById("snackbarWarn")
+                x.className = "show";
+                setTimeout(function(){ x.className = x.className.replace("show", ""); }, 4000);
+            };
+        </script>
+        <div id="snackbarWarn"> {{ mesaj_warning }}</div>
+    {% endif %}
 </body>
