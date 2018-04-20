@@ -115,13 +115,14 @@ class Logout(View):
 
 
 class Profil(View):
+
     template_name = 'stable/profil.html'
 
     def get(self, request):
 
         if len(username) == 0:
             return redirect('login')
-        
+        print(request.user.username)
         student = Student.objects.get(numar_matricol=username)
         c = conn.cursor()
         c.execute("SELECT * from stable_repartizare where numar_matricol=%s", [username])
@@ -134,12 +135,13 @@ class Profil(View):
             c.execute("SELECT s.nume, s.prenume from stable_student s "
                       "join stable_repartizare r on r.numar_matricol = s.numar_matricol "
                       "where r.camin=%s and s.numar_matricol!=%s", [data[0][2], username])
+            nume_camin = data[0][2]
             data = c.fetchall()
             for it in data:
                 colegi_camin.append(it[0] + ' ' + it[1])
         c.close()
 
-        return render(request, self.template_name, {'student': student, 'colegi_camin': colegi_camin})
+        return render(request, self.template_name, {'student': student, 'colegi_camin': colegi_camin, 'nume_camin': nume_camin})
 
     def post(self, request):
         c = conn.cursor()
@@ -152,7 +154,7 @@ class Profil(View):
         except Exception:
             pass  # nu a fost incarcat nimic
         student = Student.objects.get(numar_matricol=username)
-        return render(request, self.template_name, {'student': student})
+        return render(request, self.template_name, {'student': student, 'mesaj': "mesaj"})
 
 
 # o lista cu colegii de camera cu care a stat sau inca sta studentul cu respectivul numar matricol

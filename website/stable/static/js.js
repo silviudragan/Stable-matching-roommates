@@ -353,6 +353,21 @@ function adaugareFavorit() {
 //    console.log(options[1].text);
 }
 
+function eliminareFavorit(){
+    var nameValue = document.getElementById("favoriti").value;
+    var studenti_alesi = document.getElementById("favoriti");
+    studenti_alesi.remove(studenti_alesi.selectedIndex);
+
+    var studenti = document.getElementById("studenti");
+    options = studenti.getElementsByTagName("option");
+
+    var c = document.createElement("option");
+    if(nameValue.length > 0){
+        c.text = nameValue;
+        studenti.options.add(c, 0);
+    }
+}
+
 function salvareFavoriti(){
 
     var queryString = document.getElementById("favoriti");
