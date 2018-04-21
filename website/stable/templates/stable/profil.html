@@ -48,34 +48,42 @@
 
 {% block body %}
 
-    <p>&nbsp;&nbsp;&nbsp; In lista de mai jos sunt studenții care au fost repartizați în {{nume_camin}}...așa ca tine, deci nu mai sta pe gânduri și alege cu cine
-    ai vrea să stai în cameră în următorul an. </p>
-    <p>&nbsp;&nbsp;&nbsp; Nu uita trebuie să selectezi persoanele în ordinea preferințelor, fie că este o singură persoană sau toate. </p><br>
-    <div class="container-fluid">
-      <div class="row content">
-        <div class="col-md-2 col-xs-0"></div>
-        <div class="col-md-4 col-xs-6">
-            <form>
-              <select id="studenti" size="8" style="width:70%;">
-                {% for item in colegi_camin %}
-                    <option> {{ item }}</option>
-                {% endfor %}
-              </select>
-            </form>
-            <button type="button" class="btn btn-secondary" onclick="adaugareFavorit()" style="width:70%;"> Adauga persoana </button>
+    {% if introdus_preferinte %}
+        <div class="alert-success" style="padding: 15px;
+    background-color: green;
+    color: white;
+    margin-bottom: 15px;">
+            <strong>Success!</strong> Preferintele au fost incarcate.
         </div>
+    {% else %}
+        <p>&nbsp;&nbsp;&nbsp; In lista de mai jos sunt studenții care au fost repartizați în {{nume_camin}}...așa ca tine, deci nu mai sta pe gânduri și alege cu cine
+        ai vrea să stai în cameră în următorul an. </p>
+        <p>&nbsp;&nbsp;&nbsp; Nu uita trebuie să selectezi persoanele în ordinea preferințelor, fie că este o singură persoană sau toate. </p><br>
+        <div class="container-fluid">
+          <div class="row content">
+            <div class="col-md-2 col-xs-0"></div>
+            <div class="col-md-4 col-xs-6">
+                <form>
+                  <select id="studenti" size="8" style="width:70%;">
+                    {% for item in colegi_camin %}
+                        <option> {{ item }}</option>
+                    {% endfor %}
+                  </select>
+                </form>
+                <button type="button" class="btn btn-secondary" onclick="adaugareFavorit()" style="width:70%;"> Adauga persoana </button>
+            </div>
 
-        <div class="col-md-4 col-xs-6">
-            <form action="" method="post">
-                {% csrf_token %}
-                <select id="favoriti" size="8" style="width:70%;">
-                </select>
-            </form>
-            <button type="button" class="btn btn-secondary" onclick="salvareFavoriti()" style="width:34%;"> Incarca lista </button>
-            <button type="button" class="btn btn-secondary" onclick="eliminareFavorit()" style="width:34%;"> Elimina </button>
+            <div class="col-md-4 col-xs-6">
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <select id="favoriti" size="8" style="width:70%;">
+                    </select>
+                    <button type="submit" class="btn btn-secondary" onclick="salvareFavoriti()" style="width:34%;"> Incarca lista </button>
+                    <button type="button" class="btn btn-secondary" onclick="eliminareFavorit()" style="width:34%;"> Elimina </button>
+                </form>
+            </div>
+          </div>
         </div>
-      </div>
-        <p>{{mesaj}}</p>
-    </div>
+    {% endif %}
 
 {% endblock %}

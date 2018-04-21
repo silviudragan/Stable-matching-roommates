@@ -1,6 +1,7 @@
 from pprint import pprint
 from random import shuffle
 
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.views import View
 import MySQLdb
@@ -35,7 +36,7 @@ def incarcare_preferinte(camin):
         d['propose'] = ""
         d['accept'] = ""
 
-        c.execute("SELECT * from stable_preferinte where numar_matricol=%s order by importanta", [numar_matricol])
+        c.execute("SELECT * from stable_preferinta where numar_matricol=%s order by importanta", [numar_matricol])
         data_pref = c.fetchall()
         studenti_preferati = []
         for i in data_pref:
@@ -194,6 +195,8 @@ class Administrator(View):
         return render(request, self.template_name)
 
     def post(self, request):
+        print("rec:", request)
+        print("self:", self)
         try:
             stable('C12')
         except:
@@ -202,3 +205,8 @@ class Administrator(View):
         pprint(students)
         mesaj = "Repartizarea a fost facuta cu succes."
         return render(request, self.template_name, {'mesaj_succes': mesaj})
+
+
+def avansare_an_studiu(request):
+    print("avansare an studiu")
+    return JsonResponse({})

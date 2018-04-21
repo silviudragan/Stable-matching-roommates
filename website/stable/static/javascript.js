@@ -393,3 +393,15 @@ function salvareFavoriti(){
     }
     console.log(nume_preferinte);
 }
+
+function avansareAn(){
+    $.ajax({
+        url: '/ajax/avansare_an_studiu/',
+        type: 'get',
+        data: {},
+        dataType: 'json',
+    }).done(function(data){
+        console.log(data);
+        console.log("silviuuu");
+    });
+}

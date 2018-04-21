@@ -19,6 +19,7 @@ urlpatterns = [
     url(r'^ajax/recenzii_primite/$', views.recenzii_primite, name='recenzii_primite'),
     url(r'^ajax/toate_recenziile/$', views.toate_recenziile, name='toate_recenziile'),
     url(r'^ajax/preferinte_student/$', views.preferinte_student, name='preferinte_student'),
+    url(r'^ajax/avansare_an_studiu/$', administrator.avansare_an_studiu, name='avansare_an_studiu'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

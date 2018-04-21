@@ -44,7 +44,7 @@ class Repartizare(models.Model):
         return self.numar_matricol + ' in ' + self.camin
 
 
-class Preferinte(models.Model):
+class Preferinta(models.Model):
     numar_matricol = models.CharField(max_length=30)
     uid_preferinta = models.CharField(max_length=30)
     importanta = models.IntegerField()

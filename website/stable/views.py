@@ -116,18 +116,22 @@ class Logout(View):
 
 class Profil(View):
 
+    def verificare_introducere_preferinte(self):
+        c = conn.cursor()
+        c.execute("SELECT * from stable_preferinta where numar_matricol=%s", [username])
+        data = c.fetchall()
+        if len(data) == 0:
+            return False
+        else:
+            return True
+
     template_name = 'stable/profil.html'
 
-    def get(self, request):
-
-        if len(username) == 0:
-            return redirect('login')
-        print(request.user.username)
-        student = Student.objects.get(numar_matricol=username)
+    def incarcare_preferinte(self):
         c = conn.cursor()
         c.execute("SELECT * from stable_repartizare where numar_matricol=%s", [username])
         data = c.fetchall()
-
+        nume_camin = ""
         colegi_camin = []
         if len(data) == 0:
             warning = "Din nefericire nu aveti loc in camin"
@@ -140,8 +144,19 @@ class Profil(View):
             for it in data:
                 colegi_camin.append(it[0] + ' ' + it[1])
         c.close()
+        return colegi_camin, nume_camin
 
-        return render(request, self.template_name, {'student': student, 'colegi_camin': colegi_camin, 'nume_camin': nume_camin})
+    def get(self, request):
+        if len(username) == 0:
+            return redirect('login')
+
+        student = Student.objects.get(numar_matricol=username)
+        colegi_camin, nume_camin = self.incarcare_preferinte()
+        introdus_preferinte = False
+        if self.verificare_introducere_preferinte():
+            introdus_preferinte = True
+        return render(request, self.template_name, {'student': student, 'colegi_camin': colegi_camin, 'nume_camin': nume_camin,
+                                                    'introdus_preferinte': introdus_preferinte})
 
     def post(self, request):
         c = conn.cursor()
@@ -154,7 +169,12 @@ class Profil(View):
         except Exception:
             pass  # nu a fost incarcat nimic
         student = Student.objects.get(numar_matricol=username)
-        return render(request, self.template_name, {'student': student, 'mesaj': "mesaj"})
+        colegi_camin, nume_camin = self.incarcare_preferinte()
+        introdus_preferinte = False
+        if self.verificare_introducere_preferinte():
+            introdus_preferinte = True
+        return render(request, self.template_name, {'student': student, 'colegi_camin': colegi_camin, 'nume_camin': nume_camin,
+                                                    'introdus_preferinte': introdus_preferinte})
 
 
 # o lista cu colegii de camera cu care a stat sau inca sta studentul cu respectivul numar matricol
@@ -401,7 +421,7 @@ def preferinte_student(request):
     importanta = 1
     for item in lista_preferinte:
         nr_matricol = aflare_nr_matricol(item)
-        c.execute('INSERT into stable_preferinte (numar_matricol, uid_preferinta, importanta) values (%s, %s, %s)',
+        c.execute('INSERT into stable_preferinta (numar_matricol, uid_preferinta, importanta) values (%s, %s, %s)',
                   [username, nr_matricol, importanta])
         importanta += 1
     conn.commit()
