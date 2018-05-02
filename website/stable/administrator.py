@@ -79,9 +79,9 @@ def incarcare_preferinte(camin):
         adaugare_coleg_fals(camin)
 
     c.close()
-    # print('########################################')
-    # pprint(students)
-    # print('########################################')
+    print('########################################')
+    pprint(students)
+    print('########################################')
     global copie_students
     copie_students = copy.deepcopy(students)
     global duplicat_students
@@ -173,10 +173,10 @@ def preferinte_pentru_stable_3(punctaje_perechi):
         for item in cheie.split('+'):
             single.append(item)
             punctaje_perechi[item] = 80
-    print("punctaje_perechi", punctaje_perechi)
-    print("single", single)
-    print("perechi", perechi)
-    pprint(copie_students)
+    # print("punctaje_perechi", punctaje_perechi)
+    # print("single", single)
+    # print("perechi", perechi)
+    # pprint(copie_students)
     preferinte = dict()
     for item in perechi:
         st1 = item.split('+')[0]
@@ -197,8 +197,8 @@ def preferinte_pentru_stable_3(punctaje_perechi):
             i += 1
             j += 1
         preferinte[item] = optiuni
-    print("1")
-    pprint(students)
+    # print("1")
+    # pprint(students)
     for item in single:
         for student in copie_students:
             if student['name'] == item:
@@ -217,7 +217,116 @@ def preferinte_pentru_stable_3(punctaje_perechi):
                 optiuni.append(s)
 
         preferinte[item] = optiuni
-    print("pref", preferinte)
+    # print("pref", preferinte)
+    return preferinte
+
+
+def preferinte_pentru_stable_4(punctaje_perechi):
+    perechi = []
+    single = []
+    for item in punctaje_perechi.keys():
+        if '+' in item:
+            perechi.append(item)
+        else:
+            single.append(item)
+
+    if len(single) == 0 and len(perechi) % 2 == 0:
+        preferinte = dict()
+        for item in perechi:
+            print(item)
+            st1 = item.split('+')[0]
+            st2 = item.split('+')[1]
+            optiuni = []
+            for student in copie_students:
+                if student['name'] == st1:
+                    preferences_st1 = copy.copy(student['preferences'])
+                elif student['name'] == st2:
+                    preferences_st2 = copy.copy(student['preferences'])
+            i = 0
+            j = 0
+            # print("d")
+            # pprint(copie_students)
+            # print(preferences_st1)
+            # print(preferences_st2)
+            while i < len(preferences_st1) and j < len(preferences_st2):
+                aux = cauta_pereche(punctaje_perechi, preferences_st1[i])
+                if aux not in optiuni and aux != item:
+                    opt = cauta_pereche(punctaje_perechi, preferences_st1[i])
+                    optiuni.append(opt)
+                    if opt.split('+')[0] in preferences_st1:
+                        preferences_st1.remove(opt.split('+')[0])
+                    if opt.split('+')[1] in preferences_st1:
+                        preferences_st1.remove(opt.split('+')[1])
+
+                aux = cauta_pereche(punctaje_perechi, preferences_st2[j])
+                if aux not in optiuni and aux != item:
+                    opt = cauta_pereche(punctaje_perechi, preferences_st2[j])
+                    optiuni.append(opt)
+                    if opt.split('+')[0] in preferences_st2:
+                        preferences_st2.remove(opt.split('+')[0])
+                    if opt.split('+')[1] in preferences_st2:
+                        preferences_st2.remove(opt.split('+')[1])
+                i += 1
+                j += 1
+
+            preferinte[item] = optiuni
+
+    if len(perechi) % 2 == 1:
+        # sunt doar perechi, deci cea mai "slaba" pereche(punctaj cel mai mare) va fi despartita
+        max = -1
+        cheie = ""
+        for item in punctaje_perechi.keys():
+            if punctaje_perechi[item] > max and item != 'empty':
+                max = punctaje_perechi[item]
+                cheie = item
+        del punctaje_perechi[cheie]
+        perechi.remove(cheie)
+        for item in cheie.split('+'):
+            single.append(item)
+            punctaje_perechi[item] = 80
+        # print("perechi", punctaje_perechi)
+
+        preferinte = dict()
+        for item in perechi:
+            print(item)
+            st1 = item.split('+')[0]
+            st2 = item.split('+')[1]
+            optiuni = []
+            for student in copie_students:
+                if student['name'] == st1:
+                    preferences_st1 = copy.copy(student['preferences'])
+                elif student['name'] == st2:
+                    preferences_st2 = copy.copy(student['preferences'])
+            i = 0
+            j = 0
+            print("d")
+            # pprint(copie_students)
+            # print(preferences_st1)
+            # print(preferences_st2)
+            while i < len(preferences_st1) and j < len(preferences_st2):
+                aux = cauta_pereche(punctaje_perechi, preferences_st1[i])
+                if aux not in optiuni and aux != item:
+                    opt = cauta_pereche(punctaje_perechi, preferences_st1[i])
+                    optiuni.append(opt)
+                    if opt.split('+')[0] in preferences_st1:
+                        preferences_st1.remove(opt.split('+')[0])
+                    if opt.split('+')[1] in preferences_st1:
+                        preferences_st1.remove(opt.split('+')[1])
+
+                aux = cauta_pereche(punctaje_perechi, preferences_st2[j])
+                if aux not in optiuni and aux != item:
+                    opt = cauta_pereche(punctaje_perechi, preferences_st2[j])
+                    optiuni.append(opt)
+                    if opt.split('+')[0] in preferences_st2:
+                        preferences_st2.remove(opt.split('+')[0])
+                    if opt.split('+')[1] in preferences_st2:
+                        preferences_st2.remove(opt.split('+')[1])
+                i += 1
+                j += 1
+            print("e")
+            preferinte[item] = optiuni
+        print("pref1 ", preferinte)
+    print("pref ", preferinte)
     return preferinte
 
 
@@ -236,7 +345,7 @@ def updatare_optiuni(toti_studentii):
         student['preferences'] = studenti_preferati
 
 
-def creare_perechi(camin):
+def creare_perechi(camin, locuri):
     global copie_students
     global students
     global duplicat_students
@@ -260,7 +369,8 @@ def creare_perechi(camin):
             for st in copie_students:
                 if st['name'] == student['preferences'][0]:
                     punctaje_perechi[key] += punctaje[st['name']]
-    if len(students) % 3 == 1:
+
+    if len(students) % locuri == 1:
         if verificare_tag_empty():
             '''
             trebuie doar eliminat empty din perechea corespunzatoare
@@ -296,7 +406,11 @@ def creare_perechi(camin):
             copie_students = copy.deepcopy(duplicat_students)
 
     print("perechi", punctaje_perechi)
-    preferinte = preferinte_pentru_stable_3(punctaje_perechi)
+    # pprint(copie_students)
+    if locuri == 3:
+        preferinte = preferinte_pentru_stable_3(punctaje_perechi)
+    elif locuri == 4:
+        preferinte = preferinte_pentru_stable_4(punctaje_perechi)
     preferintele_in_template(preferinte)
 
 
@@ -321,11 +435,11 @@ def afisare_camere():
     return camere
 
 
-def stable(camin, index):
+def stable(camin, index, locuri):
     if index == 2:
         incarcare_preferinte(camin)
     elif index == 3:
-        creare_perechi(camin)
+        creare_perechi(camin, locuri)
         # print("~~~~~~~~~~~~~~~~~~~~~~~~~")
         # pprint(students)
         # print("~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -415,19 +529,32 @@ def stable(camin, index):
 class Administrator(View):
     template_name = 'stable/admin.html'
 
+    def camere_2(self, camin):
+        stable(camin, 2, 2)
+
+    def camere_3(self, camin):
+        stable(camin, 2, 3)
+        stable(camin, 3, 3)
+
+    def camere_4(self, camin):
+        stable(camin, 2, 4)
+        print(afisare_camere())
+        stable(camin, 3, 4)
+        print(afisare_camere())
+
     def get(self, request):
         return render(request, self.template_name)
 
     def post(self, request):
         try:
-            stable('C12', 2)
-            print(afisare_camere())
-            stable('C12', 3)
+            self.camere_2('C12')
+            print("Repartizare camere 2 persoane", afisare_camere())
+            self.camere_3('C12')
+            print("Repartizare camere 3 persoane", afisare_camere())
         except:
             mesaj = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!"
             return render(request, self.template_name, {'mesaj_warning': mesaj})
         # pprint(students)
-        print(afisare_camere())
         mesaj = "Repartizarea a fost facuta cu succes."
         return render(request, self.template_name, {'mesaj_succes': mesaj})
 

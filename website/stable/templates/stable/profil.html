@@ -30,11 +30,16 @@
             </div>
         </form>
     </div>
-    <h4>Nume: {{ student.nume }}</h4>
-    <h4>Prenume: {{ student.prenume }}</h4>
-    <h4>Numar matricol: {{ student.numar_matricol }}</h4>
-    <h4>An: {{ student.an }}</h4>
-    <h4>Grupa: {{ student.grupa }}</h4>
+    <h4 style="text-align: center; background-color:#800000; color:white;">Nume </h4>
+    <h4 style="text-align: center;">{{ student.nume }}</h4>
+    <h4 style="text-align: center; background-color:#800000; color:white;">Prenume </h4>
+    <h4 style="text-align: center;">{{ student.prenume }}</h4>
+    <h4 style="text-align: center; background-color:#800000; color:white;">Numar matricol </h4>
+    <h4 style="text-align: center;">{{ student.numar_matricol }}</h4>
+    <h4 style="text-align: center; background-color:#800000; color:white;">An </h4>
+    <h4 style="text-align: center;">{{ student.an }}</h4>
+    <h4 style="text-align: center;background-color:#800000; color:white;">Grupa </h4>
+    <h4 style="text-align: center;">{{ student.grupa }}</h4>
 
 
     {% if student %}
@@ -50,10 +55,10 @@
 
     {% if introdus_preferinte %}
         <div class="alert-success" style="padding: 15px;
-    background-color: green;
+    background-color: #800000;
     color: white;
     margin-bottom: 15px;">
-            <strong>Success!</strong> Preferintele au fost incarcate.
+            <strong>Succes!</strong> Preferintele au fost incarcate.
         </div>
     {% else %}
         <p>&nbsp;&nbsp;&nbsp; In lista de mai jos sunt studenții care au fost repartizați în {{nume_camin}}...așa ca tine, deci nu mai sta pe gânduri și alege cu cine
