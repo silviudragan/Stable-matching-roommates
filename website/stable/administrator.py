@@ -1,4 +1,5 @@
 import copy
+from math import floor
 from pprint import pprint
 from random import shuffle
 
@@ -79,9 +80,9 @@ def incarcare_preferinte(camin):
         adaugare_coleg_fals(camin)
 
     c.close()
-    print('########################################')
-    pprint(students)
-    print('########################################')
+    # print('########################################')
+    # pprint(students)
+    # print('########################################')
     global copie_students
     copie_students = copy.deepcopy(students)
     global duplicat_students
@@ -116,8 +117,10 @@ def abandon_current_accept(option):
             current_accept = st['accept']
             try:
                 st['preferences'].remove(current_accept)
+                # print(st)
+                # print(current_accept)
             except Exception as error:
-                print(error)
+                print("4", error)
             for st_rm in students:
                 if st_rm['name'] == current_accept:
                     st_rm['preferences'].remove(option)
@@ -151,7 +154,9 @@ def preferintele_in_template(preferinte):
         students.append(d)
 
 
-def preferinte_pentru_stable_3(punctaje_perechi):
+def preferinte_pentru_stable_3(camin, punctaje_perechi):
+    global copie_students
+    global duplicat_students
     perechi = []
     single = []
     for item in punctaje_perechi.keys():
@@ -160,19 +165,64 @@ def preferinte_pentru_stable_3(punctaje_perechi):
         else:
             single.append(item)
 
-    if (len(single) == 0) or (len(single) == 1 and single[0] == 'empty'):
-        # sunt doar perechi, deci cea mai "slaba" pereche(punctaj cel mai mare) va fi despartita
+    nr_studenti = len(lista_studenti(camin))
+
+    # trebuie sa pastram atatea perechi cate camere vor fi, iar pe celelalte le adaugam la single
+    while len(perechi) > round(nr_studenti/3):
+        print("len perechi", len(perechi))
+        print(floor(nr_studenti/3))
         max = -1
         cheie = ""
         for item in punctaje_perechi.keys():
-            if punctaje_perechi[item] > max and item != 'empty':
+            if punctaje_perechi[item] > max and '+' in item:
                 max = punctaje_perechi[item]
                 cheie = item
+
         del punctaje_perechi[cheie]
         perechi.remove(cheie)
         for item in cheie.split('+'):
             single.append(item)
             punctaje_perechi[item] = 80
+
+    if len(punctaje_perechi) % 2 == 1:
+        if nr_studenti % 3 == 0:
+            '''
+                numar impar de elemente, iar numarul de studenti este multiplu de 3, deci avem empty in punctaje_perechi
+                solutie: eliminam tag-ul empty pentru a avea un numar par de elemente
+            '''
+            single.remove('empty')
+            del punctaje_perechi['empty']
+            i = 0
+            while i < len(copie_students):
+                if copie_students[i]['name'] == 'empty':
+                    copie_students.remove(copie_students[i])
+                else:
+                    i += 1
+            for st in copie_students:
+                if 'empty' in st['preferences']:
+                    st['preferences'].remove('empty')
+        else:
+            '''
+                numar impar de elemente, deci vom adauga un student fictiv pentru a avea numar impar
+            '''
+            punctaje_perechi['empty'] = 100
+            single.append('empty')
+            toti_studentii = lista_studenti(camin)
+            d = dict()
+            d['name'] = "empty"
+            d['propose'] = ""
+            d['accept'] = ""
+            shuffle(toti_studentii)
+            studenti_preferati = list(toti_studentii)
+            toti_studentii.append('empty')
+            d['preferences'] = studenti_preferati
+            duplicat_students.append(d)
+
+            # adaugam colegul fictiv in listele studentilor unde este posibil
+            updatare_optiuni(toti_studentii)
+            copie_students = copy.deepcopy(duplicat_students)
+
+    # print("ppppp ", len(punctaje_perechi))
     # print("punctaje_perechi", punctaje_perechi)
     # print("single", single)
     # print("perechi", perechi)
@@ -197,20 +247,23 @@ def preferinte_pentru_stable_3(punctaje_perechi):
             i += 1
             j += 1
         preferinte[item] = optiuni
-    # print("1")
-    # pprint(students)
+
     for item in single:
         for student in copie_students:
             if student['name'] == item:
                 preferences = copy.copy(student['preferences'])
 
         optiuni = []
-        for p in preferences:
-            if p not in single and p != 'empty':
-                opt = cauta_pereche(punctaje_perechi, p)
+        i = 0
+        while i < len(preferences):
+            if preferences[i] not in single and preferences[i] != 'empty':
+                opt = cauta_pereche(punctaje_perechi, preferences[i])
+                print("opt  ", opt)
                 preferences.remove(opt.split('+')[0])
                 preferences.remove(opt.split('+')[1])
                 optiuni.append(opt)
+            else:
+                i += 1
 
         for s in single:
             if item != s:
@@ -221,7 +274,40 @@ def preferinte_pentru_stable_3(punctaje_perechi):
     return preferinte
 
 
-def preferinte_pentru_stable_4(punctaje_perechi):
+def preferinte_pentru_stable_4(camin, punctaje_perechi):
+    print("p", len(punctaje_perechi))
+    global copie_students
+    print("++++++++++++++++++++")
+    pprint(lista_studenti(camin))
+    print("++++++++++++++++++++")
+    if len(punctaje_perechi) % 2 == 1:
+        '''
+        trebuie adaugat un coleg fictiv
+        '''
+        punctaje_perechi['empty+empty'] = 100
+        toti_studentii = lista_studenti(camin)
+        toti_studentii.append('empty+empty')
+        for item in punctaje_perechi.keys():
+            if 'empty' in item:
+                toti_studentii.append('empty')
+                break
+        d = dict()
+        d['name'] = "empty+empty"
+        d['propose'] = ""
+        d['accept'] = ""
+        shuffle(toti_studentii)
+        studenti_preferati = []
+        for i in toti_studentii:
+            if i != "empty+empty":
+                studenti_preferati.append(i)
+        d['preferences'] = studenti_preferati
+        duplicat_students.append(d)
+
+        # adaugam colegul fictiv in listele studentilor unde este posibil
+        updatare_optiuni(toti_studentii)
+        copie_students = copy.deepcopy(duplicat_students)
+    print("2")
+
     perechi = []
     single = []
     for item in punctaje_perechi.keys():
@@ -229,25 +315,31 @@ def preferinte_pentru_stable_4(punctaje_perechi):
             perechi.append(item)
         else:
             single.append(item)
-
+    print("pereeeechi", punctaje_perechi)
+    pprint(copie_students)
     if len(single) == 0 and len(perechi) % 2 == 0:
         preferinte = dict()
+        # luam fiecare pereche si concatenam unic cele 2 liste cu preferintele fiecaruia
         for item in perechi:
             print(item)
-            st1 = item.split('+')[0]
-            st2 = item.split('+')[1]
+            if item != "empty+empty":
+                st1 = item.split('+')[0]
+                st2 = item.split('+')[1]
+            else:
+                st1 = item
+                st2 = item
             optiuni = []
             for student in copie_students:
                 if student['name'] == st1:
                     preferences_st1 = copy.copy(student['preferences'])
-                elif student['name'] == st2:
+                if student['name'] == st2:
                     preferences_st2 = copy.copy(student['preferences'])
             i = 0
             j = 0
             # print("d")
             # pprint(copie_students)
-            # print(preferences_st1)
-            # print(preferences_st2)
+            print("st1   ", preferences_st1)
+            print("st2   ", preferences_st2)
             while i < len(preferences_st1) and j < len(preferences_st2):
                 aux = cauta_pereche(punctaje_perechi, preferences_st1[i])
                 if aux not in optiuni and aux != item:
@@ -257,6 +349,8 @@ def preferinte_pentru_stable_4(punctaje_perechi):
                         preferences_st1.remove(opt.split('+')[0])
                     if opt.split('+')[1] in preferences_st1:
                         preferences_st1.remove(opt.split('+')[1])
+                else:
+                    i += 1
 
                 aux = cauta_pereche(punctaje_perechi, preferences_st2[j])
                 if aux not in optiuni and aux != item:
@@ -266,71 +360,16 @@ def preferinte_pentru_stable_4(punctaje_perechi):
                         preferences_st2.remove(opt.split('+')[0])
                     if opt.split('+')[1] in preferences_st2:
                         preferences_st2.remove(opt.split('+')[1])
-                i += 1
-                j += 1
-
+                else:
+                    j += 1
             preferinte[item] = optiuni
 
-    if len(perechi) % 2 == 1:
-        # sunt doar perechi, deci cea mai "slaba" pereche(punctaj cel mai mare) va fi despartita
-        max = -1
-        cheie = ""
-        for item in punctaje_perechi.keys():
-            if punctaje_perechi[item] > max and item != 'empty':
-                max = punctaje_perechi[item]
-                cheie = item
-        del punctaje_perechi[cheie]
-        perechi.remove(cheie)
-        for item in cheie.split('+'):
-            single.append(item)
-            punctaje_perechi[item] = 80
-        # print("perechi", punctaje_perechi)
-
-        preferinte = dict()
-        for item in perechi:
-            print(item)
-            st1 = item.split('+')[0]
-            st2 = item.split('+')[1]
-            optiuni = []
-            for student in copie_students:
-                if student['name'] == st1:
-                    preferences_st1 = copy.copy(student['preferences'])
-                elif student['name'] == st2:
-                    preferences_st2 = copy.copy(student['preferences'])
-            i = 0
-            j = 0
-            print("d")
-            # pprint(copie_students)
-            # print(preferences_st1)
-            # print(preferences_st2)
-            while i < len(preferences_st1) and j < len(preferences_st2):
-                aux = cauta_pereche(punctaje_perechi, preferences_st1[i])
-                if aux not in optiuni and aux != item:
-                    opt = cauta_pereche(punctaje_perechi, preferences_st1[i])
-                    optiuni.append(opt)
-                    if opt.split('+')[0] in preferences_st1:
-                        preferences_st1.remove(opt.split('+')[0])
-                    if opt.split('+')[1] in preferences_st1:
-                        preferences_st1.remove(opt.split('+')[1])
-
-                aux = cauta_pereche(punctaje_perechi, preferences_st2[j])
-                if aux not in optiuni and aux != item:
-                    opt = cauta_pereche(punctaje_perechi, preferences_st2[j])
-                    optiuni.append(opt)
-                    if opt.split('+')[0] in preferences_st2:
-                        preferences_st2.remove(opt.split('+')[0])
-                    if opt.split('+')[1] in preferences_st2:
-                        preferences_st2.remove(opt.split('+')[1])
-                i += 1
-                j += 1
-            print("e")
-            preferinte[item] = optiuni
-        print("pref1 ", preferinte)
     print("pref ", preferinte)
     return preferinte
 
 
 def updatare_optiuni(toti_studentii):
+    global duplicat_students
     c = conn.cursor()
     for student in duplicat_students:
         c.execute("SELECT * from stable_preferinta where numar_matricol=%s order by importanta", [student['name']])
@@ -370,47 +409,13 @@ def creare_perechi(camin, locuri):
                 if st['name'] == student['preferences'][0]:
                     punctaje_perechi[key] += punctaje[st['name']]
 
-    if len(students) % locuri == 1:
-        if verificare_tag_empty():
-            '''
-            trebuie doar eliminat empty din perechea corespunzatoare
-            '''
-            # print(punctaje_perechi)
-            for item in punctaje_perechi.keys():
-                if 'empty' in item:
-                    new_key = item.replace('empty', '')
-                    new_key = new_key.replace('+', '')
-                    punctaje_perechi[new_key] = punctaje_perechi.pop(item)
-                    # print(punctaje_perechi)
-        else:
-            '''
-            trebuie adaugat un coleg fictiv
-            '''
-            punctaje_perechi['empty'] = 100
-            toti_studentii = lista_studenti(camin)
-            toti_studentii.append('empty')
-            d = dict()
-            d['name'] = "empty"
-            d['propose'] = ""
-            d['accept'] = ""
-            shuffle(toti_studentii)
-            studenti_preferati = []
-            for i in toti_studentii:
-                if i is not "empty":
-                    studenti_preferati.append(i)
-            d['preferences'] = studenti_preferati
-            duplicat_students.append(d)
-
-            # adaugam colegul fictiv in listele studentilor unde este posibil
-            updatare_optiuni(toti_studentii)
-            copie_students = copy.deepcopy(duplicat_students)
-
     print("perechi", punctaje_perechi)
     # pprint(copie_students)
     if locuri == 3:
-        preferinte = preferinte_pentru_stable_3(punctaje_perechi)
+        preferinte = preferinte_pentru_stable_3(camin, punctaje_perechi)
     elif locuri == 4:
-        preferinte = preferinte_pentru_stable_4(punctaje_perechi)
+        print("1")
+        preferinte = preferinte_pentru_stable_4(camin, punctaje_perechi)
     preferintele_in_template(preferinte)
 
 
@@ -421,6 +426,7 @@ def cauta_pereche(punctaje_perechi, name):
 
 
 def afisare_camere():
+    print("am ajuns aici")
     camere = []
     for student in students:
         o_camera = []
@@ -440,17 +446,20 @@ def stable(camin, index, locuri):
         incarcare_preferinte(camin)
     elif index == 3:
         creare_perechi(camin, locuri)
-        # print("~~~~~~~~~~~~~~~~~~~~~~~~~")
-        # pprint(students)
-        # print("~~~~~~~~~~~~~~~~~~~~~~~~~")
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~")
+    pprint(students)
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~")
+    print("-a")
     while True:
         for st in students:
+            # print("a1")
             if st['propose'] == "":
                 for option in st['preferences']:
                     accept = free(option)
                     if accept == "":
                         st['propose'] = option
                         propose(st['name'], option)
+                        # print("a2")
                         break
                     else:
                         better_choice = who_is_beter(st['name'], option, accept)
@@ -460,12 +469,16 @@ def stable(camin, index, locuri):
                             st['propose'] = option
 
                         propose(better_choice, option)
-
+                        # print("a3")
                         # stim ca studentul curent a facut o alegere valida, deci nu mai este nevoie sa caute in continuare
                         if better_choice == st['name']:
+                            # print("a4")
                             break
+
         if len([st for st in students if st['propose'] == ""]) == 0:
+            # print("a5")
             break
+    print("a")
     '''
         pasul 2
         eliminam toti potentialii parteneri cu o importanta mai mica decat optiunea curenta
@@ -474,37 +487,46 @@ def stable(camin, index, locuri):
         try:
             to_delete = st['preferences'][st['preferences'].index(st['accept']) + 1:]
         except Exception as error:
-            print(error)
+            print("1", error)
         # print(to_delete)
         for it in to_delete:
             for i in students:
                 if it == i['name']:
                     try:
+                        # print("2222222222")
+                        # print(st)
+                        # print("it  ", it)
+                        # print("ii    ", i)
+                        # print("2222222222")
                         i['preferences'].remove(st['name'])
                         st['preferences'].remove(it)
                     except Exception as error:
-                        print(error)
+                        print("2", error)
                     break
+    print("b")
     '''
         pasul 3
         scriem un student care are mai mult de o optiune
         scriem acea a doua optiune, apoi pentru ea scriem ultima
         repetam pana cand studentul initial apare din nou
     '''
+    pprint(students)
     while True:
         first_line = []
         second_line = []
         for st in students:
+            print("b1")
             if len(st['preferences']) > 1:
                 first_line.append(st['name'])
                 second_line.append(st['preferences'][1])
-                while first_line.count(first_line[0]) != 2:
+                # while first_line.count(first_line[0]) != 2:
+                while len(first_line) == len(set(first_line)):
                     for i in students:
                         if i['name'] == second_line[-1]:
                             try:
                                 first_line.append(i['preferences'][-1])
                             except Exception as error:
-                                print(error)
+                                print("3", error)
                             break
                     for i in students:
                         if i['name'] == first_line[-1]:
@@ -517,6 +539,7 @@ def stable(camin, index, locuri):
         '''
         for i in range(1, len(first_line)):
             for st in students:
+                print("b5")
                 if st['name'] == first_line[i]:
                     st['preferences'].remove(second_line[i - 1])
                 if st['name'] == second_line[i - 1]:
@@ -524,12 +547,19 @@ def stable(camin, index, locuri):
 
         if len([st for st in students if len(st['preferences']) > 1]) == 0:
             break
+        print("b6")
+    print("c")
 
 
 class Administrator(View):
     template_name = 'stable/admin.html'
 
     def camere_2(self, camin):
+        """
+            param 2: indexul -> 2 = trebuie incarcate preferintele
+                                3 = trebuie create perechile
+            param 3: numarul de locuri
+        """
         stable(camin, 2, 2)
 
     def camere_3(self, camin):
@@ -547,10 +577,10 @@ class Administrator(View):
 
     def post(self, request):
         try:
-            self.camere_2('C12')
-            print("Repartizare camere 2 persoane", afisare_camere())
-            self.camere_3('C12')
-            print("Repartizare camere 3 persoane", afisare_camere())
+            # self.camere_2('C12')
+            # print("Repartizare camere 2 persoane", afisare_camere())
+            self.camere_4('C12')
+            print("Repartizare camere 4 persoane", afisare_camere())
         except:
             mesaj = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!"
             return render(request, self.template_name, {'mesaj_warning': mesaj})
