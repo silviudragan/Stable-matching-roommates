@@ -272,7 +272,7 @@ def preferinte_pentru_stable_3(camin, punctaje_perechi):
                 optiuni.append(s)
 
         preferinte[item] = optiuni
-    print("pref", preferinte)
+    # print("pref", preferinte)
     return preferinte
 
 
@@ -367,11 +367,11 @@ def preferinte_pentru_stable_4(camin, punctaje_perechi):
                     j += 1
             preferinte[item] = optiuni
 
-    print("pref ", preferinte)
+    # print("pref ", preferinte)
     return preferinte
 
 
-def preferinte_pentru_stable_5(camin, punctaje_perechi):
+def preferinte_pentru_stable_5(multime, camin, punctaje_perechi):
     pass
 
 
@@ -432,7 +432,7 @@ def creare_perechi(camin, locuri):
 
 def creare_perechi_de_4(camin, locuri):
     punctaje_perechi = calcul_punctaj()
-    pprint(punctaje_perechi)
+    # pprint(punctaje_perechi)
     tuplu_sortat = sorted(punctaje_perechi.items(), key=operator.itemgetter(1))
     punctaje_top = []
     nr_studenti = len(lista_studenti(camin))
@@ -477,7 +477,7 @@ def creare_perechi_de_4(camin, locuri):
             else:
                 j += 1
         preferinte[item] = optiuni
-    pprint(preferinte)
+    # pprint(preferinte)
 
     studenti_2si2 = []
     for item in preferinte.keys():
@@ -498,7 +498,7 @@ def cauta_pereche(punctaje_perechi, name):
 
 def afisare_camere(multime):
     print("am ajuns aici")
-    pprint(multime)
+    # pprint(multime)
     camere = []
     for student in multime:
         o_camera = []
@@ -515,9 +515,14 @@ def afisare_camere(multime):
 
 def stable(multime):
     print("aici")
+    # pprint(multime)
+    s = 0
     while True:
         for st in multime:
             # print("a1")
+            s += 1
+            if s > 1000:
+                raise SystemExit
             if st['propose'] == "":
                 for option in st['preferences']:
                     accept = free(multime, option)
@@ -543,7 +548,6 @@ def stable(multime):
         if len([st for st in multime if st['propose'] == ""]) == 0:
             # print("a5")
             break
-    print("a")
     '''
         pasul 2
         eliminam toti potentialii parteneri cu o importanta mai mica decat optiunea curenta
@@ -575,7 +579,7 @@ def stable(multime):
         scriem acea a doua optiune, apoi pentru ea scriem ultima
         repetam pana cand studentul initial apare din nou
     '''
-    pprint(multime)
+    # pprint(multime)
     while True:
         first_line = []
         second_line = []
@@ -604,12 +608,11 @@ def stable(multime):
         '''
         for i in range(1, len(first_line)):
             for st in multime:
-                print("b5")
                 if st['name'] == first_line[i]:
                     st['preferences'].remove(second_line[i - 1])
                 if st['name'] == second_line[i - 1]:
                     st['preferences'].remove(first_line[i])
-
+        print("b7")
         if len([st for st in multime if len(st['preferences']) > 1]) == 0:
             break
         print("b6")
@@ -621,16 +624,19 @@ class Administrator(View):
     template_name = 'stable/admin.html'
 
     def camere_2(self, camin):
+        global students
         """
             param 2: indexul -> 2 = trebuie incarcate preferintele
                                 3 = trebuie create perechile
             param 3: numarul de locuri
         """
         incarcare_preferinte(camin)
-        stable(students)
+        students = stable(students)
+        print("Camere de 2 persoane", afisare_camere(students))
 
     def camere_3(self, camin):
         global students
+        del students[:]
         incarcare_preferinte(camin)
         multime_de_2 = stable(students)
 
@@ -642,6 +648,7 @@ class Administrator(View):
         global students
         incarcare_preferinte(camin)
         multime_de_2 = stable(students)
+        print("intermediar Camere de 4 persoane", afisare_camere(multime_de_2))
 
         creare_perechi(camin, 4)
         students = stable(multime_de_2)
@@ -653,11 +660,13 @@ class Administrator(View):
         # print("1111111111111111111111111111111")
         # pprint(multime_de_2)
         # print("1111111111111111111111111111111")
-        print(afisare_camere(students))
+        print("de 2", afisare_camere(students))
 
         studenti_2si2 = creare_perechi_de_4(camin, 4)
         print("camere_5")
         multime_de_4 = stable(studenti_2si2)
+
+        multime_de_5 = preferinte_pentru_stable_5(multime_de_4, camin, 5)
         print("Repartizare camere 4 persoane", afisare_camere(multime_de_4))
         # print("---------------------------------")
         # pprint(multime_de_4)
@@ -667,17 +676,81 @@ class Administrator(View):
         return render(request, self.template_name)
 
     def post(self, request):
-        try:
-            # self.camere_2('C12')
-            # print("Repartizare camere 2 persoane", afisare_camere())
-            # for item in camine:
-            self.camere_5('C12')
-        except:
-            mesaj = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!"
-            return render(request, self.template_name, {'mesaj_warning': mesaj})
+        mesaj_warning = ""
+        semafor = True
+        s = 0
+        p = 0
+        while semafor and p < 500:
+            try:
+                # self.camere_2('C12')
+                # print("Repartizare camere 2 persoane", afisare_camere())
+                # for item in camine:
+                self.camere_2('C12')
+                # self.camere_3('C12')
+                # self.camere_4('C12')
+                # self.camere_5('C12')
+                semafor = False
+            except:
+                mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                p += 1
+                s += 1
+
+        p = 0
+        semafor = True
+        while semafor and p < 500:
+            try:
+                # self.camere_2('C12')
+                # print("Repartizare camere 2 persoane", afisare_camere())
+                # for item in camine:
+                # self.camere_2('C12')
+                self.camere_3('C12')
+                # self.camere_4('C12')
+                # self.camere_5('C12')
+                semafor = False
+            except:
+                mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                p += 1
+                s += 1
+
+        p = 0
+        semafor = True
+        while semafor and p < 500:
+            try:
+                # self.camere_2('C12')
+                # print("Repartizare camere 2 persoane", afisare_camere())
+                # for item in camine:
+                # self.camere_2('C12')
+                # self.camere_3('C12')
+                self.camere_4('C12')
+                # self.camere_5('C12')
+                semafor = False
+            except:
+                mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                p += 1
+
+        p = 0
+        semafor = True
+        while semafor and p < 500:
+            try:
+                # self.camere_2('C12')
+                # print("Repartizare camere 2 persoane", afisare_camere())
+                # for item in camine:
+                # self.camere_2('C12')
+                # self.camere_3('C12')
+                # self.camere_4('C12')
+                self.camere_5('C12')
+                semafor = False
+            except:
+                mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                p += 1
+                s += 1
+
         # pprint(students)
-        mesaj = "Repartizarea a fost facuta cu succes."
-        return render(request, self.template_name, {'mesaj_succes': mesaj})
+        mesaj_succes = "Repartizarea a fost facuta cu succes." + str(p) + " -> " + str(s)
+        if not semafor:
+            return render(request, self.template_name, {'mesaj_succes': mesaj_succes})
+        else:
+            return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
 
 
 def avansare_an_studiu(request):
