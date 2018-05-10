@@ -371,8 +371,115 @@ def preferinte_pentru_stable_4(camin, punctaje_perechi):
     return preferinte
 
 
-def preferinte_pentru_stable_5(multime, camin, punctaje_perechi):
-    pass
+def scor_camera(student, camera):
+    if student == "":
+        return -1
+    scor = 0
+    # punctajele celor din camera pentru "candidat"
+    for item in camera:
+        for st in copie_students:
+            if st['name'] == item:
+                scor += st['preferences'].index(student)
+
+    # punctajele "candidatului" pentru cei din camera
+    for st in copie_students:
+        if st['name'] == student:
+            for item in camera:
+                scor += st['preferences'].index(item)
+    return scor
+
+
+def better_fit(student_actual, candidat, camera):
+    return scor_camera(student_actual, camera) > scor_camera(candidat,camera)
+
+
+def nume_camera(camera):
+    nume = ""
+    for item in camera:
+        nume += item + "+"
+    if nume == "":
+        return nume
+    return nume[:-1]
+
+
+def verificare_cheie(camere, student):
+    chei = []
+    for item in camere.keys():
+        if camere[item] == student:
+            chei.append(item)
+    return chei
+
+
+def preferinte_pentru_stable_5(multime, perechi_ramase):
+    print("**************************")
+    print(multime)
+    print("X")
+    print(perechi_ramase)
+    print("**************************")
+    pprint(copie_students)
+
+    print("0")
+    camera_5 = dict()
+    for camera in multime:
+        nume = nume_camera(camera)
+        camera_5[nume] = ""
+    print("1")
+    nr_studenti_fara_camera = 0
+    for item in perechi_ramase:
+        if item.split('+')[0] != 'empty':
+            nr_studenti_fara_camera += 1
+        if item.split('+')[1] != 'empty':
+            nr_studenti_fara_camera += 1
+    print("2")
+    print(nr_studenti_fara_camera)
+    not_single = set()
+    while True:
+        for item in perechi_ramase:
+            st1 = item.split('+')[0]
+            st2 = item.split('+')[1]
+            minim = 1000
+            for camera in multime:
+                if st1 != 'empty':
+                    min_local = scor_camera(st1, camera)
+                    # print(min_local, st1, camera)
+                    if minim > min_local > scor_camera(camera_5[nume_camera(camera)], camera):
+                        minim = min_local
+                        if camera_5[nume_camera(camera)] == "":
+                            camera_5[nume_camera(camera)] = st1
+                            print("1", minim, st1, nume_camera(camera))
+                            not_single.add(st1)
+                            chei = verificare_cheie(camera_5, st1)
+                            for cheie in chei:
+                                if cheie != nume_camera(camera):
+                                    camera_5[cheie] = ""
+
+                        elif better_fit(camera_5[nume_camera(camera)], st1, camera):
+                            not_single.remove(camera_5[nume_camera(camera)])
+                            camera_5[nume_camera(camera)] = st1
+                            not_single.add(st1)
+                            print("2", minim, st1, nume_camera(camera))
+
+                if st2 != 'empty':
+                    min_local = scor_camera(st2, camera)
+                    if minim > min_local > scor_camera(camera_5[nume_camera(camera)], camera):
+                        minim = min_local
+                        if camera_5[nume_camera(camera)] == "":
+                            camera_5[nume_camera(camera)] = st2
+                            not_single.add(st2)
+                            print("3", minim, st2, nume_camera(camera))
+                        elif better_fit(camera_5[nume_camera(camera)], st2, camera):
+                            not_single.remove(camera_5[nume_camera(camera)])
+                            camera_5[nume_camera(camera)] = st2
+                            not_single.add(st2)
+                            print("4", minim, st2, nume_camera(camera))
+
+        print(not_single)
+        # break
+        # print(camera_5)
+        if len(not_single) == nr_studenti_fara_camera:
+            break
+    print(camera_5)
+    return 1
 
 
 def updatare_optiuni(toti_studentii):
@@ -432,15 +539,22 @@ def creare_perechi(camin, locuri):
 
 def creare_perechi_de_4(camin, locuri):
     punctaje_perechi = calcul_punctaj()
-    # pprint(punctaje_perechi)
+    '''
+        sortam crescator perechile dupa punctajul lor pentru a le lua pe cele mai bune; atatea perechi cate camere vor
+        fi asignate x2(e.g. 13 studenti -> 3 camere -> deci 6 perechi)
+    '''
     tuplu_sortat = sorted(punctaje_perechi.items(), key=operator.itemgetter(1))
     punctaje_top = []
     nr_studenti = len(lista_studenti(camin))
     single = []
+    perechi_ramase = []
     for i in range(2*int(ceil(nr_studenti/5.0))):
         punctaje_top.append(tuplu_sortat[i][0])
         single.append(tuplu_sortat[i][0].split('+')[0])
         single.append(tuplu_sortat[i][0].split('+')[1])
+
+    for i in range(2*int(ceil(nr_studenti/5.0)), len(tuplu_sortat)):
+        perechi_ramase.append(tuplu_sortat[i][0])
 
     preferinte = dict()
     for item in punctaje_top:
@@ -487,7 +601,7 @@ def creare_perechi_de_4(camin, locuri):
         d['accept'] = ""
         d['preferences'] = preferinte[item]
         studenti_2si2.append(d)
-    return studenti_2si2
+    return studenti_2si2, perechi_ramase
 
 
 def cauta_pereche(punctaje_perechi, name):
@@ -514,7 +628,6 @@ def afisare_camere(multime):
 
 
 def stable(multime):
-    print("aici")
     # pprint(multime)
     s = 0
     while True:
@@ -572,7 +685,7 @@ def stable(multime):
                     except Exception as error:
                         print("2", error)
                     break
-    print("b")
+    # print("b")
     '''
         pasul 3
         scriem un student care are mai mult de o optiune
@@ -584,7 +697,7 @@ def stable(multime):
         first_line = []
         second_line = []
         for st in multime:
-            print("b1")
+            # print("b1")
             if len(st['preferences']) > 1:
                 first_line.append(st['name'])
                 second_line.append(st['preferences'][1])
@@ -612,11 +725,11 @@ def stable(multime):
                     st['preferences'].remove(second_line[i - 1])
                 if st['name'] == second_line[i - 1]:
                     st['preferences'].remove(first_line[i])
-        print("b7")
+        # print("b7")
         if len([st for st in multime if len(st['preferences']) > 1]) == 0:
             break
-        print("b6")
-    print("c")
+        # print("b6")
+    # print("c")
     return multime
 
 
@@ -648,7 +761,7 @@ class Administrator(View):
         global students
         incarcare_preferinte(camin)
         multime_de_2 = stable(students)
-        print("intermediar Camere de 4 persoane", afisare_camere(multime_de_2))
+        # print("intermediar Camere de 4 persoane", afisare_camere(multime_de_2))
 
         creare_perechi(camin, 4)
         students = stable(multime_de_2)
@@ -660,13 +773,13 @@ class Administrator(View):
         # print("1111111111111111111111111111111")
         # pprint(multime_de_2)
         # print("1111111111111111111111111111111")
-        print("de 2", afisare_camere(students))
+        # print("de 2", afisare_camere(students))
 
-        studenti_2si2 = creare_perechi_de_4(camin, 4)
-        print("camere_5")
+        studenti_2si2, perechi_ramase = creare_perechi_de_4(camin, 4)
+        # print("camere_5")
         multime_de_4 = stable(studenti_2si2)
 
-        multime_de_5 = preferinte_pentru_stable_5(multime_de_4, camin, 5)
+        multime_de_5 = preferinte_pentru_stable_5(afisare_camere(multime_de_4), perechi_ramase)
         print("Repartizare camere 4 persoane", afisare_camere(multime_de_4))
         # print("---------------------------------")
         # pprint(multime_de_4)
@@ -682,13 +795,7 @@ class Administrator(View):
         p = 0
         while semafor and p < 500:
             try:
-                # self.camere_2('C12')
-                # print("Repartizare camere 2 persoane", afisare_camere())
-                # for item in camine:
                 self.camere_2('C12')
-                # self.camere_3('C12')
-                # self.camere_4('C12')
-                # self.camere_5('C12')
                 semafor = False
             except:
                 mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
@@ -699,13 +806,7 @@ class Administrator(View):
         semafor = True
         while semafor and p < 500:
             try:
-                # self.camere_2('C12')
-                # print("Repartizare camere 2 persoane", afisare_camere())
-                # for item in camine:
-                # self.camere_2('C12')
                 self.camere_3('C12')
-                # self.camere_4('C12')
-                # self.camere_5('C12')
                 semafor = False
             except:
                 mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
@@ -716,13 +817,7 @@ class Administrator(View):
         semafor = True
         while semafor and p < 500:
             try:
-                # self.camere_2('C12')
-                # print("Repartizare camere 2 persoane", afisare_camere())
-                # for item in camine:
-                # self.camere_2('C12')
-                # self.camere_3('C12')
                 self.camere_4('C12')
-                # self.camere_5('C12')
                 semafor = False
             except:
                 mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
@@ -732,12 +827,6 @@ class Administrator(View):
         semafor = True
         while semafor and p < 500:
             try:
-                # self.camere_2('C12')
-                # print("Repartizare camere 2 persoane", afisare_camere())
-                # for item in camine:
-                # self.camere_2('C12')
-                # self.camere_3('C12')
-                # self.camere_4('C12')
                 self.camere_5('C12')
                 semafor = False
             except:
