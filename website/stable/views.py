@@ -306,17 +306,18 @@ def display_info_coleg(request):
     c = conn.cursor()
     c.execute("SELECT * from stable_student where nume=%s and prenume=%s", [nume[0], nume[1]])
     rez = c.fetchone()
-    nr_matricol = rez[3]
+    nr_matricol = rez[2]
     c.close()
+    print(rez)
     data = {
-        'Nume:': rez[1],
-        'Prenume:': rez[2],
-        'An:': rez[4],
-        'Grupa:': rez[5],
-        'Poza:': rez[7],
+        'Nume:': rez[0],
+        'Prenume:': rez[1],
+        'An:': rez[3],
+        'Grupa:': rez[4],
+        'Poza:': rez[6],
     }
     if data['Poza:'] == "1":
-        if rez[6] == "M":
+        if rez[5] == "M":
             data['Poza:'] = "3.png"
         else:
             data['Poza:'] = "4.jpg"
