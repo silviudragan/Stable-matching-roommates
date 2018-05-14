@@ -373,7 +373,7 @@ def preferinte_pentru_stable_4(camin, punctaje_perechi):
 
 def scor_camera(student, camera):
     if student == "":
-        return -1
+        return 1000
     scor = 0
     # punctajele celor din camera pentru "candidat"
     for item in camera:
@@ -389,10 +389,6 @@ def scor_camera(student, camera):
     return scor
 
 
-def better_fit(student_actual, candidat, camera):
-    return scor_camera(student_actual, camera) > scor_camera(candidat,camera)
-
-
 def nume_camera(camera):
     nume = ""
     for item in camera:
@@ -402,84 +398,70 @@ def nume_camera(camera):
     return nume[:-1]
 
 
-def verificare_cheie(camere, student):
-    chei = []
-    for item in camere.keys():
-        if camere[item] == student:
-            chei.append(item)
-    return chei
-
-
 def preferinte_pentru_stable_5(multime, perechi_ramase):
     print("**************************")
-    print(multime)
-    print("X")
     print(perechi_ramase)
     print("**************************")
     pprint(copie_students)
 
-    print("0")
     camera_5 = dict()
     for camera in multime:
         nume = nume_camera(camera)
         camera_5[nume] = ""
-    print("1")
+
     nr_studenti_fara_camera = 0
     for item in perechi_ramase:
         if item.split('+')[0] != 'empty':
             nr_studenti_fara_camera += 1
         if item.split('+')[1] != 'empty':
             nr_studenti_fara_camera += 1
-    print("2")
-    print(nr_studenti_fara_camera)
+
     not_single = set()
     while True:
         for item in perechi_ramase:
             st1 = item.split('+')[0]
             st2 = item.split('+')[1]
+            print(st1, st2)
             minim = 1000
+            minim2 = 1000
+
+            cheie = ""
+            cheie2 = ""
             for camera in multime:
                 if st1 != 'empty':
                     min_local = scor_camera(st1, camera)
-                    # print(min_local, st1, camera)
-                    if minim > min_local > scor_camera(camera_5[nume_camera(camera)], camera):
+                    print(minim, min_local, scor_camera(camera_5[nume_camera(camera)], camera), st1, camera)
+                    if minim > min_local < scor_camera(camera_5[nume_camera(camera)], camera):
                         minim = min_local
-                        if camera_5[nume_camera(camera)] == "":
-                            camera_5[nume_camera(camera)] = st1
-                            print("1", minim, st1, nume_camera(camera))
-                            not_single.add(st1)
-                            chei = verificare_cheie(camera_5, st1)
-                            for cheie in chei:
-                                if cheie != nume_camera(camera):
-                                    camera_5[cheie] = ""
-
-                        elif better_fit(camera_5[nume_camera(camera)], st1, camera):
-                            not_single.remove(camera_5[nume_camera(camera)])
-                            camera_5[nume_camera(camera)] = st1
-                            not_single.add(st1)
-                            print("2", minim, st1, nume_camera(camera))
-
-                if st2 != 'empty':
+                        cheie = nume_camera(camera)
+                if st2 != "empty":
                     min_local = scor_camera(st2, camera)
-                    if minim > min_local > scor_camera(camera_5[nume_camera(camera)], camera):
-                        minim = min_local
-                        if camera_5[nume_camera(camera)] == "":
-                            camera_5[nume_camera(camera)] = st2
-                            not_single.add(st2)
-                            print("3", minim, st2, nume_camera(camera))
-                        elif better_fit(camera_5[nume_camera(camera)], st2, camera):
-                            not_single.remove(camera_5[nume_camera(camera)])
-                            camera_5[nume_camera(camera)] = st2
-                            not_single.add(st2)
-                            print("4", minim, st2, nume_camera(camera))
+                    print(minim2, min_local, scor_camera(camera_5[nume_camera(camera)], camera), st2, camera)
+                    if minim2 > min_local < scor_camera(camera_5[nume_camera(camera)], camera):
+                        minim2 = min_local
+                        cheie2 = nume_camera(camera)
 
-        print(not_single)
-        # break
-        # print(camera_5)
+            if cheie == cheie2:
+                if minim < minim2:
+                    cheie2 = ""
+                else:
+                    cheie = ""
+
+            if len(cheie) > 0 and st1 != 'empty' and st1 not in not_single:
+                not_single.add(st1)
+                if camera_5[cheie] != "":
+                    not_single.remove(camera_5[cheie])
+                camera_5[cheie] = st1
+
+            if len(cheie2) > 0 and st2 != 'empty' and st2 not in not_single:
+                not_single.add(st2)
+                if camera_5[cheie2] != "":
+                    not_single.remove(camera_5[cheie2])
+                camera_5[cheie2] = st2
+
         if len(not_single) == nr_studenti_fara_camera:
             break
-    print(camera_5)
-    return 1
+    return camera_5
 
 
 def updatare_optiuni(toti_studentii):
@@ -611,8 +593,6 @@ def cauta_pereche(punctaje_perechi, name):
 
 
 def afisare_camere(multime):
-    print("am ajuns aici")
-    # pprint(multime)
     camere = []
     for student in multime:
         o_camera = []
@@ -624,6 +604,19 @@ def afisare_camere(multime):
         o_camera.sort()
         if o_camera not in camere:
             camere.append(o_camera)
+    return camere
+
+
+def afisare_camere_de_5(multime):
+    camere = []
+    for item in multime.keys():
+        o_camera = []
+        for st in item.split('+'):
+            if st != 'empty':
+                o_camera.append(st)
+        if len(multime[item]) > 0:
+            o_camera.append(multime[item])
+        camere.append(o_camera)
     return camere
 
 
@@ -780,7 +773,9 @@ class Administrator(View):
         multime_de_4 = stable(studenti_2si2)
 
         multime_de_5 = preferinte_pentru_stable_5(afisare_camere(multime_de_4), perechi_ramase)
-        print("Repartizare camere 4 persoane", afisare_camere(multime_de_4))
+        print("intermediar - Repartizare camere 5 persoane", afisare_camere(multime_de_4))
+        print("multime de 5", multime_de_5)
+        print("Repartizare camere 5 persoane", afisare_camere_de_5(multime_de_5))
         # print("---------------------------------")
         # pprint(multime_de_4)
         # print("---------------------------------")
