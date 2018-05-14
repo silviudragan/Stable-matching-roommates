@@ -3,6 +3,7 @@ import operator
 from math import floor, ceil
 from pprint import pprint
 from random import shuffle
+from time import sleep
 
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -18,12 +19,29 @@ copie_students = []
 duplicat_students = []
 camine = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C10', 'C11', 'C12', 'C13', 'Gaudeamus', 'Akademos',
           'Buna Vestire']
+FACULTATI = [
+    'Biologie',
+    'Chimie',
+    'Drept',
+    'Economie si Administrarea Afacerilor'
+    'Educatie fizica si Sport',
+    'Filosofie si Stiinte Social-Politice',
+    'Fizica',
+    'Geografie si Geologie',
+    'Informatica',
+    'Istorie',
+    'Litere',
+    'Matematica',
+    'Psihologie si Stiinte ale Educatiei',
+    'Teologie Ortodoxa',
+    'Teologie Romano-Catolica', ]
 
 
-def lista_studenti(camin):
+def lista_studenti(camin, facultate):
     c = conn.cursor()
-
-    c.execute("SELECT * from stable_repartizare where camin=%s", [camin])
+    c.execute("SELECT * from stable_repartizare r "
+              "join stable_student s on s.numar_matricol = r.numar_matricol "
+              "where r.camin=%s and s.facultate=%s", [camin, facultate])
     data = c.fetchall()
     toti_studentii = []
     for st in data:
@@ -31,8 +49,8 @@ def lista_studenti(camin):
     return toti_studentii
 
 
-def adaugare_coleg_fals(camin):
-    toti_studentii = lista_studenti(camin)
+def adaugare_coleg_fals(camin, facultate):
+    toti_studentii = lista_studenti(camin, facultate)
     d = dict()
     d['name'] = "empty"
     d['propose'] = ""
@@ -46,18 +64,21 @@ def adaugare_coleg_fals(camin):
     students.append(d)
 
 
-def incarcare_preferinte(camin):
+def incarcare_preferinte(camin, facultate):
     del students[:]
     c = conn.cursor()
-
-    toti_studentii = lista_studenti(camin)
+    toti_studentii = lista_studenti(camin, facultate)
     empty = False
     if len(toti_studentii) % 2 == 1:
         toti_studentii.append("empty")
         empty = True
 
-    c.execute("SELECT * from stable_repartizare where camin=%s", [camin])
+    c.execute("SELECT * from stable_repartizare r "
+              "join stable_student s on s.numar_matricol = r.numar_matricol "
+              "where r.camin=%s and s.facultate=%s", [camin, facultate])
     data = c.fetchall()
+    if len(data) == 0:
+        return -1
     for st in data:
         d = dict()
         numar_matricol = st[1]
@@ -78,16 +99,14 @@ def incarcare_preferinte(camin):
         students.append(d)
 
     if empty:
-        adaugare_coleg_fals(camin)
+        adaugare_coleg_fals(camin, facultate)
 
     c.close()
-    # print('########################################')
-    # pprint(students)
-    # print('########################################')
     global copie_students
     copie_students = copy.deepcopy(students)
     global duplicat_students
     duplicat_students = copy.deepcopy(students)
+    return 1
 
 
 def free(multime, option):
@@ -157,7 +176,7 @@ def preferintele_in_template(preferinte):
         students.append(d)
 
 
-def preferinte_pentru_stable_3(camin, punctaje_perechi):
+def preferinte_pentru_stable_3(camin, punctaje_perechi, facultate):
     global copie_students
     global duplicat_students
     perechi = []
@@ -168,10 +187,10 @@ def preferinte_pentru_stable_3(camin, punctaje_perechi):
         else:
             single.append(item)
 
-    nr_studenti = len(lista_studenti(camin))
+    nr_studenti = len(lista_studenti(camin, facultate))
 
     # trebuie sa pastram atatea perechi cate camere vor fi - 1, iar pe celelalte le adaugam la single
-    while len(perechi) > round(nr_studenti/3):
+    while len(perechi) > round(nr_studenti / 3):
         # int(math.ceil(nr_studenti/3.0))
         max = -1
         cheie = ""
@@ -209,7 +228,7 @@ def preferinte_pentru_stable_3(camin, punctaje_perechi):
             '''
             punctaje_perechi['empty'] = 100
             single.append('empty')
-            toti_studentii = lista_studenti(camin)
+            toti_studentii = lista_studenti(camin, facultate)
             d = dict()
             d['name'] = "empty"
             d['propose'] = ""
@@ -224,11 +243,6 @@ def preferinte_pentru_stable_3(camin, punctaje_perechi):
             updatare_optiuni(toti_studentii)
             copie_students = copy.deepcopy(duplicat_students)
 
-    # print("ppppp ", len(punctaje_perechi))
-    # print("punctaje_perechi", punctaje_perechi)
-    # print("single", single)
-    # print("perechi", perechi)
-    # pprint(copie_students)
     preferinte = dict()
     for item in perechi:
         st1 = item.split('+')[0]
@@ -272,14 +286,13 @@ def preferinte_pentru_stable_3(camin, punctaje_perechi):
                 optiuni.append(s)
 
         preferinte[item] = optiuni
-    # print("pref", preferinte)
     return preferinte
 
 
-def coleg_fictiv(punctaje_perechi, camin):
+def coleg_fictiv(punctaje_perechi, camin, facultate):
     global copie_students
     punctaje_perechi['empty+empty'] = 100
-    toti_studentii = lista_studenti(camin)
+    toti_studentii = lista_studenti(camin, facultate)
     toti_studentii.append('empty+empty')
     for item in punctaje_perechi.keys():
         if 'empty' in item:
@@ -302,17 +315,13 @@ def coleg_fictiv(punctaje_perechi, camin):
     copie_students = copy.deepcopy(duplicat_students)
 
 
-def preferinte_pentru_stable_4(camin, punctaje_perechi):
-    # print("p", len(punctaje_perechi))
+def preferinte_pentru_stable_4(camin, punctaje_perechi, facultate):
     global copie_students
-    # print("++++++++++++++++++++")
-    # pprint(lista_studenti(camin))
-    # print("++++++++++++++++++++")
     if len(punctaje_perechi) % 2 == 1:
         '''
         trebuie adaugat un coleg fictiv
         '''
-        coleg_fictiv(punctaje_perechi, camin)
+        coleg_fictiv(punctaje_perechi, camin, facultate)
 
     perechi = []
     single = []
@@ -321,8 +330,7 @@ def preferinte_pentru_stable_4(camin, punctaje_perechi):
             perechi.append(item)
         else:
             single.append(item)
-    # print("pereeeechi", punctaje_perechi)
-    # pprint(copie_students)
+
     if len(single) == 0 and len(perechi) % 2 == 0:
         preferinte = dict()
         # luam fiecare pereche si concatenam unic cele 2 liste cu preferintele fiecaruia
@@ -339,10 +347,9 @@ def preferinte_pentru_stable_4(camin, punctaje_perechi):
                     preferences_st1 = copy.copy(student['preferences'])
                 if student['name'] == st2:
                     preferences_st2 = copy.copy(student['preferences'])
+
             i = 0
             j = 0
-            # print("d")
-            # pprint(copie_students)
             while i < len(preferences_st1) and j < len(preferences_st2):
                 aux = cauta_pereche(punctaje_perechi, preferences_st1[i])
                 if aux not in optiuni and aux != item:
@@ -367,7 +374,6 @@ def preferinte_pentru_stable_4(camin, punctaje_perechi):
                     j += 1
             preferinte[item] = optiuni
 
-    # print("pref ", preferinte)
     return preferinte
 
 
@@ -399,11 +405,6 @@ def nume_camera(camera):
 
 
 def preferinte_pentru_stable_5(multime, perechi_ramase):
-    print("**************************")
-    print(perechi_ramase)
-    print("**************************")
-    pprint(copie_students)
-
     camera_5 = dict()
     for camera in multime:
         nume = nume_camera(camera)
@@ -417,11 +418,14 @@ def preferinte_pentru_stable_5(multime, perechi_ramase):
             nr_studenti_fara_camera += 1
 
     not_single = set()
+    i = 0
     while True:
+        i += 1
+        if i > 100:
+            break
         for item in perechi_ramase:
             st1 = item.split('+')[0]
             st2 = item.split('+')[1]
-            print(st1, st2)
             minim = 1000
             minim2 = 1000
 
@@ -430,13 +434,13 @@ def preferinte_pentru_stable_5(multime, perechi_ramase):
             for camera in multime:
                 if st1 != 'empty':
                     min_local = scor_camera(st1, camera)
-                    print(minim, min_local, scor_camera(camera_5[nume_camera(camera)], camera), st1, camera)
+                    # print(minim, min_local, scor_camera(camera_5[nume_camera(camera)], camera), st1, camera)
                     if minim > min_local < scor_camera(camera_5[nume_camera(camera)], camera):
                         minim = min_local
                         cheie = nume_camera(camera)
                 if st2 != "empty":
                     min_local = scor_camera(st2, camera)
-                    print(minim2, min_local, scor_camera(camera_5[nume_camera(camera)], camera), st2, camera)
+                    # print(minim2, min_local, scor_camera(camera_5[nume_camera(camera)], camera), st2, camera)
                     if minim2 > min_local < scor_camera(camera_5[nume_camera(camera)], camera):
                         minim2 = min_local
                         cheie2 = nume_camera(camera)
@@ -507,19 +511,19 @@ def calcul_punctaj():
     return punctaje_perechi
 
 
-def creare_perechi(camin, locuri):
+def creare_perechi(camin, locuri, facultate):
     punctaje_perechi = calcul_punctaj()
 
     # pprint(copie_students)
     if locuri == 3:
-        preferinte = preferinte_pentru_stable_3(camin, punctaje_perechi)
+        preferinte = preferinte_pentru_stable_3(camin, punctaje_perechi, facultate)
     elif locuri == 4:
-        preferinte = preferinte_pentru_stable_4(camin, punctaje_perechi)
+        preferinte = preferinte_pentru_stable_4(camin, punctaje_perechi, facultate)
 
     preferintele_in_template(preferinte)
 
 
-def creare_perechi_de_4(camin, locuri):
+def creare_perechi_de_4(camin, locuri, facultate):
     punctaje_perechi = calcul_punctaj()
     '''
         sortam crescator perechile dupa punctajul lor pentru a le lua pe cele mai bune; atatea perechi cate camere vor
@@ -527,15 +531,15 @@ def creare_perechi_de_4(camin, locuri):
     '''
     tuplu_sortat = sorted(punctaje_perechi.items(), key=operator.itemgetter(1))
     punctaje_top = []
-    nr_studenti = len(lista_studenti(camin))
+    nr_studenti = len(lista_studenti(camin, facultate))
     single = []
     perechi_ramase = []
-    for i in range(2*int(ceil(nr_studenti/5.0))):
+    for i in range(2 * int(ceil(nr_studenti / 5.0))):
         punctaje_top.append(tuplu_sortat[i][0])
         single.append(tuplu_sortat[i][0].split('+')[0])
         single.append(tuplu_sortat[i][0].split('+')[1])
 
-    for i in range(2*int(ceil(nr_studenti/5.0)), len(tuplu_sortat)):
+    for i in range(2 * int(ceil(nr_studenti / 5.0)), len(tuplu_sortat)):
         perechi_ramase.append(tuplu_sortat[i][0])
 
     preferinte = dict()
@@ -618,6 +622,10 @@ def afisare_camere_de_5(multime):
             o_camera.append(multime[item])
         camere.append(o_camera)
     return camere
+
+
+def stocare(camere):
+    pass
 
 
 def stable(multime):
@@ -721,7 +729,7 @@ def stable(multime):
         # print("b7")
         if len([st for st in multime if len(st['preferences']) > 1]) == 0:
             break
-        # print("b6")
+            # print("b6")
     # print("c")
     return multime
 
@@ -736,49 +744,49 @@ class Administrator(View):
                                 3 = trebuie create perechile
             param 3: numarul de locuri
         """
-        incarcare_preferinte(camin)
-        students = stable(students)
-        print("Camere de 2 persoane", afisare_camere(students))
+        for facultate in FACULTATI:
+            if incarcare_preferinte(camin, facultate) == 1:
+                students = stable(students)
+                camere = afisare_camere(students)
+                print("Camere de 2 persoane", camere)
 
     def camere_3(self, camin):
         global students
-        del students[:]
-        incarcare_preferinte(camin)
-        multime_de_2 = stable(students)
+        for facultate in FACULTATI:
+            del students[:]
+            if incarcare_preferinte(camin, facultate) == 1:
+                multime_de_2 = stable(students)
 
-        creare_perechi(camin, 3)
-        students = stable(multime_de_2)
-        print("Camere de 3 persoane", afisare_camere(students))
+                creare_perechi(camin, 3, facultate)
+                students = stable(multime_de_2)
+                camere = afisare_camere(students)
+                print("Camere de 3 persoane", camere)
 
     def camere_4(self, camin):
         global students
-        incarcare_preferinte(camin)
-        multime_de_2 = stable(students)
-        # print("intermediar Camere de 4 persoane", afisare_camere(multime_de_2))
+        for facultate in FACULTATI:
+            if incarcare_preferinte(camin, facultate) == 1:
+                multime_de_2 = stable(students)
 
-        creare_perechi(camin, 4)
-        students = stable(multime_de_2)
-        print("Camere de 4 persoane", afisare_camere(students))
+                creare_perechi(camin, 4, facultate)
+                students = stable(multime_de_2)
+                camere = afisare_camere(students)
+                print("Camere de 4 persoane", camere)
 
     def camere_5(self, camin):
-        incarcare_preferinte(camin)
-        multime_de_2 = stable(students)
-        # print("1111111111111111111111111111111")
-        # pprint(multime_de_2)
-        # print("1111111111111111111111111111111")
-        # print("de 2", afisare_camere(students))
+        for facultate in FACULTATI:
+            if incarcare_preferinte(camin, facultate) == 1:
+                multime_de_2 = stable(students)
+                studenti_2si2, perechi_ramase = creare_perechi_de_4(camin, 4, facultate)
+                multime_de_4 = stable(studenti_2si2)
+                multime_de_5 = preferinte_pentru_stable_5(afisare_camere(multime_de_4), perechi_ramase)
 
-        studenti_2si2, perechi_ramase = creare_perechi_de_4(camin, 4)
-        # print("camere_5")
-        multime_de_4 = stable(studenti_2si2)
+                # print("intermediar - Repartizare camere 5 persoane", afisare_camere(multime_de_4))
+                # print("multime de 5", multime_de_5)
+                camere = afisare_camere_de_5(multime_de_5)
 
-        multime_de_5 = preferinte_pentru_stable_5(afisare_camere(multime_de_4), perechi_ramase)
-        print("intermediar - Repartizare camere 5 persoane", afisare_camere(multime_de_4))
-        print("multime de 5", multime_de_5)
-        print("Repartizare camere 5 persoane", afisare_camere_de_5(multime_de_5))
-        # print("---------------------------------")
-        # pprint(multime_de_4)
-        # print("---------------------------------")
+                print("Repartizare camere 5 persoane", camere)
+                # stocare(camere, camin)
 
     def get(self, request):
         return render(request, self.template_name)
@@ -788,46 +796,57 @@ class Administrator(View):
         semafor = True
         s = 0
         p = 0
-        while semafor and p < 500:
-            try:
-                self.camere_2('C12')
-                semafor = False
-            except:
-                mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
-                p += 1
-                s += 1
+        for camin in camine:
+            print("\n")
+            print("CAMIN")
+            print(camin)
+            print("\n\n")
+            while semafor and p < 500:
+                try:
+                    self.camere_2(camin)
+                    semafor = False
+                except:
+                    mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                    p += 1
+                    s += 1
+            if semafor:
+                return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
 
-        p = 0
-        semafor = True
-        while semafor and p < 500:
-            try:
-                self.camere_3('C12')
-                semafor = False
-            except:
-                mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
-                p += 1
-                s += 1
+            p = 0
+            semafor = True
+            while semafor and p < 500:
+                try:
+                    self.camere_3(camin)
+                    semafor = False
+                except:
+                    mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                    p += 1
+                    s += 1
+            if semafor:
+                return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
 
-        p = 0
-        semafor = True
-        while semafor and p < 500:
-            try:
-                self.camere_4('C12')
-                semafor = False
-            except:
-                mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
-                p += 1
+            p = 0
+            semafor = True
+            while semafor and p < 500:
+                try:
+                    self.camere_4(camin)
+                    semafor = False
+                except:
+                    mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                    p += 1
+            if semafor:
+                return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
 
-        p = 0
-        semafor = True
-        while semafor and p < 500:
-            try:
-                self.camere_5('C12')
-                semafor = False
-            except:
-                mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
-                p += 1
-                s += 1
+            p = 0
+            semafor = True
+            while semafor and p < 500:
+                try:
+                    self.camere_5(camin)
+                    semafor = False
+                except:
+                    mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                    p += 1
+                    s += 1
 
         # pprint(students)
         mesaj_succes = "Repartizarea a fost facuta cu succes." + str(p) + " -> " + str(s)
