@@ -19,7 +19,7 @@ conn = MySQLdb.connect(host="localhost",
 students = []
 copie_students = []
 duplicat_students = []
-camine = ['C12']
+camine = ['C1', 'C12']
           # 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C10', 'C11', 'C12', 'C13', 'Gaudeamus', 'Akademos',
           # 'Buna Vestire']
 FACULTATI = [
@@ -83,8 +83,11 @@ def incarcare_preferinte(camin, facultate):
 
     c.execute("SELECT * from stable_repartizare r "
               "join stable_student s on s.numar_matricol = r.numar_matricol "
-              "where r.camin=%s and s.facultate=%s", [camin, facultate])
+              "where r.camin=%s and s.facultate=%s and r.repartizare_camera=%s", [camin, facultate, False])
     data = c.fetchall()
+    studenti_eligibili = []
+    for st in data:
+        studenti_eligibili.append(st[1])
     if len(data) == 0:
         return -1
     for st in data:
@@ -98,10 +101,11 @@ def incarcare_preferinte(camin, facultate):
         data_pref = c.fetchall()
         studenti_preferati = []
         for i in data_pref:
-            studenti_preferati.append(i[2])
+            if i[2] in studenti_eligibili:
+                studenti_preferati.append(i[2])
         shuffle(toti_studentii)
         for st in toti_studentii:
-            if st != numar_matricol and st not in studenti_preferati:
+            if st != numar_matricol and st not in studenti_preferati and st in studenti_eligibili:
                 studenti_preferati.append(st)
         d['preferences'] = studenti_preferati
         students.append(d)
@@ -272,10 +276,24 @@ def preferinte_pentru_stable_3(camin, punctaje_perechi, facultate):
             j += 1
         preferinte[item] = optiuni
 
+    c = conn.cursor()
+    c.execute("SELECT * from stable_repartizare r "
+              "join stable_student s on s.numar_matricol = r.numar_matricol "
+              "where r.camin=%s and s.facultate=%s and r.repartizare_camera=%s", [camin, facultate, False])
+    data = c.fetchall()
+    c.close()
+
+    studenti_eligibili = []
+    for st in data:
+        studenti_eligibili.append(st[1])
+
     for item in single:
+        preferences = []
         for student in copie_students:
             if student['name'] == item:
-                preferences = copy.copy(student['preferences'])
+                for i in student['preferences']:
+                    if i in studenti_eligibili:
+                        preferences.append(i)
 
         optiuni = []
         i = 0
@@ -521,7 +539,6 @@ def calcul_punctaj():
 
 def creare_perechi(camin, locuri, facultate):
     punctaje_perechi = calcul_punctaj()
-
     # pprint(copie_students)
     if locuri == 3:
         preferinte = preferinte_pentru_stable_3(camin, punctaje_perechi, facultate)
@@ -672,6 +689,60 @@ def stocare(camere, camin):
         conn.commit()
         c.close()
 
+
+def punctaj_camere(camere):
+    global copie_students
+    punctaj = dict()
+    # pentru fiecare camera
+    for camera in camere:
+        punctaj[nume_camera(camera)] = 0
+        # pentru fiecare student
+        for st in camera:
+            # cautam studentul in dictionarul initial
+            for student in copie_students:
+                if student['name'] == st:
+                    # dupa ce l-am gasit vedem indexul preferintelor
+                    for coleg in camera:
+                        if coleg != st:
+                            punctaj[nume_camera(camera)] += student['preferences'].index(coleg)
+    return punctaj
+
+
+def stocare_2(camere, camin, locuri):
+    punctaj = punctaj_camere(camere)
+    punctaj = sorted(punctaj.items(), key=operator.itemgetter(1))
+    hostel = Camin.objects.filter(nume_camin=camin, locuri=locuri)
+    numar_camere = []
+    for item in hostel:
+        numar_camere.append(item.numar_camera)
+    numar_camere.sort()
+    for i in range(len(numar_camere)):
+        key = punctaj[i][0]
+        for camera in camere:
+            if key.split('+')[0] in camera:
+                hostel = Camin.objects.get(numar_camera=numar_camere[i])
+                # in cazul in care aceasta camera este deja inserata trebuie sa o stergem
+                try:
+                    camera = MultimeStabila.objects.get(camera=hostel)
+                    camera.delete()
+                except:
+                    pass
+
+                try:
+                    MultimeStabila.objects.create(
+                        camera=hostel,
+                        coleg1=camere[i][0],
+                        coleg2=camere[i][1]
+                    )
+                    c = conn.cursor()
+                    for j in range(len(camere[i])):
+                        c.execute("UPDATE stable_repartizare set repartizare_camera=True where numar_matricol=%s", [camere[i][j]])
+                    conn.commit()
+                    c.close()
+                except Exception as error:
+                    print(error)
+
+
 def stable(multime):
     # pprint(multime)
     s = 0
@@ -773,7 +844,6 @@ def stable(multime):
         # print("b7")
         if len([st for st in multime if len(st['preferences']) > 1]) == 0:
             break
-            # print("b6")
     # print("c")
     return multime
 
@@ -793,6 +863,7 @@ class Administrator(View):
                 students = stable(students)
                 camere = afisare_camere(students)
                 print("Camere de 2 persoane", camere)
+                stocare_2(camere, camin, 2)
 
     def camere_3(self, camin):
         global students
@@ -805,6 +876,11 @@ class Administrator(View):
                 students = stable(multime_de_2)
                 camere = afisare_camere(students)
                 print("Camere de 3 persoane", camere)
+                for camera in camere:
+                    if 'empty' in camera:
+                        camera.remove('empty')
+                print("Camere de 3 persoane", camere)
+                stocare_2(camere, camin, 3)
 
     def camere_4(self, camin):
         global students
@@ -825,8 +901,6 @@ class Administrator(View):
                 multime_de_4 = stable(studenti_2si2)
                 multime_de_5 = preferinte_pentru_stable_5(afisare_camere(multime_de_4), perechi_ramase)
 
-                # print("intermediar - Repartizare camere 5 persoane", afisare_camere(multime_de_4))
-                # print("multime de 5", multime_de_5)
                 camere = afisare_camere_de_5(multime_de_5)
 
                 print("Repartizare camere 5 persoane", camere)
@@ -905,4 +979,9 @@ class Administrator(View):
 
 def avansare_an_studiu(request):
     print("avansare an studiu")
+    # temporar
+    aux = Repartizare.objects.filter(repartizare_camera=True)
+    for item in aux:
+        item.repartizare_camera = False
+        item.save()
     return JsonResponse({})

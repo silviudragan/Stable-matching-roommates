@@ -85,6 +85,7 @@ class Repartizare(models.Model):
 
     numar_matricol = models.CharField(max_length=30)
     camin = models.CharField(max_length=30, choices=CAMINE)
+    repartizare_camera = models.BooleanField(default=False)
 
     def __str__(self):
         return self.numar_matricol + ' in ' + self.camin
@@ -109,6 +110,7 @@ class Camin(models.Model):
     nume_camin = models.CharField(max_length=30, choices=CAMINE)
     numar_camera = models.IntegerField()
     facultate = models.CharField(max_length=40, choices=FACULTATI, blank=True)
+    locuri = models.IntegerField()
 
     def __str__(self):
         return self.facultate + ': ' + self.nume_camin + ' - ' + str(self.numar_camera)

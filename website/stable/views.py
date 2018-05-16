@@ -15,7 +15,7 @@ from django.shortcuts import render, redirect
 from .forms import UserForm, LoginForm
 from django.views.generic import View
 from django.contrib.auth import authenticate, login, logout
-from .models import Student, Recenzie
+from . models import Student, Recenzie, Coleg, Repartizare, Preferinta, Camin, MultimeStabila
 
 username = ""
 email = ""
@@ -117,9 +117,7 @@ class Logout(View):
 class Profil(View):
 
     def verificare_introducere_preferinte(self):
-        c = conn.cursor()
-        c.execute("SELECT * from stable_preferinta where numar_matricol=%s", [username])
-        data = c.fetchall()
+        data = Preferinta.objects.filter(numar_matricol=username)
         if len(data) == 0:
             return False
         else:
@@ -146,6 +144,38 @@ class Profil(View):
         c.close()
         return colegi_camin, nume_camin
 
+    def colegi_repartizati(self, nume_camin):
+        camere_repartizate = Camin.objects.filter(nume_camin=nume_camin)
+        numar_camere = []
+        for item in camere_repartizate:
+            numar_camere.append(item.numar_camera)
+
+        uid_colegii_repartizati = []
+        numar_camera = 0
+        for nr in numar_camere:
+            camera = MultimeStabila.objects.filter(camera=Camin.objects.get(numar_camera=nr))
+            studenti_camera = []
+            if len(camera) > 0:
+                for item in camera:
+                    studenti_camera.append(item.coleg1)
+                    studenti_camera.append(item.coleg2)
+                    studenti_camera.append(item.coleg3)
+                    studenti_camera.append(item.coleg4)
+                    studenti_camera.append(item.coleg5)
+                if username in studenti_camera:
+                    numar_camera = nr
+                    for item in studenti_camera:
+                        if len(item) > 0 and item != username:
+                            uid_colegii_repartizati.append(item)
+
+        colegii_repartizati = []
+        an_studiu = []
+        grupa = []
+        for uid in uid_colegii_repartizati:
+            student = Student.objects.get(numar_matricol=uid)
+            colegii_repartizati.append(student.nume + ' ' + student.prenume)
+        return colegii_repartizati, numar_camera
+
     def get(self, request):
         if len(username) == 0:
             return redirect('login')
@@ -153,10 +183,14 @@ class Profil(View):
         student = Student.objects.get(numar_matricol=username)
         colegi_camin, nume_camin = self.incarcare_preferinte()
         introdus_preferinte = False
+
+        colegii_repartizati, numar_camera = self.colegi_repartizati(nume_camin)
+
         if self.verificare_introducere_preferinte():
             introdus_preferinte = True
         return render(request, self.template_name, {'student': student, 'colegi_camin': colegi_camin, 'nume_camin': nume_camin,
-                                                    'introdus_preferinte': introdus_preferinte})
+                                                    'introdus_preferinte': introdus_preferinte, 'colegii_repartizati': colegii_repartizati,
+                                                    'numar_camera': numar_camera})
 
     def post(self, request):
         c = conn.cursor()
