@@ -10,6 +10,8 @@ from django.shortcuts import render
 from django.views import View
 import MySQLdb
 
+from . models import Student, Recenzie, Coleg, Repartizare, Preferinta, Camin, MultimeStabila
+
 conn = MySQLdb.connect(host="localhost",
                        user="root",
                        passwd="Silviu01",
@@ -17,8 +19,9 @@ conn = MySQLdb.connect(host="localhost",
 students = []
 copie_students = []
 duplicat_students = []
-camine = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C10', 'C11', 'C12', 'C13', 'Gaudeamus', 'Akademos',
-          'Buna Vestire']
+camine = ['C12']
+          # 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C10', 'C11', 'C12', 'C13', 'Gaudeamus', 'Akademos',
+          # 'Buna Vestire']
 FACULTATI = [
     'Biologie',
     'Chimie',
@@ -35,6 +38,11 @@ FACULTATI = [
     'Psihologie si Stiinte ale Educatiei',
     'Teologie Ortodoxa',
     'Teologie Romano-Catolica', ]
+
+LOCURI = {
+    'C1': [2, 3, 4],
+    'C12': [5]
+}
 
 
 def lista_studenti(camin, facultate):
@@ -624,9 +632,45 @@ def afisare_camere_de_5(multime):
     return camere
 
 
-def stocare(camere):
-    pass
+def stocare(camere, camin):
+    hostel = Camin.objects.filter(nume_camin=camin)
+    numar_camere = []
+    for item in hostel:
+        numar_camere.append(item.numar_camera)
+    numar_camere.sort()
 
+    for i in range(len(camere)):
+        hostel = Camin.objects.get(numar_camera=numar_camere[i])
+        # in cazul in care aceasta camera este deja inserata trebuie sa o stergem
+        try:
+            camera = MultimeStabila.objects.get(camera=hostel)
+            camera.delete()
+        except:
+            pass
+
+        try:
+            MultimeStabila.objects.create(
+                camera=hostel,
+                coleg1=camere[i][0],
+                coleg2=camere[i][1]
+            )
+        except Exception as error:
+            print(error)
+
+        c = conn.cursor()
+        if len(camere[i]) == 5:
+            c.execute("UPDATE stable_multimestabila set coleg3=%s, coleg4=%s, coleg5=%s where coleg1=%s and coleg2=%s",
+                      [camere[i][2], camere[i][3], camere[i][4], camere[i][0], camere[i][1]])
+        elif len(camere[i]) == 4:
+            c.execute(
+                "UPDATE stable_multimestabila set coleg3=%s, coleg4=%s where coleg1=%s and coleg2=%s",
+                [camere[i][2], camere[i][3], camere[i][0], camere[i][1]])
+        else:
+            c.execute(
+                "UPDATE stable_multimestabila set coleg3=%s where coleg1=%s and coleg2=%s",
+                [camere[i][2], camere[i][0], camere[i][1]])
+        conn.commit()
+        c.close()
 
 def stable(multime):
     # pprint(multime)
@@ -786,7 +830,7 @@ class Administrator(View):
                 camere = afisare_camere_de_5(multime_de_5)
 
                 print("Repartizare camere 5 persoane", camere)
-                # stocare(camere, camin)
+                stocare(camere, camin)
 
     def get(self, request):
         return render(request, self.template_name)
@@ -801,54 +845,57 @@ class Administrator(View):
             print("CAMIN")
             print(camin)
             print("\n\n")
-            while semafor and p < 500:
-                try:
-                    self.camere_2(camin)
-                    semafor = False
-                except:
-                    mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
-                    p += 1
-                    s += 1
-            if semafor:
-                return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
+            if 2 in LOCURI[camin]:
+                while semafor and p < 500:
+                    try:
+                        self.camere_2(camin)
+                        semafor = False
+                    except:
+                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                        p += 1
+                        s += 1
+                if semafor:
+                    return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
 
-            p = 0
-            semafor = True
-            while semafor and p < 500:
-                try:
-                    self.camere_3(camin)
-                    semafor = False
-                except:
-                    mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
-                    p += 1
-                    s += 1
-            if semafor:
-                return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
+            if 3 in LOCURI[camin]:
+                p = 0
+                semafor = True
+                while semafor and p < 500:
+                    try:
+                        self.camere_3(camin)
+                        semafor = False
+                    except:
+                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                        p += 1
+                        s += 1
+                if semafor:
+                    return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
 
-            p = 0
-            semafor = True
-            while semafor and p < 500:
-                try:
-                    self.camere_4(camin)
-                    semafor = False
-                except:
-                    mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
-                    p += 1
-            if semafor:
-                return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
+            if 4 in LOCURI[camin]:
+                p = 0
+                semafor = True
+                while semafor and p < 500:
+                    try:
+                        self.camere_4(camin)
+                        semafor = False
+                    except:
+                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                        p += 1
+                if semafor:
+                    return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
 
-            p = 0
-            semafor = True
-            while semafor and p < 500:
-                try:
-                    self.camere_5(camin)
-                    semafor = False
-                except:
-                    mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
-                    p += 1
-                    s += 1
+            if 5 in LOCURI[camin]:
+                p = 0
+                semafor = True
+                while semafor and p < 500:
+                    try:
+                        self.camere_5(camin)
+                        semafor = False
+                    except:
+                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                        p += 1
+                        s += 1
 
-        # pprint(students)
         mesaj_succes = "Repartizarea a fost facuta cu succes." + str(p) + " -> " + str(s)
         if not semafor:
             return render(request, self.template_name, {'mesaj_succes': mesaj_succes})
