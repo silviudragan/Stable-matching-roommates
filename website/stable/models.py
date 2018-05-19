@@ -119,7 +119,7 @@ class Camin(models.Model):
 class MultimeStabila(models.Model):
     camera = models.OneToOneField(Camin, primary_key=True)
     coleg1 = models.CharField(max_length=30)
-    coleg2 = models.CharField(max_length=30)
+    coleg2 = models.CharField(max_length=30, blank=True)
     coleg3 = models.CharField(max_length=30, blank=True)
     coleg4 = models.CharField(max_length=30, blank=True)
     coleg5 = models.CharField(max_length=30, blank=True)

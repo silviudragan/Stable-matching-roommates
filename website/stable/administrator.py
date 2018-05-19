@@ -49,7 +49,7 @@ def lista_studenti(camin, facultate):
     c = conn.cursor()
     c.execute("SELECT * from stable_repartizare r "
               "join stable_student s on s.numar_matricol = r.numar_matricol "
-              "where r.camin=%s and s.facultate=%s", [camin, facultate])
+              "where r.repartizare_camera= False and r.camin=%s and s.facultate=%s", [camin, facultate])
     data = c.fetchall()
     toti_studentii = []
     for st in data:
@@ -58,6 +58,7 @@ def lista_studenti(camin, facultate):
 
 
 def adaugare_coleg_fals(camin, facultate):
+    global students
     toti_studentii = lista_studenti(camin, facultate)
     d = dict()
     d['name'] = "empty"
@@ -85,6 +86,7 @@ def incarcare_preferinte(camin, facultate):
               "join stable_student s on s.numar_matricol = r.numar_matricol "
               "where r.camin=%s and s.facultate=%s and r.repartizare_camera=%s", [camin, facultate, False])
     data = c.fetchall()
+
     studenti_eligibili = []
     for st in data:
         studenti_eligibili.append(st[1])
@@ -97,7 +99,9 @@ def incarcare_preferinte(camin, facultate):
         d['propose'] = ""
         d['accept'] = ""
 
-        c.execute("SELECT * from stable_preferinta where numar_matricol=%s order by importanta", [numar_matricol])
+        c.execute("SELECT * from stable_preferinta p "
+                  "join stable_repartizare r on r.numar_matricol = p.numar_matricol "
+                  "where r.repartizare_camera=False and p.numar_matricol=%s order by importanta", [numar_matricol])
         data_pref = c.fetchall()
         studenti_preferati = []
         for i in data_pref:
@@ -112,6 +116,24 @@ def incarcare_preferinte(camin, facultate):
 
     if empty:
         adaugare_coleg_fals(camin, facultate)
+        '''
+            adaugarea colegului fictiv unde este posibil
+        '''
+        c = conn.cursor()
+        for student in students:
+            c.execute("SELECT * from stable_preferinta p "
+                      "join stable_repartizare r on r.numar_matricol = p.numar_matricol "
+                      "where r.repartizare_camera=False and p.numar_matricol=%s order by importanta", [student['name']])
+            data_pref = c.fetchall()
+            studenti_preferati = []
+            for i in data_pref:
+                studenti_preferati.append(i[2])
+            shuffle(toti_studentii)
+            for st in toti_studentii:
+                if st != student['name'] and st not in studenti_preferati:
+                    studenti_preferati.append(st)
+            student['preferences'] = studenti_preferati
+
 
     c.close()
     global copie_students
@@ -716,6 +738,7 @@ def stocare_2(camere, camin, locuri):
     for item in hostel:
         numar_camere.append(item.numar_camera)
     numar_camere.sort()
+    print(locuri, numar_camere)
     for i in range(len(numar_camere)):
         key = punctaj[i][0]
         for camera in camere:
@@ -731,20 +754,53 @@ def stocare_2(camere, camin, locuri):
                 try:
                     MultimeStabila.objects.create(
                         camera=hostel,
-                        coleg1=camere[i][0],
-                        coleg2=camere[i][1]
+                        coleg1=camere[i][0]
                     )
-                    c = conn.cursor()
-                    for j in range(len(camere[i])):
-                        c.execute("UPDATE stable_repartizare set repartizare_camera=True where numar_matricol=%s", [camere[i][j]])
-                    conn.commit()
-                    c.close()
+                except:
+                    print("aici e eroarea")
+
+                '''
+                    try - except pentru ca repartizarea poate fi facuta intr-o camera de 2/3/4 persoane, dar in camera sa
+                    fie de fapt o singura persoana repartizata, deci va fi eroare index out of range
+                '''
+                try:
+                    if locuri == 2:
+                        aux = MultimeStabila.objects.get(camera=hostel)
+                        aux.coleg2 = camere[i][1]
+                        aux.save()
                 except Exception as error:
-                    print(error)
+                    pass
+
+                try:
+                    if locuri == 3:
+                        aux = MultimeStabila.objects.get(camera=hostel)
+                        aux.coleg2 = camere[i][1]
+                        aux.save()
+                        aux.coleg3 = camere[i][2]
+                        aux.save()
+                except Exception as error:
+                    pass
+
+                try:
+                    if locuri == 4:
+                        aux = MultimeStabila.objects.get(camera=hostel)
+                        aux.coleg2 = camere[i][1]
+                        aux.save()
+                        aux.coleg3 = camere[i][2]
+                        aux.save()
+                        aux.coleg4 = camere[i][3]
+                        aux.save()
+                except Exception as error:
+                    pass
+
+                c = conn.cursor()
+                for j in range(len(camere[i])):
+                    c.execute("UPDATE stable_repartizare set repartizare_camera=True where numar_matricol=%s", [camere[i][j]])
+                conn.commit()
+                c.close()
 
 
 def stable(multime):
-    # pprint(multime)
     s = 0
     while True:
         for st in multime:
@@ -791,11 +847,6 @@ def stable(multime):
             for i in multime:
                 if it == i['name']:
                     try:
-                        # print("2222222222")
-                        # print(st)
-                        # print("it  ", it)
-                        # print("ii    ", i)
-                        # print("2222222222")
                         i['preferences'].remove(st['name'])
                         st['preferences'].remove(it)
                     except Exception as error:
@@ -875,12 +926,13 @@ class Administrator(View):
                 creare_perechi(camin, 3, facultate)
                 students = stable(multime_de_2)
                 camere = afisare_camere(students)
-                print("Camere de 3 persoane", camere)
+
                 for camera in camere:
                     if 'empty' in camera:
                         camera.remove('empty')
                 print("Camere de 3 persoane", camere)
                 stocare_2(camere, camin, 3)
+                print("final de 3")
 
     def camere_4(self, camin):
         global students
@@ -891,7 +943,17 @@ class Administrator(View):
                 creare_perechi(camin, 4, facultate)
                 students = stable(multime_de_2)
                 camere = afisare_camere(students)
+
                 print("Camere de 4 persoane", camere)
+                for camera in camere:
+                    i = 0
+                    while i < len(camera):
+                        if camera[i] == 'empty':
+                            camera.remove('empty')
+                        else:
+                            i += 1
+                print("Camere de 4 persoane", camere)
+                stocare_2(camere, camin, 4)
 
     def camere_5(self, camin):
         for facultate in FACULTATI:
@@ -920,7 +982,7 @@ class Administrator(View):
             print(camin)
             print("\n\n")
             if 2 in LOCURI[camin]:
-                while semafor and p < 500:
+                while semafor and p < 30:
                     try:
                         self.camere_2(camin)
                         semafor = False
@@ -934,7 +996,7 @@ class Administrator(View):
             if 3 in LOCURI[camin]:
                 p = 0
                 semafor = True
-                while semafor and p < 500:
+                while semafor and p < 30:
                     try:
                         self.camere_3(camin)
                         semafor = False
@@ -948,7 +1010,7 @@ class Administrator(View):
             if 4 in LOCURI[camin]:
                 p = 0
                 semafor = True
-                while semafor and p < 500:
+                while semafor and p < 30:
                     try:
                         self.camere_4(camin)
                         semafor = False
@@ -961,7 +1023,7 @@ class Administrator(View):
             if 5 in LOCURI[camin]:
                 p = 0
                 semafor = True
-                while semafor and p < 500:
+                while semafor and p < 30:
                     try:
                         self.camere_5(camin)
                         semafor = False
