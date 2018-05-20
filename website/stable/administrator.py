@@ -10,6 +10,7 @@ from django.shortcuts import render
 from django.views import View
 import MySQLdb
 
+from . export import export_repartizare
 from . models import Student, Recenzie, Coleg, Repartizare, Preferinta, Camin, MultimeStabila
 
 conn = MySQLdb.connect(host="localhost",
