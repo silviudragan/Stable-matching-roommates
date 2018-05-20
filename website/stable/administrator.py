@@ -40,8 +40,21 @@ FACULTATI = [
     'Teologie Romano-Catolica', ]
 
 LOCURI = {
-    'C1': [2, 3, 4],
-    'C12': [5]
+    'C1': [2, 3],
+    'C2': [2, 3, 4],
+    'C3': [2, 3, 4],
+    'C4': [5],
+    'C5': [2, 3],
+    'C6': [5],
+    'C7': [5],
+    'C8': [5],
+    'C10': [5],
+    'C11': [2, 3],
+    'C12': [5],
+    'C13': [5],
+    'Gaudeamus': [2, 3],
+    'Akademos': [2, 3],
+    'Buna Vestire': [2]
 }
 
 
@@ -711,6 +724,11 @@ def stocare(camere, camin):
         conn.commit()
         c.close()
 
+        for j in range(len(camere[i])):
+            aux = Repartizare.objects.get(numar_matricol=camere[i][j])
+            aux.repartizare_camera = True
+            aux.save()
+
 
 def punctaj_camere(camere):
     global copie_students
@@ -730,15 +748,15 @@ def punctaj_camere(camere):
     return punctaj
 
 
-def stocare_2(camere, camin, locuri):
+def stocare_2(camere, camin, locuri, facultate):
     punctaj = punctaj_camere(camere)
     punctaj = sorted(punctaj.items(), key=operator.itemgetter(1))
-    hostel = Camin.objects.filter(nume_camin=camin, locuri=locuri)
+    hostel = Camin.objects.filter(nume_camin=camin, locuri=locuri, facultate=facultate)
     numar_camere = []
     for item in hostel:
         numar_camere.append(item.numar_camera)
     numar_camere.sort()
-    print(locuri, numar_camere)
+
     for i in range(len(numar_camere)):
         key = punctaj[i][0]
         for camera in camere:
@@ -900,7 +918,7 @@ def stable(multime):
 
 
 class Administrator(View):
-    template_name = 'stable/admin.html'
+    template_name = 'stable/comenzi_admin/repartizare.html'
 
     def camere_2(self, camin):
         global students
@@ -913,8 +931,12 @@ class Administrator(View):
             if incarcare_preferinte(camin, facultate) == 1:
                 students = stable(students)
                 camere = afisare_camere(students)
+
+                for camera in camere:
+                    if 'empty' in camera:
+                        camera.remove('empty')
                 print("Camere de 2 persoane", camere)
-                stocare_2(camere, camin, 2)
+                stocare_2(camere, camin, 2, facultate)
 
     def camere_3(self, camin):
         global students
@@ -931,8 +953,7 @@ class Administrator(View):
                     if 'empty' in camera:
                         camera.remove('empty')
                 print("Camere de 3 persoane", camere)
-                stocare_2(camere, camin, 3)
-                print("final de 3")
+                stocare_2(camere, camin, 3, facultate)
 
     def camere_4(self, camin):
         global students
@@ -944,7 +965,6 @@ class Administrator(View):
                 students = stable(multime_de_2)
                 camere = afisare_camere(students)
 
-                print("Camere de 4 persoane", camere)
                 for camera in camere:
                     i = 0
                     while i < len(camera):
@@ -953,7 +973,7 @@ class Administrator(View):
                         else:
                             i += 1
                 print("Camere de 4 persoane", camere)
-                stocare_2(camere, camin, 4)
+                stocare_2(camere, camin, 4, facultate)
 
     def camere_5(self, camin):
         for facultate in FACULTATI:
@@ -1039,11 +1059,30 @@ class Administrator(View):
             return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
 
 
-def avansare_an_studiu(request):
-    print("avansare an studiu")
-    # temporar
-    aux = Repartizare.objects.filter(repartizare_camera=True)
-    for item in aux:
-        item.repartizare_camera = False
-        item.save()
-    return JsonResponse({})
+class Resetare(View):
+    template_name = 'stable/comenzi_admin/resetare.html'
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+    def post(self, request):
+        print("sterge date")
+        aux = Repartizare.objects.filter(repartizare_camera=True)
+        for item in aux:
+            item.repartizare_camera = False
+            item.save()
+
+        MultimeStabila.objects.all().delete()
+        return render(request, self.template_name)
+
+
+class Avansare(View):
+    template_name = 'stable/comenzi_admin/avansareAn.html'
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+    def post(self, request):
+        print("avansare")
+        # de implementat
+        return render(request, self.template_name)

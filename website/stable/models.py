@@ -125,4 +125,4 @@ class MultimeStabila(models.Model):
     coleg5 = models.CharField(max_length=30, blank=True)
 
     def __str__(self):
-        return self.coleg1 + ' - ' + self.coleg2 + ' - ' + self.coleg3 + ' - ' + self.coleg4 + ' - ' + self.coleg5
+        return self.camera.nume_camin + '/' + str(self.camera.numar_camera) + ': ' + self.coleg1 + ' - ' + self.coleg2 + ' - ' + self.coleg3 + ' - ' + self.coleg4 + ' - ' + self.coleg5

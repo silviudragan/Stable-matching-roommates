@@ -1,0 +1,21 @@
+{% extends 'stable/base_admin.html' %}
+{% load staticfiles %}
+
+{% block descriere_comanda %}
+    <h2> Repartizare camin </h2>
+    <p>Prin intermediul acestei comenzi fiecărui student al universității Alexandru Ioan Cuza care a fost repartizat la un cămin îi vor fi aleși
+    colegii de cameră, fie că este vorba de o cameră cu 2, 3, 4 sau 5 locuri. Alegerea va fi făcută în funcție de preferințele introduse ale acestuia.</p>
+
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="col-lg-8" style="text-align: center; margin:80px;">
+            <button type="submit" class="btn btn-primary" style="height:50px; width:200px"> Aplică </button><br><br>
+        </div>
+    </form>
+{% endblock %}
+
+{% block comenzi %}
+    <li><a href="{% url 'administrator' %}" class="selected"> Repartizare </a></li>
+    <li><a href="{% url 'avansare' %}" > Avansare </a></li>
+    <li><a href="{% url 'resetare' %}" > Resetare </a></li>
+{% endblock %}

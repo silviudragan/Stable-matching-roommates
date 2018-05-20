@@ -1,0 +1,79 @@
+body{
+	position: center;
+	margin: 0px;
+	padding: 0px;
+	color: #c8c8c8;
+	font-family: Tahoma, Geneva, sans-serif;
+	font-size: 12px;
+	line-height: 1.5em;
+	background-color: #0f0d0c;
+	background-repeat: repeat;
+	background-position: top;
+}
+
+
+#main {
+	position: center;
+	width: 800px;
+	height: 490px;
+	margin: 0 auto;
+	padding: 30px 10px;
+	background: url(stable/images/main.png) no-repeat center center;
+}
+
+#content {
+	position: center;
+	float: right;
+	width: 630px;
+	height: 410px;
+	padding: 40px 20px;
+}
+
+#sidebar {
+	position: left;
+	float: left;
+	width: 130px;
+	height: 490px;
+}
+
+#menu {
+	position: center;
+	clear: both;
+	width:  590px;
+	height: 485px;
+	margin: 5px 7px 0 4px;
+}
+
+ul.navigation {
+    list-style: none;
+    margin: 0 12px 0 0;
+    padding: 0px 0;
+}
+
+ul.navigation li {
+    margin: 0;
+	padding: 0;
+}
+
+ul.navigation a {
+	display: block;
+	width: 120px;
+	height: 38px;
+	padding-left: 5px;
+	line-height: 38px;
+	margin-bottom: 10px;
+    text-decoration: none;
+	color: #333;
+	font-weight: 700;
+	background: url(stable/images/menu.png) no-repeat left center;
+}
+
+ul.navigation a:hover, ul.navigation a.selected { background:url(stable/images/menu_hover.png) no-repeat left center }
+
+h2 {
+	color: #fff;
+	font-size: 30px;
+	font-weight: normal;
+	padding-bottom: 15px;
+	margin: 0 0 15px 0;
+}

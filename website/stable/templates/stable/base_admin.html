@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {% load staticfiles %}
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <link rel="shortcut icon" type="image/png" href="{% static 'stable/images/5.png' %}"/>
+        <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'style_admin.css' %}">
+        <script src="{% static 'javascript.js' %}"></script>
+
+
+        <style>
+        body{
+            background-color: #99CCFF;
+        }
+        </style>
+        <title> Administrator </title>
+    </head>
+
+    <body>
+        <br><br>
+        <center><h2><b> Administrator </b></h2></center><br>
+         <div id="main">
+
+            <div id="content">
+                {% block descriere_comanda %}
+                {% endblock %}
+            </div>
+
+            <div id="sidebar">
+                <div id="menu">
+                    <ul class="navigation">
+                        {% block comenzi %}
+                        {% endblock %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+
+        {% if mesaj_succes %}
+            <script>
+                window.onload = function(){
+                    var x = document.getElementById("snackbarSucces")
+                    x.className = "show";
+                    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 4000);
+                };
+            </script>
+            <div id="snackbarSucces"> {{ mesaj_succes }}</div>
+        {% endif %}
+
+        {% if mesaj_warning %}
+            <script>
+                window.onload = function(){
+                    var x = document.getElementById("snackbarWarn")
+                    x.className = "show";
+                    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 4000);
+                };
+            </script>
+            <div id="snackbarWarn"> {{ mesaj_warning }}</div>
+        {% endif %}
+
+        <script>
+            function avansareAn(){
+            $.ajax({
+                url: '/ajax/avansare_an_studiu/',
+                type: 'get',
+                data: {},
+                dataType: 'json',
+            }).done(function(data){
+                console.log(data);
+                console.log("silviuuu");
+            });
+        }
+        </script>
+    </body>
+</html>

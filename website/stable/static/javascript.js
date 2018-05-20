@@ -394,9 +394,9 @@ function salvareFavoriti(){
     console.log(nume_preferinte);
 }
 
-function avansareAn(){
+function stergeDate(){
     $.ajax({
-        url: '/ajax/avansare_an_studiu/',
+        url: '/ajax/sterge_date/',
         type: 'get',
         data: {},
         dataType: 'json',
