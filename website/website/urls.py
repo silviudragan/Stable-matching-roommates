@@ -16,6 +16,7 @@ urlpatterns = [
     url(r'^administrator/$', administrator.Administrator.as_view(), name='administrator'),
     url(r'^administrator/resetare/$', administrator.Resetare.as_view(), name='resetare'),
     url(r'^administrator/avansare/$', administrator.Avansare.as_view(), name='avansare'),
+    url(r'^administrator/excel/$', administrator.GenerareExcel.as_view(), name='excel'),
     url(r'^ajax/validate_username/$', views.display_info_coleg, name='display_info_coleg'),
     url(r'^ajax/recenzii_facute/$', views.recenzii_facute, name='recenzii_facute'),
     url(r'^ajax/recenzii_primite/$', views.recenzii_primite, name='recenzii_primite'),

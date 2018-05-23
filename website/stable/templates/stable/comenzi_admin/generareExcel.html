@@ -2,8 +2,9 @@
 {% load staticfiles %}
 
 {% block descriere_comanda %}
-    <h2> Avansare an </h2>
-    <p> Prin intermediul acestei comenzi se oferă posibilitatea de a incrementa anul de studiu al studenților la începutul anului universitar.</p>
+    <h2> Generare document Excel </h2>
+    <p> Prin intermediul acestei comenzi se oferă posibilitatea de a genera un document excel având câte un worksheet pentru fiecare facultate
+        în care se află camerele repartizate respectivei facultăți și studenții ce au fost repartizați în ele.</p>
     <form action="" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="col-lg-8" style="text-align: center; margin:80px;">
@@ -14,7 +15,7 @@
 
 {% block comenzi %}
     <li><a href="{% url 'administrator' %}"> Repartizare </a></li>
-    <li><a href="{% url 'avansare' %}" class="selected"> Avansare </a></li>
-    <li><a href="{% url 'excel' %}" > Excel </a></li>
+    <li><a href="{% url 'avansare' %}"> Avansare </a></li>
+    <li><a href="{% url 'excel' %}" class="selected"> Excel </a></li>
     <li><a href="{% url 'resetare' %}"> Resetare </a></li>
 {% endblock %}

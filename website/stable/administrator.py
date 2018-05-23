@@ -1087,3 +1087,14 @@ class Avansare(View):
         print("avansare")
         # de implementat
         return render(request, self.template_name)
+
+
+class GenerareExcel(View):
+    template_name = 'stable/comenzi_admin/generareExcel.html'
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+    def post(self, request):
+        export_repartizare()
+        return render(request, self.template_name)
