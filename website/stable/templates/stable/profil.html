@@ -25,11 +25,12 @@
             {% csrf_token %}
             <span class="text-danger small"> {{student.errors}}</span>
             <input type="file" name="poza_profil">
+            <button type="submit">Upload</button>
             <div class="col-sm-offset-2 col-sm-10">
                 <button type="submit" class="btn btn-success"> Incarca poza </button>
             </div>
         </form>
-    </div>
+    </div><br><br>
     <h4 style="text-align: center; background-color:#800000; color:white;">Nume </h4>
     <h4 style="text-align: center;">{{ student.nume }}</h4>
     <h4 style="text-align: center; background-color:#800000; color:white;">Prenume </h4>

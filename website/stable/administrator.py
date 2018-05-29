@@ -5,6 +5,7 @@ from pprint import pprint
 from random import shuffle
 from time import sleep
 
+from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views import View
@@ -27,7 +28,7 @@ FACULTATI = [
     'Biologie',
     'Chimie',
     'Drept',
-    'Economie si Administrarea Afacerilor'
+    'Economie si Administrarea Afacerilor',
     'Educatie fizica si Sport',
     'Filosofie si Stiinte Social-Politice',
     'Fizica',
@@ -1097,4 +1098,69 @@ class GenerareExcel(View):
 
     def post(self, request):
         export_repartizare()
+        return render(request, self.template_name)
+
+
+class StatisticaCamine(View):
+    template_name = 'stable/comenzi_admin/camin.html'
+
+    def get(self, request):
+        camere_universitate = dict()
+        for f in FACULTATI:
+            camere_universitate[f] = []
+            for item in camine:
+                camere_fac = dict()
+                aux = Camin.objects.filter(nume_camin=item, facultate=f)
+                # if len(aux) > 0:
+                #     camere_fac[item] = []
+                #     for i in aux:
+                #         camere_fac[item].append(i.numar_camera)
+
+                if len(aux) > 0:
+                    camere_fac[item] = []
+
+                    for i in aux:
+                        camera = MultimeStabila.objects.filter(camera=i)
+                        if len(camera) > 0:
+                            rez = ""
+                            camera_dict = dict()
+                            if len(camera[0].coleg1) > 0:
+                                rez += camera[0].coleg1 + ", "
+                            if len(camera[0].coleg2) > 0:
+                                rez += camera[0].coleg2 + ", "
+                            if len(camera[0].coleg3) > 0:
+                                rez += camera[0].coleg3 + ", "
+                            if len(camera[0].coleg4) > 0:
+                                rez += camera[0].coleg4 + ", "
+                            if len(camera[0].coleg5) > 0:
+                                rez += camera[0].coleg5 + ", "
+                            camera_dict[str(i.numar_camera)] = rez[:-2]
+                        camere_fac[item].append(camera_dict)
+
+                if len(camere_fac) > 0:
+                    camere_universitate[f].append(camere_fac)
+
+        pprint(camere_universitate)
+        return render(request, self.template_name, {'repartizare': camere_universitate})
+
+    def post(self, request):
+        print("da")
+        return render(request, self.template_name)
+
+
+class CreareConturi(View):
+    template_name = 'stable/comenzi_admin/cont.html'
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+    def post(self, request):
+        try:
+            lista = request.FILES['fisier_studenti']
+            print("2", lista)
+            content = lista.read()
+            print(content)
+
+        except Exception as error:
+            pass
         return render(request, self.template_name)
