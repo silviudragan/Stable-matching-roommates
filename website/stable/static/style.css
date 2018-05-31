@@ -95,5 +95,10 @@ footer {
 }
 
 
-
-
+.sticker{
+    border-radius: 25px;
+    background: url(stable/images/10.png);
+    color:white;
+    padding: 20px;
+    overflow: auto;
+}

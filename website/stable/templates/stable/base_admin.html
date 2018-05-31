@@ -25,7 +25,7 @@
         <br><br>
         <center><h2><b> Administrator </b></h2></center><br>
          <div id="main">
-            <div id="content">
+            <div id="content" {% block style %} {% endblock %}>
                 {% block descriere_comanda %}
                 {% endblock %}
             </div>
@@ -49,7 +49,7 @@
                     setTimeout(function(){ x.className = x.className.replace("show", ""); }, 4000);
                 };
             </script>
-            <div id="snackbarSucces"> {{ mesaj_succes }}</div>
+            <div id="snackbarSucces" style="margin-left: -70px;"> {{ mesaj_succes }}</div>
         {% endif %}
 
         {% if mesaj_warning %}

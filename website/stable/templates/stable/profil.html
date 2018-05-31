@@ -31,15 +31,15 @@
             </div>
         </form>
     </div><br><br>
-    <h4 style="text-align: center; background-color:#800000; color:white;">Nume </h4>
+    <h4 style="text-align: center; background-color:#800000; color:white; border-radius: 25px;">Nume </h4>
     <h4 style="text-align: center;">{{ student.nume }}</h4>
-    <h4 style="text-align: center; background-color:#800000; color:white;">Prenume </h4>
+    <h4 style="text-align: center; background-color:#800000; color:white; border-radius: 25px;">Prenume </h4>
     <h4 style="text-align: center;">{{ student.prenume }}</h4>
-    <h4 style="text-align: center; background-color:#800000; color:white;">Numar matricol </h4>
+    <h4 style="text-align: center; background-color:#800000; color:white; border-radius: 25px;">Numar matricol </h4>
     <h4 style="text-align: center;">{{ student.numar_matricol }}</h4>
-    <h4 style="text-align: center; background-color:#800000; color:white;">An </h4>
+    <h4 style="text-align: center; background-color:#800000; color:white; border-radius: 25px;">An </h4>
     <h4 style="text-align: center;">{{ student.an }}</h4>
-    <h4 style="text-align: center;background-color:#800000; color:white;">Grupa </h4>
+    <h4 style="text-align: center;background-color:#800000; color:white; border-radius: 25px;">Grupa </h4>
     <h4 style="text-align: center;">{{ student.grupa }}</h4>
 
 
@@ -56,12 +56,14 @@
 
     {% if introdus_preferinte %}
         {% if colegii_repartizati|length > 0 %}
-            <p> Felicitări! Ai fost repartizat în camera numărul {{ numar_camera }} din căminul {{ nume_camin }} alături de: </p>
+            <div class="sticker">
+            <p> <span style="color: #ff0000"> Felicitări! </span> Ai fost repartizat în camera numărul {{ numar_camera }} din căminul {{ nume_camin }} alături de: </p>
             <ul>
                 {% for item in colegii_repartizati %}
-                    <li> {{ item }} </li>
+                    <li> {{  item }} </li>
                 {% endfor %}
             </ul>
+            </div><br>
         {% else %}
             <div class="alert-success" style="padding: 15px;
         background-color: #800000;
@@ -99,6 +101,25 @@
             </div>
           </div>
         </div>
+    {% endif %}
+
+    {% if anunturi|length > 0 %}
+        <h2 style="text-align:center;"> Anunțuri </h2>
+        {% for item in anunturi %}
+            <div class="sticker">
+                <div class="col-md-3">
+                    <p>Titlu</p>
+                    <p>Data limita</p>
+                    <p>Mesaj</p>
+                </div>
+
+                <div class="col-md-9">
+                    <p>{{ item.0 }} </p>
+                    <p>{{ item.2 }} </p>
+                    <p>{{ item.1 }} </p>
+                </div>
+            </div><br>
+        {% endfor %}
     {% endif %}
 
 {% endblock %}

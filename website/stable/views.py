@@ -1,3 +1,4 @@
+import operator
 import random
 import string
 
@@ -15,7 +16,7 @@ from django.shortcuts import render, redirect
 from .forms import UserForm, LoginForm
 from django.views.generic import View
 from django.contrib.auth import authenticate, login, logout
-from . models import Student, Recenzie, Coleg, Repartizare, Preferinta, Camin, MultimeStabila
+from . models import Student, Recenzie, Coleg, Repartizare, Preferinta, Camin, MultimeStabila, Anunt
 
 username = ""
 email = ""
@@ -176,6 +177,16 @@ class Profil(View):
             colegii_repartizati.append(student.nume + ' ' + student.prenume)
         return colegii_repartizati, numar_camera
 
+    def mesaje_admin(self):
+        today = datetime.date.today()
+        anunturi = Anunt.objects.all()
+        anunturi_de_afisat = []
+        for item in anunturi:
+            if today <= item.deadline:
+                anunturi_de_afisat.append((item.titlu, item.mesaj, item.deadline))
+        anunturi_de_afisat.sort(key=operator.itemgetter(2), reverse=True)
+        return anunturi_de_afisat
+
     def get(self, request):
         if len(username) == 0:
             return redirect('login')
@@ -188,9 +199,12 @@ class Profil(View):
 
         if self.verificare_introducere_preferinte():
             introdus_preferinte = True
+
+        anunturi = self.mesaje_admin()
+        print(anunturi)
         return render(request, self.template_name, {'student': student, 'colegi_camin': colegi_camin, 'nume_camin': nume_camin,
                                                     'introdus_preferinte': introdus_preferinte, 'colegii_repartizati': colegii_repartizati,
-                                                    'numar_camera': numar_camera})
+                                                    'numar_camera': numar_camera, 'anunturi': anunturi})
 
     def post(self, request):
         c = conn.cursor()

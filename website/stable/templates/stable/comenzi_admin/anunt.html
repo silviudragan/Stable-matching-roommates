@@ -1,0 +1,35 @@
+{% extends 'stable/base_admin.html' %}
+{% load staticfiles %}
+
+{% block descriere_comanda %}
+    <div id="form-main">
+        <div id="form-div">
+            <form class="montform" method="post">
+                {% csrf_token %}
+                <p class="titlu">
+                    <input name="titlu" type="text" required class="feedback-input" placeholder="Titlu" id="titlu" />
+                </p>
+                <p class="text">
+                    <textarea name="message" required class="feedback-input" id="comment" placeholder="Mesaj"></textarea>
+                </p>
+                <p class="data">
+                    <input name="data" type="date" class="feedback-input" id="data"/>
+                </p>
+                <div class="submit">
+                    <button type="submit" class="button-blue">Trimite</button>
+                    <div class="ease"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block comenzi %}
+    <li><a href="{% url 'administrator' %}"> Repartizare </a></li>
+    <li><a href="{% url 'anunt' %}" class="selected"> Anunț </a></li>
+    <li><a href="{% url 'camin' %}"> Cămin </a></li>
+    <li><a href="{% url 'cont' %}"> Creare conturi </a></li>
+    <li><a href="{% url 'avansare' %}"> Avansare </a></li>
+    <li><a href="{% url 'excel' %}" > Excel </a></li>
+    <li><a href="{% url 'resetare' %}"> Resetare </a></li>
+{% endblock %}

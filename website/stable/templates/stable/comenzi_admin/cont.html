@@ -3,10 +3,11 @@
 
 {% block descriere_comanda %}
     <h2> Creare conturi </h2>
+    <p> Cu ajutorul acestei comenzi se crează conturile studenților. </p>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
+        <input name="fisier_studenti" type="file" accept=".csv">
         <div class="col-lg-8" style="text-align: center; margin:80px;">
-            <input name="fisier_studenti" type="file" accept=".csv">
             <button type="submit" class="btn btn-primary" style="height:50px; width:200px"> Aplică </button><br><br>
         </div>
     </form>
@@ -14,6 +15,7 @@
 
 {% block comenzi %}
     <li><a href="{% url 'administrator' %}"> Repartizare </a></li>
+    <li><a href="{% url 'anunt' %}"> Anunț </a></li>
     <li><a href="{% url 'camin' %}"> Camin </a></li>
     <li><a href="{% url 'cont' %}" class="selected"> Creare conturi </a></li>
     <li><a href="{% url 'avansare' %}" > Avansare </a></li>

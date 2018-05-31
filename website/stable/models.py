@@ -126,3 +126,12 @@ class MultimeStabila(models.Model):
 
     def __str__(self):
         return self.camera.nume_camin + '/' + str(self.camera.numar_camera) + ': ' + self.coleg1 + ' - ' + self.coleg2 + ' - ' + self.coleg3 + ' - ' + self.coleg4 + ' - ' + self.coleg5
+
+
+class Anunt(models.Model):
+    titlu = models.CharField(max_length=100)
+    mesaj = models.CharField(max_length=1000)
+    deadline = models.DateField(blank=True)
+
+    def __str__(self):
+        return str(self.deadline) + " " + str(self.titlu)

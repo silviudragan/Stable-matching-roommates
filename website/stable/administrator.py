@@ -12,7 +12,7 @@ from django.views import View
 import MySQLdb
 
 from . export import export_repartizare
-from . models import Student, Recenzie, Coleg, Repartizare, Preferinta, Camin, MultimeStabila
+from . models import Student, Recenzie, Coleg, Repartizare, Preferinta, Camin, MultimeStabila, Anunt
 
 conn = MySQLdb.connect(host="localhost",
                        user="root",
@@ -1111,30 +1111,33 @@ class StatisticaCamine(View):
             for item in camine:
                 camere_fac = dict()
                 aux = Camin.objects.filter(nume_camin=item, facultate=f)
-                # if len(aux) > 0:
-                #     camere_fac[item] = []
-                #     for i in aux:
-                #         camere_fac[item].append(i.numar_camera)
 
                 if len(aux) > 0:
                     camere_fac[item] = []
 
                     for i in aux:
                         camera = MultimeStabila.objects.filter(camera=i)
+                        rez = []
+                        camera_dict = dict()
                         if len(camera) > 0:
-                            rez = ""
-                            camera_dict = dict()
                             if len(camera[0].coleg1) > 0:
-                                rez += camera[0].coleg1 + ", "
+                                st = Student.objects.get(numar_matricol=camera[0].coleg1)
+                                rez.append(st.nume + " " + st.prenume)
                             if len(camera[0].coleg2) > 0:
-                                rez += camera[0].coleg2 + ", "
+                                st = Student.objects.get(numar_matricol=camera[0].coleg2)
+                                rez.append(st.nume + " " + st.prenume)
                             if len(camera[0].coleg3) > 0:
-                                rez += camera[0].coleg3 + ", "
+                                st = Student.objects.get(numar_matricol=camera[0].coleg3)
+                                rez.append(st.nume + " " + st.prenume)
                             if len(camera[0].coleg4) > 0:
-                                rez += camera[0].coleg4 + ", "
+                                st = Student.objects.get(numar_matricol=camera[0].coleg4)
+                                rez.append(st.nume + " " + st.prenume)
                             if len(camera[0].coleg5) > 0:
-                                rez += camera[0].coleg5 + ", "
-                            camera_dict[str(i.numar_camera)] = rez[:-2]
+                                st = Student.objects.get(numar_matricol=camera[0].coleg5)
+                                rez.append(st.nume + " " + st.prenume)
+                        while len(rez) < i.locuri:
+                            rez.append("<loc liber>")
+                        camera_dict[str(i.numar_camera)] = rez
                         camere_fac[item].append(camera_dict)
 
                 if len(camere_fac) > 0:
@@ -1164,3 +1167,19 @@ class CreareConturi(View):
         except Exception as error:
             pass
         return render(request, self.template_name)
+
+
+class Mesaj(View):
+    template_name = 'stable/comenzi_admin/anunt.html'
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+    def post(self, request):
+        titlu = request.POST.get('titlu', '')
+        mesaj = request.POST.get('message', '')
+        data = request.POST.get('data', '')
+        print(titlu, data, mesaj)
+        query = Anunt(titlu=titlu, mesaj=mesaj, deadline=data)
+        query.save()
+        return render(request, self.template_name, {'mesaj_succes': "Succes! Anunțul a fost postat."})
