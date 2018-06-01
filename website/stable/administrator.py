@@ -22,7 +22,7 @@ conn = MySQLdb.connect(host="localhost",
 students = []
 copie_students = []
 duplicat_students = []
-camine = ['C1', 'C2', 'C12', 'C13']
+camine = ['C1', 'C2', 'C13', 'C12']
           # 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C10', 'C11', 'C12', 'Gaudeamus', 'Akademos',
           # 'Buna Vestire']
 FACULTATI = [
@@ -43,7 +43,7 @@ FACULTATI = [
     'Teologie Romano-Catolica', ]
 
 LOCURI = {
-    'C1': [2, 3],
+    'C1': [2, 3, 4],
     'C2': [2, 3, 4],
     'C3': [2, 3, 4],
     'C4': [5],
@@ -569,6 +569,7 @@ def calcul_punctaj():
             for st in copie_students:
                 if st['name'] == student['preferences'][0]:
                     punctaje_perechi[key] += punctaje[st['name']]
+
     return punctaje_perechi
 
 
@@ -638,7 +639,6 @@ def creare_perechi_de_4(camin, locuri, facultate, sex):
                 j += 1
         preferinte[item] = optiuni
     # pprint(preferinte)
-
     studenti_2si2 = []
     for item in preferinte.keys():
         d = dict()
@@ -992,8 +992,8 @@ class Administrator(View):
                     o_camera = []
                     camere = []
                     for item in students:
+                        print("teeeest")
                         o_camera.append(item['name'])
-                        print(item['name'])
                     camere.append(o_camera)
                 print("Repartizare camere 5 persoane", camere)
                 stocare(camere, camin)
@@ -1012,7 +1012,7 @@ class Administrator(View):
             print(camin)
             print("\n\n")
             if 2 in LOCURI[camin]:
-                while semafor and p < 30:
+                while semafor and p < 50:
                     try:
                         self.camere_2(camin, "F")
                         semafor = False
@@ -1024,7 +1024,7 @@ class Administrator(View):
                     return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
 
                 semafor = True
-                while semafor and p < 30:
+                while semafor and p < 50:
                     try:
                         self.camere_2(camin, "M")
                         semafor = False
@@ -1038,7 +1038,7 @@ class Administrator(View):
             if 3 in LOCURI[camin]:
                 p = 0
                 semafor = True
-                while semafor and p < 30:
+                while semafor and p < 50:
                     try:
                         self.camere_3(camin, "F")
                         semafor = False
@@ -1051,7 +1051,7 @@ class Administrator(View):
 
                 p = 0
                 semafor = True
-                while semafor and p < 30:
+                while semafor and p < 50:
                     try:
                         self.camere_3(camin, "M")
                         semafor = False
@@ -1065,7 +1065,7 @@ class Administrator(View):
             if 4 in LOCURI[camin]:
                 p = 0
                 semafor = True
-                while semafor and p < 30:
+                while semafor and p < 50:
                     try:
                         self.camere_4(camin, "F")
                         semafor = False
@@ -1077,7 +1077,7 @@ class Administrator(View):
 
                 p = 0
                 semafor = True
-                while semafor and p < 30:
+                while semafor and p < 50:
                     try:
                         self.camere_4(camin, "M")
                         semafor = False
@@ -1090,7 +1090,7 @@ class Administrator(View):
             if 5 in LOCURI[camin]:
                 p = 0
                 semafor = True
-                while semafor and p < 30:
+                while semafor and p < 100:
                     try:
                         self.camere_5(camin, "F")
                         semafor = False
@@ -1101,7 +1101,7 @@ class Administrator(View):
 
                 p = 0
                 semafor = True
-                while semafor and p < 30:
+                while semafor and p < 100:
                     try:
                         self.camere_5(camin, "M")
                         semafor = False
@@ -1226,7 +1226,8 @@ class CreareConturi(View):
                 if len(content) > 0:
                     print(content)
                     content = content.split(',')
-                    query = Student(nume=content[1], numar_matricol=content[2], facultate=content[6], an=content[0], grupa=content[5], sex=content[4], email=content[3])
+                    query = Student(nume=content[1], numar_matricol=content[2], facultate=content[6][:-2], an=content[0],
+                                    grupa=content[5], sex=content[4], email=content[3])
                     query.save()
                     password = ""
                     for i in range(5):
@@ -1278,7 +1279,7 @@ class Repartizare_camin(View):
                 if len(content) > 0:
                     print(content)
                     content = content.split(',')
-                    query = Repartizare(numar_matricol=content[0], camin=content[1])
+                    query = Repartizare(numar_matricol=content[0], camin=content[1][:-2])
                     query.save()
                 lungime = len(content)
 
