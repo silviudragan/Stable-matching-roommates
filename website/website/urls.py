@@ -20,6 +20,7 @@ urlpatterns = [
     url(r'^administrator/camin/$', administrator.StatisticaCamine.as_view(), name='camin'),
     url(r'^administrator/cont/$', administrator.CreareConturi.as_view(), name='cont'),
     url(r'^administrator/anunt/$', administrator.Mesaj.as_view(), name='anunt'),
+    url(r'^administrator/repartizare_camin/$', administrator.Repartizare_camin.as_view(), name='repartizare_camin'),
     url(r'^ajax/validate_username/$', views.display_info_coleg, name='display_info_coleg'),
     url(r'^ajax/recenzii_facute/$', views.recenzii_facute, name='recenzii_facute'),
     url(r'^ajax/recenzii_primite/$', views.recenzii_primite, name='recenzii_primite'),

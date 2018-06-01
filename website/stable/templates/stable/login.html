@@ -62,9 +62,15 @@
 
 
                     <div class="col-md-12 col-xs-12">
-                        <div class="row">
-                            <a href="{% url 'register' %}" style="margin-left:32%;">Pentru prima data aici?</a>
-                            <a data-toggle="modal" data-target="#myModal" style="margin-left:10%;">Recuperare parola</a>
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-5 col-xs-4">
+                            <a href="#infoContent" data-toggle="collapse" style="margin-left:13%;"> Prima logare? </a>
+                            <div id="infoContent" class="collapse">
+                                Accesează resetare parolă și urmează instrucțiunile.
+                            </div>
+                            </div>
+                        <div class="col-xs-4">
+                            <a data-toggle="modal" data-target="#myModal" style="margin-left:-13%;">Resetare parola</a>
                         </div>
                     </div>
 
@@ -91,7 +97,7 @@
                                     };
                                 </script>
 
-                                <div id="snackbarSucces"> Resetarea parolei a fost realizata cu succes </div>
+                                <div id="snackbarSucces"> Resetarea parolei a fost realizată cu succes </div>
                             {% endif %}
                         </div>
                     </center>
@@ -122,7 +128,7 @@
                 <form method="post">
                     {% csrf_token %}
                     <div class="modal-body">
-                      <p> Introdu mai jos emailul facultății în vederea recuperării parolei </p>
+                      <p> Introdu mai jos emailul facultății în vederea resetării parolei </p>
                         <input type="text" name="emailRecParola"><br>
 
                     </div>

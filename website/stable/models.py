@@ -38,19 +38,18 @@ FACULTATI = (
 
 
 class Student(models.Model):
-    nume = models.CharField(max_length=50)
-    prenume = models.CharField(max_length=50)
+    nume = models.CharField(max_length=70)
     numar_matricol = models.CharField(max_length=30, primary_key=True)
-    facultate = models.CharField(max_length=40, choices=FACULTATI)
-    an = models.IntegerField()
-    grupa = models.CharField(max_length=5)
+    facultate = models.CharField(max_length=40)
+    an = models.IntegerField(blank=True)
+    grupa = models.CharField(max_length=5, blank=True)
     sex = models.CharField(max_length=5)
     poza_profil = models.FileField(default='1')
     email = models.CharField(max_length=50, default="")
     cod_reset_parola = models.CharField(max_length=8, default="", blank=True)
 
     def __str__(self):
-        return self.numar_matricol + ' - ' + self.nume + ' ' + self.prenume
+        return self.numar_matricol + ' - ' + self.nume
 
 
 class Recenzie(models.Model):
@@ -84,7 +83,7 @@ class Repartizare(models.Model):
         unique_together = (('numar_matricol', 'camin'),)
 
     numar_matricol = models.CharField(max_length=30)
-    camin = models.CharField(max_length=30, choices=CAMINE)
+    camin = models.CharField(max_length=30)
     repartizare_camera = models.BooleanField(default=False)
 
     def __str__(self):

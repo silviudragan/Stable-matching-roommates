@@ -57,8 +57,8 @@ class Login(View):
         else:
             global email
             email = emailRecParola
-            # if "@info.uaic.ro" not in email: ##################################################
-            if "@yahoo.com" not in email and "gmail" not in email:
+            if "@info.uaic.ro" not in email: ##################################################
+            #if "@yahoo.com" not in email and "gmail" not in email:
                 mesaj = "Emailul introdus nu este falid sau nu apartine domeniului facultatii."
                 return render(request, 'stable/login.html', {'mesaj_email': mesaj})
             return redirect('resetPass')
@@ -135,14 +135,16 @@ class Profil(View):
         if len(data) == 0:
             warning = "Din nefericire nu aveti loc in camin"
         else:
-            c.execute("SELECT s.nume, s.prenume from stable_student s "
+            st = Student.objects.get(numar_matricol=username)
+            c.execute("SELECT s.nume from stable_student s "
                       "join stable_repartizare r on r.numar_matricol = s.numar_matricol "
-                      "where r.camin=%s and s.numar_matricol!=%s", [data[0][2], username])
+                      "where r.camin=%s and s.numar_matricol!=%s and s.sex=%s", [data[0][2], username, st.sex])
             nume_camin = data[0][2]
             data = c.fetchall()
             for it in data:
-                colegi_camin.append(it[0] + ' ' + it[1])
+                colegi_camin.append(it[0])
         c.close()
+        print(colegi_camin)
         return colegi_camin, nume_camin
 
     def colegi_repartizati(self, nume_camin):
@@ -174,7 +176,7 @@ class Profil(View):
         grupa = []
         for uid in uid_colegii_repartizati:
             student = Student.objects.get(numar_matricol=uid)
-            colegii_repartizati.append(student.nume + ' ' + student.prenume)
+            colegii_repartizati.append(student.nume)
         return colegii_repartizati, numar_camera
 
     def mesaje_admin(self):
@@ -238,9 +240,9 @@ def colegii_de_camera():
             nr_matricol_colegi.append(coleg[1])
     colegi = []
     for coleg in nr_matricol_colegi:
-        c.execute("SELECT nume, prenume FROM stable_student where numar_matricol=%s", [coleg])
+        c.execute("SELECT nume FROM stable_student where numar_matricol=%s", [coleg])
         data = c.fetchone()
-        nume = data[0] + ' ' + data[1]
+        nume = data[0]
         colegi.append(nume)
     c.close()
     return colegi
@@ -254,14 +256,14 @@ def obtine_recenzii():
         recenzii.append(list(recenzie))
     for i in range(0, len(recenzii)):
         # aflam numele expeditorului
-        c.execute("SELECT prenume, nume FROM stable_student where numar_matricol=%s", [recenzii[i][1]])
+        c.execute("SELECT nume FROM stable_student where numar_matricol=%s", [recenzii[i][1]])
         nume = c.fetchone()
-        recenzii[i][1] = nume[0] + ' ' + nume[1]
+        recenzii[i][1] = nume[0]
 
         # aflam numele destinatarului
-        c.execute("SELECT prenume, nume FROM stable_student where numar_matricol=%s", [recenzii[i][2]])
+        c.execute("SELECT nume FROM stable_student where numar_matricol=%s", [recenzii[i][2]])
         nume = c.fetchone()
-        recenzii[i][2] = nume[0] + ' ' + nume[1]
+        recenzii[i][2] = nume[0]
     c.close()
     return recenzii
 
@@ -301,10 +303,9 @@ class Recenzii(View):
             return render(request, self.template_name, {'student': student, 'recenzii': p.page(page), 'colegi': colegi,
                                                         'warning': warning, "nr_matricol": username})
         nume = data[0]
-        prenume = data[1]
         c = conn.cursor()
 
-        c.execute("SELECT numar_matricol from stable_student where nume=%s and prenume=%s", [nume, prenume])
+        c.execute("SELECT numar_matricol from stable_student where nume=%s", [nume])
         nr_matricol = c.fetchone()
 
         colegi = colegii_de_camera()
@@ -314,30 +315,27 @@ class Recenzii(View):
 
         if data:
             recenzii = obtine_recenzii()
-            warning = "Exista deja o recenzie facuta pentru " + nume + " " + prenume
+            warning = "Exista deja o recenzie facuta pentru " + nume
             p = Paginator(recenzii, ITEMS_ON_PAGE)
             return render(request, self.template_name, {'student': student, 'recenzii': p.page(page), 'colegi': colegi,
                                                         'warning': warning, "nr_matricol": username})
 
-        c.execute("SELECT numar_matricol from stable_student where nume=%s and prenume=%s", [nume, prenume])
+        c.execute("SELECT numar_matricol from stable_student where nume=%s", [nume])
         nr_matricol = c.fetchone()
         c.execute("INSERT into stable_recenzie(from_uid, to_uid, mesaj, calificativ, data) "
                   "VALUES(%s, %s, %s, %s, %s)", [username, nr_matricol, mesaj, calificativ, datetime.date.today()])
         conn.commit()
         c.close()
         recenzii = obtine_recenzii()
-        succes = "Recenzia pentru " + nume + " " + prenume + " a fost adaugata."
+        succes = "Recenzia pentru " + nume + " " + " a fost adaugata."
         p = Paginator(recenzii, ITEMS_ON_PAGE)
         return render(request, self.template_name, {'student': student, 'recenzii': p.page(page), 'colegi': colegi,
                                                     'succes': succes, "nr_matricol": username})
 
 
 def aflare_nr_matricol(nume):
-    data = nume.split()
-    prenume = data[1:]
-    nume = data[0]
     c = conn.cursor()
-    c.execute("SELECT numar_matricol from stable_student where nume=%s and prenume=%s", [nume, prenume])
+    c.execute("SELECT numar_matricol from stable_student where nume=%s", [nume])
     data = c.fetchone()
     c.close()
     return data
@@ -350,22 +348,20 @@ def aflare_nr_matricol(nume):
 
 def display_info_coleg(request):
     coleg = request.GET.get('numeColeg', None)
-    nume = coleg.split()
     c = conn.cursor()
-    c.execute("SELECT * from stable_student where nume=%s and prenume=%s", [nume[0], nume[1]])
+    c.execute("SELECT * from stable_student where nume=%s", [coleg])
     rez = c.fetchone()
     nr_matricol = rez[2]
     c.close()
     print(rez)
     data = {
         'Nume:': rez[0],
-        'Prenume:': rez[1],
-        'An:': rez[3],
-        'Grupa:': rez[4],
-        'Poza:': rez[6],
+        'An:': rez[2],
+        'Grupa:': rez[3],
+        'Poza:': rez[5],
     }
     if data['Poza:'] == "1":
-        if rez[5] == "M":
+        if rez[4] == "M":
             data['Poza:'] = "3.png"
         else:
             data['Poza:'] = "4.jpg"
@@ -383,14 +379,14 @@ def recenzii_facute(request):
         recenzii.append(list(recenzie))
     for i in range(0, len(recenzii)):
         # aflam numele expeditorului
-        c.execute("SELECT prenume, nume FROM stable_student where numar_matricol=%s", [recenzii[i][1]])
+        c.execute("SELECT nume FROM stable_student where numar_matricol=%s", [recenzii[i][1]])
         nume = c.fetchone()
-        recenzii[i][1] = nume[0] + ' ' + nume[1]
+        recenzii[i][1] = nume[0]
 
         # aflam numele destinatarului
-        c.execute("SELECT prenume, nume FROM stable_student where numar_matricol=%s", [recenzii[i][2]])
+        c.execute("SELECT nume FROM stable_student where numar_matricol=%s", [recenzii[i][2]])
         nume = c.fetchone()
-        recenzii[i][2] = nume[0] + ' ' + nume[1]
+        recenzii[i][2] = nume[0]
     c.close()
 
     data = {}
@@ -414,14 +410,14 @@ def recenzii_primite(request):
         recenzii.append(list(recenzie))
     for i in range(0, len(recenzii)):
         # aflam numele expeditorului
-        c.execute("SELECT prenume, nume FROM stable_student where numar_matricol=%s", [recenzii[i][1]])
+        c.execute("SELECT nume FROM stable_student where numar_matricol=%s", [recenzii[i][1]])
         nume = c.fetchone()
-        recenzii[i][1] = nume[0] + ' ' + nume[1]
+        recenzii[i][1] = nume[0]
 
         # aflam numele destinatarului
-        c.execute("SELECT prenume, nume FROM stable_student where numar_matricol=%s", [recenzii[i][2]])
+        c.execute("SELECT nume FROM stable_student where numar_matricol=%s", [recenzii[i][2]])
         nume = c.fetchone()
-        recenzii[i][2] = nume[0] + ' ' + nume[1]
+        recenzii[i][2] = nume[0]
     c.close()
 
     data = {}
@@ -443,14 +439,14 @@ def toate_recenziile(request):
         recenzii.append(list(recenzie))
     for i in range(0, len(recenzii)):
         # aflam numele expeditorului
-        c.execute("SELECT prenume, nume FROM stable_student where numar_matricol=%s", [recenzii[i][1]])
+        c.execute("SELECT nume FROM stable_student where numar_matricol=%s", [recenzii[i][1]])
         nume = c.fetchone()
-        recenzii[i][1] = nume[0] + ' ' + nume[1]
+        recenzii[i][1] = nume[0]
 
         # aflam numele destinatarului
-        c.execute("SELECT prenume, nume FROM stable_student where numar_matricol=%s", [recenzii[i][2]])
+        c.execute("SELECT nume FROM stable_student where numar_matricol=%s", [recenzii[i][2]])
         nume = c.fetchone()
-        recenzii[i][2] = nume[0] + ' ' + nume[1]
+        recenzii[i][2] = nume[0]
     c.close()
 
     data = {}

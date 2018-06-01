@@ -2,9 +2,10 @@ import copy
 import operator
 from math import floor, ceil
 from pprint import pprint
-from random import shuffle
+from random import shuffle, random, randint
 from time import sleep
 
+from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -21,8 +22,8 @@ conn = MySQLdb.connect(host="localhost",
 students = []
 copie_students = []
 duplicat_students = []
-camine = ['C1', 'C12']
-          # 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C10', 'C11', 'C12', 'C13', 'Gaudeamus', 'Akademos',
+camine = ['C1', 'C2', 'C12', 'C13']
+          # 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C10', 'C11', 'C12', 'Gaudeamus', 'Akademos',
           # 'Buna Vestire']
 FACULTATI = [
     'Biologie',
@@ -60,11 +61,11 @@ LOCURI = {
 }
 
 
-def lista_studenti(camin, facultate):
+def lista_studenti(camin, facultate, sex):
     c = conn.cursor()
     c.execute("SELECT * from stable_repartizare r "
               "join stable_student s on s.numar_matricol = r.numar_matricol "
-              "where r.repartizare_camera= False and r.camin=%s and s.facultate=%s", [camin, facultate])
+              "where r.repartizare_camera= False and r.camin=%s and s.facultate=%s and s.sex=%s", [camin, facultate, sex])
     data = c.fetchall()
     toti_studentii = []
     for st in data:
@@ -72,9 +73,9 @@ def lista_studenti(camin, facultate):
     return toti_studentii
 
 
-def adaugare_coleg_fals(camin, facultate):
+def adaugare_coleg_fals(camin, facultate, sex):
     global students
-    toti_studentii = lista_studenti(camin, facultate)
+    toti_studentii = lista_studenti(camin, facultate, sex)
     d = dict()
     d['name'] = "empty"
     d['propose'] = ""
@@ -88,18 +89,17 @@ def adaugare_coleg_fals(camin, facultate):
     students.append(d)
 
 
-def incarcare_preferinte(camin, facultate):
+def incarcare_preferinte(camin, facultate, sex):
     del students[:]
     c = conn.cursor()
-    toti_studentii = lista_studenti(camin, facultate)
+    toti_studentii = lista_studenti(camin, facultate, sex)
     empty = False
     if len(toti_studentii) % 2 == 1:
         toti_studentii.append("empty")
         empty = True
-
     c.execute("SELECT * from stable_repartizare r "
               "join stable_student s on s.numar_matricol = r.numar_matricol "
-              "where r.camin=%s and s.facultate=%s and r.repartizare_camera=%s", [camin, facultate, False])
+              "where r.camin=%s and s.facultate=%s and r.repartizare_camera=%s and s.sex=%s", [camin, facultate, False, sex])
     data = c.fetchall()
 
     studenti_eligibili = []
@@ -130,7 +130,7 @@ def incarcare_preferinte(camin, facultate):
         students.append(d)
 
     if empty:
-        adaugare_coleg_fals(camin, facultate)
+        adaugare_coleg_fals(camin, facultate, sex)
         '''
             adaugarea colegului fictiv unde este posibil
         '''
@@ -148,8 +148,6 @@ def incarcare_preferinte(camin, facultate):
                 if st != student['name'] and st not in studenti_preferati:
                     studenti_preferati.append(st)
             student['preferences'] = studenti_preferati
-
-
     c.close()
     global copie_students
     copie_students = copy.deepcopy(students)
@@ -225,7 +223,7 @@ def preferintele_in_template(preferinte):
         students.append(d)
 
 
-def preferinte_pentru_stable_3(camin, punctaje_perechi, facultate):
+def preferinte_pentru_stable_3(camin, punctaje_perechi, facultate, sex):
     global copie_students
     global duplicat_students
     perechi = []
@@ -236,7 +234,7 @@ def preferinte_pentru_stable_3(camin, punctaje_perechi, facultate):
         else:
             single.append(item)
 
-    nr_studenti = len(lista_studenti(camin, facultate))
+    nr_studenti = len(lista_studenti(camin, facultate, sex))
 
     # trebuie sa pastram atatea perechi cate camere vor fi - 1, iar pe celelalte le adaugam la single
     while len(perechi) > round(nr_studenti / 3):
@@ -277,7 +275,7 @@ def preferinte_pentru_stable_3(camin, punctaje_perechi, facultate):
             '''
             punctaje_perechi['empty'] = 100
             single.append('empty')
-            toti_studentii = lista_studenti(camin, facultate)
+            toti_studentii = lista_studenti(camin, facultate, sex)
             d = dict()
             d['name'] = "empty"
             d['propose'] = ""
@@ -316,7 +314,7 @@ def preferinte_pentru_stable_3(camin, punctaje_perechi, facultate):
     c = conn.cursor()
     c.execute("SELECT * from stable_repartizare r "
               "join stable_student s on s.numar_matricol = r.numar_matricol "
-              "where r.camin=%s and s.facultate=%s and r.repartizare_camera=%s", [camin, facultate, False])
+              "where r.camin=%s and s.facultate=%s and r.repartizare_camera=%s and s.sex=%s", [camin, facultate, False, sex])
     data = c.fetchall()
     c.close()
 
@@ -352,10 +350,10 @@ def preferinte_pentru_stable_3(camin, punctaje_perechi, facultate):
     return preferinte
 
 
-def coleg_fictiv(punctaje_perechi, camin, facultate):
+def coleg_fictiv(punctaje_perechi, camin, facultate, sex):
     global copie_students
     punctaje_perechi['empty+empty'] = 100
-    toti_studentii = lista_studenti(camin, facultate)
+    toti_studentii = lista_studenti(camin, facultate, sex)
     toti_studentii.append('empty+empty')
     for item in punctaje_perechi.keys():
         if 'empty' in item:
@@ -378,13 +376,13 @@ def coleg_fictiv(punctaje_perechi, camin, facultate):
     copie_students = copy.deepcopy(duplicat_students)
 
 
-def preferinte_pentru_stable_4(camin, punctaje_perechi, facultate):
+def preferinte_pentru_stable_4(camin, punctaje_perechi, facultate, sex):
     global copie_students
     if len(punctaje_perechi) % 2 == 1:
         '''
         trebuie adaugat un coleg fictiv
         '''
-        coleg_fictiv(punctaje_perechi, camin, facultate)
+        coleg_fictiv(punctaje_perechi, camin, facultate, sex)
 
     perechi = []
     single = []
@@ -574,18 +572,18 @@ def calcul_punctaj():
     return punctaje_perechi
 
 
-def creare_perechi(camin, locuri, facultate):
+def creare_perechi(camin, locuri, facultate, sex):
     punctaje_perechi = calcul_punctaj()
     # pprint(copie_students)
     if locuri == 3:
-        preferinte = preferinte_pentru_stable_3(camin, punctaje_perechi, facultate)
+        preferinte = preferinte_pentru_stable_3(camin, punctaje_perechi, facultate, sex)
     elif locuri == 4:
-        preferinte = preferinte_pentru_stable_4(camin, punctaje_perechi, facultate)
+        preferinte = preferinte_pentru_stable_4(camin, punctaje_perechi, facultate, sex)
 
     preferintele_in_template(preferinte)
 
 
-def creare_perechi_de_4(camin, locuri, facultate):
+def creare_perechi_de_4(camin, locuri, facultate, sex):
     punctaje_perechi = calcul_punctaj()
     '''
         sortam crescator perechile dupa punctajul lor pentru a le lua pe cele mai bune; atatea perechi cate camere vor
@@ -593,7 +591,7 @@ def creare_perechi_de_4(camin, locuri, facultate):
     '''
     tuplu_sortat = sorted(punctaje_perechi.items(), key=operator.itemgetter(1))
     punctaje_top = []
-    nr_studenti = len(lista_studenti(camin, facultate))
+    nr_studenti = len(lista_studenti(camin, facultate, sex))
     single = []
     perechi_ramase = []
     for i in range(2 * int(ceil(nr_studenti / 5.0))):
@@ -690,11 +688,12 @@ def stocare(camere, camin):
     hostel = Camin.objects.filter(nume_camin=camin)
     numar_camere = []
     for item in hostel:
-        numar_camere.append(item.numar_camera)
+        if len(MultimeStabila.objects.filter(camera=item)) == 0:
+            numar_camere.append(item.numar_camera)
     numar_camere.sort()
 
     for i in range(len(camere)):
-        hostel = Camin.objects.get(numar_camera=numar_camere[i])
+        hostel = Camin.objects.get(nume_camin=camin, numar_camera=numar_camere[i])
         # in cazul in care aceasta camera este deja inserata trebuie sa o stergem
         try:
             camera = MultimeStabila.objects.get(camera=hostel)
@@ -705,24 +704,27 @@ def stocare(camere, camin):
         try:
             MultimeStabila.objects.create(
                 camera=hostel,
-                coleg1=camere[i][0],
-                coleg2=camere[i][1]
+                coleg1=camere[i][0]
             )
         except Exception as error:
             print(error)
 
         c = conn.cursor()
         if len(camere[i]) == 5:
-            c.execute("UPDATE stable_multimestabila set coleg3=%s, coleg4=%s, coleg5=%s where coleg1=%s and coleg2=%s",
-                      [camere[i][2], camere[i][3], camere[i][4], camere[i][0], camere[i][1]])
+            c.execute("UPDATE stable_multimestabila set coleg2=%s, coleg3=%s, coleg4=%s, coleg5=%s where coleg1=%s",
+                      [camere[i][1], camere[i][2], camere[i][3], camere[i][4], camere[i][0]])
         elif len(camere[i]) == 4:
             c.execute(
-                "UPDATE stable_multimestabila set coleg3=%s, coleg4=%s where coleg1=%s and coleg2=%s",
-                [camere[i][2], camere[i][3], camere[i][0], camere[i][1]])
-        else:
+                "UPDATE stable_multimestabila set coleg2=%s, coleg3=%s, coleg4=%s where coleg1=%s",
+                [camere[i][1], camere[i][2], camere[i][3], camere[i][0]])
+        elif len(camere[i]) == 3:
             c.execute(
-                "UPDATE stable_multimestabila set coleg3=%s where coleg1=%s and coleg2=%s",
-                [camere[i][2], camere[i][0], camere[i][1]])
+                "UPDATE stable_multimestabila set coleg2=%s, coleg3=%s where coleg1=%s",
+                [camere[i][1], camere[i][2], camere[i][0]])
+        elif len(camere[i]) == 2:
+            c.execute(
+                "UPDATE stable_multimestabila set coleg2=%s where coleg1=%s",
+                [camere[i][1], camere[i][0]])
         conn.commit()
         c.close()
 
@@ -756,14 +758,16 @@ def stocare_2(camere, camin, locuri, facultate):
     hostel = Camin.objects.filter(nume_camin=camin, locuri=locuri, facultate=facultate)
     numar_camere = []
     for item in hostel:
-        numar_camere.append(item.numar_camera)
+        if len(MultimeStabila.objects.filter(camera=item)) == 0:
+            numar_camere.append(item.numar_camera)
     numar_camere.sort()
 
     for i in range(len(numar_camere)):
         key = punctaj[i][0]
         for camera in camere:
             if key.split('+')[0] in camera:
-                hostel = Camin.objects.get(numar_camera=numar_camere[i])
+
+                hostel = Camin.objects.get(nume_camin=camin, numar_camera=numar_camere[i])
                 # in cazul in care aceasta camera este deja inserata trebuie sa o stergem
                 try:
                     camera = MultimeStabila.objects.get(camera=hostel)
@@ -812,7 +816,6 @@ def stocare_2(camere, camin, locuri, facultate):
                         aux.save()
                 except Exception as error:
                     pass
-
                 c = conn.cursor()
                 for j in range(len(camere[i])):
                     c.execute("UPDATE stable_repartizare set repartizare_camera=True where numar_matricol=%s", [camere[i][j]])
@@ -822,9 +825,9 @@ def stocare_2(camere, camin, locuri, facultate):
 
 def stable(multime):
     s = 0
+    #pprint(multime)
     while True:
         for st in multime:
-            # print("a1")
             s += 1
             if s > 1000:
                 raise SystemExit
@@ -872,7 +875,6 @@ def stable(multime):
                     except Exception as error:
                         print("2", error)
                     break
-    # print("b")
     '''
         pasul 3
         scriem un student care are mai mult de o optiune
@@ -884,7 +886,7 @@ def stable(multime):
         first_line = []
         second_line = []
         for st in multime:
-            # print("b1")
+            #print("b1")
             if len(st['preferences']) > 1:
                 first_line.append(st['name'])
                 second_line.append(st['preferences'][1])
@@ -915,14 +917,13 @@ def stable(multime):
         # print("b7")
         if len([st for st in multime if len(st['preferences']) > 1]) == 0:
             break
-    # print("c")
     return multime
 
 
 class Administrator(View):
     template_name = 'stable/comenzi_admin/repartizare.html'
 
-    def camere_2(self, camin):
+    def camere_2(self, camin, sex):
         global students
         """
             param 2: indexul -> 2 = trebuie incarcate preferintele
@@ -930,7 +931,7 @@ class Administrator(View):
             param 3: numarul de locuri
         """
         for facultate in FACULTATI:
-            if incarcare_preferinte(camin, facultate) == 1:
+            if incarcare_preferinte(camin, facultate, sex) == 1:
                 students = stable(students)
                 camere = afisare_camere(students)
 
@@ -940,14 +941,14 @@ class Administrator(View):
                 print("Camere de 2 persoane", camere)
                 stocare_2(camere, camin, 2, facultate)
 
-    def camere_3(self, camin):
+    def camere_3(self, camin, sex):
         global students
         for facultate in FACULTATI:
             del students[:]
-            if incarcare_preferinte(camin, facultate) == 1:
+            if incarcare_preferinte(camin, facultate, sex) == 1:
                 multime_de_2 = stable(students)
 
-                creare_perechi(camin, 3, facultate)
+                creare_perechi(camin, 3, facultate, sex)
                 students = stable(multime_de_2)
                 camere = afisare_camere(students)
 
@@ -957,13 +958,13 @@ class Administrator(View):
                 print("Camere de 3 persoane", camere)
                 stocare_2(camere, camin, 3, facultate)
 
-    def camere_4(self, camin):
+    def camere_4(self, camin, sex):
         global students
         for facultate in FACULTATI:
-            if incarcare_preferinte(camin, facultate) == 1:
+            if incarcare_preferinte(camin, facultate, sex) == 1:
                 multime_de_2 = stable(students)
 
-                creare_perechi(camin, 4, facultate)
+                creare_perechi(camin, 4, facultate, sex)
                 students = stable(multime_de_2)
                 camere = afisare_camere(students)
 
@@ -977,16 +978,23 @@ class Administrator(View):
                 print("Camere de 4 persoane", camere)
                 stocare_2(camere, camin, 4, facultate)
 
-    def camere_5(self, camin):
+    def camere_5(self, camin, sex):
         for facultate in FACULTATI:
-            if incarcare_preferinte(camin, facultate) == 1:
-                multime_de_2 = stable(students)
-                studenti_2si2, perechi_ramase = creare_perechi_de_4(camin, 4, facultate)
-                multime_de_4 = stable(studenti_2si2)
-                multime_de_5 = preferinte_pentru_stable_5(afisare_camere(multime_de_4), perechi_ramase)
+            if incarcare_preferinte(camin, facultate, sex) == 1:
+                if len(students) > 6:
+                    multime_de_2 = stable(students)
+                    studenti_2si2, perechi_ramase = creare_perechi_de_4(camin, 4, facultate, sex)
+                    multime_de_4 = stable(studenti_2si2)
+                    multime_de_5 = preferinte_pentru_stable_5(afisare_camere(multime_de_4), perechi_ramase)
 
-                camere = afisare_camere_de_5(multime_de_5)
-
+                    camere = afisare_camere_de_5(multime_de_5)
+                else:
+                    o_camera = []
+                    camere = []
+                    for item in students:
+                        o_camera.append(item['name'])
+                        print(item['name'])
+                    camere.append(o_camera)
                 print("Repartizare camere 5 persoane", camere)
                 stocare(camere, camin)
 
@@ -1006,7 +1014,19 @@ class Administrator(View):
             if 2 in LOCURI[camin]:
                 while semafor and p < 30:
                     try:
-                        self.camere_2(camin)
+                        self.camere_2(camin, "F")
+                        semafor = False
+                    except:
+                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                        p += 1
+                        s += 1
+                if semafor:
+                    return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
+
+                semafor = True
+                while semafor and p < 30:
+                    try:
+                        self.camere_2(camin, "M")
                         semafor = False
                     except:
                         mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
@@ -1020,7 +1040,20 @@ class Administrator(View):
                 semafor = True
                 while semafor and p < 30:
                     try:
-                        self.camere_3(camin)
+                        self.camere_3(camin, "F")
+                        semafor = False
+                    except:
+                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                        p += 1
+                        s += 1
+                if semafor:
+                    return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
+
+                p = 0
+                semafor = True
+                while semafor and p < 30:
+                    try:
+                        self.camere_3(camin, "M")
                         semafor = False
                     except:
                         mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
@@ -1034,7 +1067,19 @@ class Administrator(View):
                 semafor = True
                 while semafor and p < 30:
                     try:
-                        self.camere_4(camin)
+                        self.camere_4(camin, "F")
+                        semafor = False
+                    except:
+                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                        p += 1
+                if semafor:
+                    return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
+
+                p = 0
+                semafor = True
+                while semafor and p < 30:
+                    try:
+                        self.camere_4(camin, "M")
                         semafor = False
                     except:
                         mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
@@ -1047,7 +1092,18 @@ class Administrator(View):
                 semafor = True
                 while semafor and p < 30:
                     try:
-                        self.camere_5(camin)
+                        self.camere_5(camin, "F")
+                        semafor = False
+                    except:
+                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                        p += 1
+                        s += 1
+
+                p = 0
+                semafor = True
+                while semafor and p < 30:
+                    try:
+                        self.camere_5(camin, "M")
                         semafor = False
                     except:
                         mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
@@ -1122,19 +1178,19 @@ class StatisticaCamine(View):
                         if len(camera) > 0:
                             if len(camera[0].coleg1) > 0:
                                 st = Student.objects.get(numar_matricol=camera[0].coleg1)
-                                rez.append(st.nume + " " + st.prenume)
+                                rez.append(st.nume)
                             if len(camera[0].coleg2) > 0:
                                 st = Student.objects.get(numar_matricol=camera[0].coleg2)
-                                rez.append(st.nume + " " + st.prenume)
+                                rez.append(st.nume)
                             if len(camera[0].coleg3) > 0:
                                 st = Student.objects.get(numar_matricol=camera[0].coleg3)
-                                rez.append(st.nume + " " + st.prenume)
+                                rez.append(st.nume)
                             if len(camera[0].coleg4) > 0:
                                 st = Student.objects.get(numar_matricol=camera[0].coleg4)
-                                rez.append(st.nume + " " + st.prenume)
+                                rez.append(st.nume)
                             if len(camera[0].coleg5) > 0:
                                 st = Student.objects.get(numar_matricol=camera[0].coleg5)
-                                rez.append(st.nume + " " + st.prenume)
+                                rez.append(st.nume)
                         while len(rez) < i.locuri:
                             rez.append("<loc liber>")
                         camera_dict[str(i.numar_camera)] = rez
@@ -1160,12 +1216,30 @@ class CreareConturi(View):
     def post(self, request):
         try:
             lista = request.FILES['fisier_studenti']
-            print("2", lista)
-            content = lista.read()
-            print(content)
-
         except Exception as error:
             pass
+        else:
+            print("2", lista)
+            lungime = 1
+            while lungime != 0:
+                content = lista.readline().decode('utf-8')
+                if len(content) > 0:
+                    print(content)
+                    content = content.split(',')
+                    query = Student(nume=content[1], numar_matricol=content[2], facultate=content[6], an=content[0], grupa=content[5], sex=content[4], email=content[3])
+                    query.save()
+                    password = ""
+                    for i in range(5):
+                        cifre = randint(0, 99)
+                        password += str(cifre)
+                    try:
+                        user = User(username=content[2], password=password)
+                        user.save()
+                    except Exception:
+                        pass
+                        # are deja contul inregistrat
+
+                lungime = len(content)
         return render(request, self.template_name)
 
 
@@ -1183,3 +1257,29 @@ class Mesaj(View):
         query = Anunt(titlu=titlu, mesaj=mesaj, deadline=data)
         query.save()
         return render(request, self.template_name, {'mesaj_succes': "Succes! Anunțul a fost postat."})
+
+
+class Repartizare_camin(View):
+    template_name = 'stable/comenzi_admin/dispozitie.html'
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+    def post(self, request):
+        try:
+            lista = request.FILES['fisier_camin']
+        except Exception as error:
+            pass
+        else:
+            print("2", lista)
+            lungime = 1
+            while lungime != 0:
+                content = lista.readline().decode('utf-8')
+                if len(content) > 0:
+                    print(content)
+                    content = content.split(',')
+                    query = Repartizare(numar_matricol=content[0], camin=content[1])
+                    query.save()
+                lungime = len(content)
+
+        return render(request, self.template_name, {'mesaj_succes': "Succes! Repartizarea căminelor a fost realizată."})
