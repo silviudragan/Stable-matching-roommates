@@ -91,15 +91,14 @@ class Profil(View):
             warning = "Din nefericire nu aveti loc in camin"
         else:
             st = Student.objects.get(numar_matricol=username)
-            c.execute("SELECT s.nume from stable_student s "
+            d = conn.cursor()
+            d.execute("SELECT s.nume from stable_student s "
                       "join stable_repartizare r on r.numar_matricol = s.numar_matricol "
                       "where r.camin=%s and s.numar_matricol!=%s and s.sex=%s", [data[0][2], username, st.sex])
             nume_camin = data[0][2]
-            data = c.fetchall()
+            data = d.fetchall()
             for it in data:
                 colegi_camin.append(it[0])
-        c.close()
-        print(colegi_camin)
         return colegi_camin, nume_camin
 
     def colegi_repartizati(self, nume_camin):
@@ -158,7 +157,6 @@ class Profil(View):
             introdus_preferinte = True
 
         anunturi = self.mesaje_admin()
-        print(anunturi)
         return render(request, self.template_name, {'student': student, 'colegi_camin': colegi_camin, 'nume_camin': nume_camin,
                                                     'introdus_preferinte': introdus_preferinte, 'colegii_repartizati': colegii_repartizati,
                                                     'numar_camera': numar_camera, 'anunturi': anunturi})
@@ -174,12 +172,19 @@ class Profil(View):
         except Exception:
             pass  # nu a fost incarcat nimic
         student = Student.objects.get(numar_matricol=username)
-        colegi_camin, nume_camin = self.incarcare_preferinte()
+
         introdus_preferinte = False
+        colegi_camin = ""
         if self.verificare_introducere_preferinte():
             introdus_preferinte = True
+        else:
+            colegi_camin = self.incarcare_preferinte()
+        aux = Repartizare.objects.filter(numar_matricol=username)
+        nume_camin = aux[0].camin
+
+        anunturi = self.mesaje_admin()
         return render(request, self.template_name, {'student': student, 'colegi_camin': colegi_camin, 'nume_camin': nume_camin,
-                                                    'introdus_preferinte': introdus_preferinte})
+                                                    'introdus_preferinte': introdus_preferinte, 'anunturi': anunturi})
 
 
 # o lista cu colegii de camera cu care a stat sau inca sta studentul cu respectivul numar matricol
@@ -223,7 +228,7 @@ def obtine_recenzii():
     return recenzii
 
 
-ITEMS_ON_PAGE = 3
+ITEMS_ON_PAGE = 5
 
 
 class Recenzii(View):
@@ -246,8 +251,7 @@ class Recenzii(View):
         nume_coleg = request.POST.get('numeColeg', '')
         calificativ = request.POST.get('notaColeg', '')
         mesaj = request.POST.get('mesajColeg', '')
-        # revizuit split-ul pentru diferite forme de nume
-        data = nume_coleg.split()
+        data = nume_coleg
 
         if nume_coleg == '':
             student = Student.objects.get(numar_matricol=username)
@@ -257,7 +261,7 @@ class Recenzii(View):
             warning = "Nu a fost selectat nici un nume pentru recenzie"
             return render(request, self.template_name, {'student': student, 'recenzii': p.page(page), 'colegi': colegi,
                                                         'warning': warning, "nr_matricol": username})
-        nume = data[0]
+        nume = data
         c = conn.cursor()
 
         c.execute("SELECT numar_matricol from stable_student where nume=%s", [nume])
@@ -277,6 +281,7 @@ class Recenzii(View):
 
         c.execute("SELECT numar_matricol from stable_student where nume=%s", [nume])
         nr_matricol = c.fetchone()
+        print("numar matricol", nr_matricol)
         c.execute("INSERT into stable_recenzie(from_uid, to_uid, mesaj, calificativ, data) "
                   "VALUES(%s, %s, %s, %s, %s)", [username, nr_matricol, mesaj, calificativ, datetime.date.today()])
         conn.commit()
@@ -308,7 +313,6 @@ def display_info_coleg(request):
     rez = c.fetchone()
     nr_matricol = rez[2]
     c.close()
-    print(rez)
     data = {
         'Nume:': rez[0],
         'An:': rez[2],
@@ -317,9 +321,9 @@ def display_info_coleg(request):
     }
     if data['Poza:'] == "1":
         if rez[4] == "M":
-            data['Poza:'] = "3.png"
+            data['Poza:'] = "14.png"
         else:
-            data['Poza:'] = "4.jpg"
+            data['Poza:'] = "4.png"
     return JsonResponse(data)
 
 
@@ -419,6 +423,7 @@ def preferinte_student(request):
     lista_preferinte = nume_preferinte.split('+')[:-1]
     c = conn.cursor()
     importanta = 1
+    print("preferinte_student")
     for item in lista_preferinte:
         nr_matricol = aflare_nr_matricol(item)
         c.execute('INSERT into stable_preferinta (numar_matricol, uid_preferinta, importanta) values (%s, %s, %s)',

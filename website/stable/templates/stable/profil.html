@@ -10,12 +10,12 @@
 
     <center><h4> Date personale </h4><br></center>
     {% if student.poza_profil|length > 3 %}
-        <img src="{{ student.poza_profil.url }}" class="img-responsive" alt="">
+        <img src="{{ student.poza_profil.url }}" class="img-responsive" alt="" height="280" width="280" >
     {% else %}
-        {% if student.0.6 == 'F' %}
-            <img src="{% static 'stable/images/3.jpg' %}" class="img-responsive" alt="">
+        {% if student.sex == 'F' %}
+            <img src="{% static 'stable/images/14.png' %}" class="img-responsive" alt="" height="280" width="280">
         {% else %}
-            <img src="{% static 'stable/images/3.png' %}" class="img-responsive" alt="">
+            <img src="{% static 'stable/images/13.png' %}" class="img-responsive" alt="" height="280" width="280">
         {% endif %}
     {% endif %}
 
@@ -53,30 +53,22 @@
 
 {% block body %}
 
-    {% if introdus_preferinte %}
-        {% if colegii_repartizati|length > 0 %}
-            <div class="sticker">
-            <p> <span style="color: #ff0000"> Felicitări! </span> Ai fost repartizat în camera numărul {{ numar_camera }} din căminul {{ nume_camin }} alături de: </p>
-            <ul>
-                {% for item in colegii_repartizati %}
-                    <li> {{  item }} </li>
-                {% endfor %}
-            </ul>
-            </div><br>
-        {% else %}
-            <div class="alert-success" style="padding: 15px;
-        background-color: #800000;
-        color: white;
-        margin-bottom: 15px;">
-                <strong>Succes!</strong> Preferintele au fost incarcate.
-            </div>
-        {% endif %}
-    {% else %}
+    {% if colegii_repartizati|length > 0 %}
+        <div class="sticker">
+        <p> <span style="color: #ff0000"> Felicitări! </span> Ai fost repartizat în camera numărul {{ numar_camera }} din căminul {{ nume_camin }} alături de: </p>
+        <ul>
+            {% for item in colegii_repartizati %}
+                <li> {{  item }} </li>
+            {% endfor %}
+        </ul>
+        </div><br>
+    {% endif %}
+
+    {% if introdus_preferinte == False %}
         <p>&nbsp;&nbsp;&nbsp; In lista de mai jos sunt studenții care au fost repartizați în {{nume_camin}}...așa ca tine, deci nu mai sta pe gânduri și alege cu cine
         ai vrea să stai în cameră în următorul an. </p>
         <p>&nbsp;&nbsp;&nbsp; Nu uita trebuie să selectezi persoanele în ordinea preferințelor, fie că este o singură persoană sau toate. </p><br>
         <div class="container-fluid">
-          <div class="row content">
             <div class="col-md-2 col-xs-0"></div>
             <div class="col-md-4 col-xs-6">
                 <form>
@@ -98,21 +90,29 @@
                     <button type="button" class="btn btn-secondary" onclick="eliminareFavorit()" style="width:34%;"> Elimina </button>
                 </form>
             </div>
-          </div>
         </div>
+    {% else %}
+        {% if colegii_repartizati|length == 0 %}
+            <div class="alert-success" style="padding: 15px;
+        background-color: #800000;
+        color: white;
+        margin-bottom: 15px;">
+                <strong>Succes!</strong> Preferintele au fost incarcate.
+            </div>
+        {% endif %}
     {% endif %}
 
     {% if anunturi|length > 0 %}
         <h2 style="text-align:center;"> Anunțuri </h2>
         {% for item in anunturi %}
             <div class="sticker">
-                <div class="col-md-3">
+                <div class="col-md-3 col-sm-3">
                     <p>Titlu</p>
                     <p>Data limita</p>
                     <p>Mesaj</p>
                 </div>
 
-                <div class="col-md-9">
+                <div class="col-md-9 col-sm-9">
                     <p>{{ item.0 }} </p>
                     <p>{{ item.2 }} </p>
                     <p>{{ item.1 }} </p>

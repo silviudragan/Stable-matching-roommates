@@ -15,9 +15,9 @@
 
 
     <div class="btn-group">
-        <button type="button" class="btn btn-primary" onclick="recenziiFacute('{{ nr_matricol }}')">Recenziile facute </button>
-        <button type="button" class="btn btn-primary" onclick="recenziiPrimite('{{ nr_matricol }}')">Recenziile primite </button>
-        <button type="button" class="btn btn-primary" onclick="toateRecenziile()">Ultimele recenzii </button>
+        <a><button type="button" class="btn btn-primary" onclick="recenziiFacute('{{ nr_matricol }}')">Recenziile facute </button></a>
+        <a><button type="button" class="btn btn-primary" onclick="recenziiPrimite('{{ nr_matricol }}')">Recenziile primite </button></a>
+        <a href="{% url 'recenzie' %}"> <button type="button" class="btn btn-primary">Ultimele recenzii  </button></a>
     </div>
     <button type="button" class="btn btn-secondary" data-toggle="collapse" data-target="#addRecenzie" style="float: right; margin-right:40px;">Adauga o recenzie</button>
     <div id="addRecenzie" class="collapse">
@@ -25,7 +25,7 @@
             {% csrf_token %}
            <br>
             <div class="container-fluid">
-                <div class="col-sm-6">
+                <div class="col-sm-5">
                     <div class="form-group">
                       <label>Numele colegului:</label>
                       <form action="">
@@ -53,12 +53,31 @@
                     </div>
                     <center><button type="submit" class="btn btn-success"> Incarca recenzie </button></center>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-3" style="width:240px; height:300px;">
                     <div class="result2"></div>
+                </div><br><br>
+
+                <div class="sticker" style="padding:10px;">
+                    <div class="col-lg-3">
+                    <p>Nume: </p>
+                    </div>
+                    <div class="nume"></div>
+                </div><br>
+
+                <div class="sticker" style="padding:10px;">
+                    <div class="col-lg-3">
+                    <p>An: </p>
+                    </div>
+                    <div class="an"></div>
+                </div><br>
+
+                <div class="sticker" style="padding:10px;">
+                    <div class="col-lg-3">
+                    <p>Grupa: </p>
+                    </div>
+                    <div class="grupa"></div>
                 </div>
-                <div class="col-sm-3">
-                    <div class="result"></div>
-                </div>
+
             </div>
         </form>
         <br><br>
@@ -80,43 +99,40 @@
         </div>
     {% endif %}
 
-    <div class="recenziiRealizate"></div>
-
-    <div id="testare">
-    <h2> Ultimele recenzii </h2>
-    {% for rec in recenzii %}
-        <h5><span class="glyphicon glyphicon-time"></span> Postat de {{rec.1}}, {{rec.4}}.</h5>
-        <h5>Către: {{ rec.2 }} </h5>
-        <h5><span class="label label-danger">Coleg</span> <span class="label label-primary">C12</span></h5><br>
-        <p> {{ rec.3 }}</p>
-        <hr>
-    {% endfor %}
-
-    <center>
-    {% if recenzii.has_other_pages %}
-      <ul class="pagination">
-        {% if recenzii.has_previous %}
-          <li><a href="?page={{ recenzii.previous_page_number }}">&laquo;</a></li>
-        {% else %}
-          <li class="disabled"><span>&laquo;</span></li>
-        {% endif %}
-
-        {% for i in recenzii.paginator.page_range %}
-          {% if users.number == i %}
-            <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
-          {% else %}
-            <li><a href="?page={{ i }}">{{ i }}</a></li>
-          {% endif %}
+    <div class="recenziiRealizate">
+        <h2> Ultimele recenzii </h2>
+        {% for rec in recenzii %}
+            <h5><span class="glyphicon glyphicon-time"></span> Postat de {{rec.1}}, {{rec.4}}.</h5>
+            <h5>Către: {{ rec.2 }} </h5>
+            <h5><span class="label label-danger">Coleg</span> <span class="label label-primary">C12</span></h5><br>
+            <p> {{ rec.3 }}</p>
+            <hr>
         {% endfor %}
 
-        {% if recenzii.has_next %}
-          <li><a href="?page={{ recenzii.next_page_number }}">&raquo;</a></li>
-        {% else %}
-          <li class="disabled"><span>&raquo;</span></li>
-        {% endif %}
-      </ul>
-    {% endif %}
-    </center>
-    </div>
+        <center>
+        {% if recenzii.has_other_pages %}
+          <ul class="pagination">
+            {% if recenzii.has_previous %}
+              <li><a href="?page={{ recenzii.previous_page_number }}">&laquo;</a></li>
+            {% else %}
+              <li class="disabled"><span>&laquo;</span></li>
+            {% endif %}
 
+            {% for i in recenzii.paginator.page_range %}
+              {% if users.number == i %}
+                <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+              {% else %}
+                <li><a href="?page={{ i }}">{{ i }}</a></li>
+              {% endif %}
+            {% endfor %}
+
+            {% if recenzii.has_next %}
+              <li><a href="?page={{ recenzii.next_page_number }}">&raquo;</a></li>
+            {% else %}
+              <li class="disabled"><span>&raquo;</span></li>
+            {% endif %}
+          </ul>
+        {% endif %}
+        </center>
+    </div>
 {% endblock %}
