@@ -64,51 +64,6 @@ class Login(View):
             return redirect('resetPass')
 
 
-class UserFormView(View):
-    form_class = UserForm
-    template_name = 'stable/register.html'
-    global conn
-
-    def get(self, request):
-        form = self.form_class(None)
-        studenti = ""
-        return render(request, self.template_name, {'form': form})
-
-    def post(self, request):
-        form = UserForm(request.POST)
-        re_password = request.POST.get('re_password', '')
-        if form.is_valid():
-            global username
-            user = form.save(commit=False)
-
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            if password != re_password:
-                return render(request, self.template_name, {'form': form})
-
-            c = conn.cursor()
-            c.execute("SELECT * FROM stable_student")
-            studenti = c.fetchall()
-            # verificam daca numarul matricol este valid
-            id_valid = False
-            for student in studenti:
-                if username in student:
-                    id_valid = True
-
-            if not id_valid:
-                return render(request, self.template_name, {'form': form, 'mesaj': "Numarul matricol nu este valid."})
-
-            user.set_password(password)
-            user.save()
-
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                if user.is_active:
-                    login(request, user)
-                    return redirect('index')
-        return render(request, self.template_name, {'form': form})
-
-
 class Logout(View):
     def get(self, request):
         logout(request)
@@ -156,7 +111,7 @@ class Profil(View):
         uid_colegii_repartizati = []
         numar_camera = 0
         for nr in numar_camere:
-            camera = MultimeStabila.objects.filter(camera=Camin.objects.get(numar_camera=nr))
+            camera = MultimeStabila.objects.filter(camera=Camin.objects.get(nume_camin=nume_camin, numar_camera=nr))
             studenti_camera = []
             if len(camera) > 0:
                 for item in camera:

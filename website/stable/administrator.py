@@ -43,7 +43,7 @@ FACULTATI = [
     'Teologie Romano-Catolica', ]
 
 LOCURI = {
-    'C1': [2, 3, 4],
+    'C1': [2, 3],
     'C2': [2, 3, 4],
     'C3': [2, 3, 4],
     'C4': [5],
@@ -684,6 +684,33 @@ def afisare_camere_de_5(multime):
     return camere
 
 
+def stocare_colegi_camera():
+    camere = MultimeStabila.objects.all()
+    for camera in camere:
+        colegi = []
+        if len(camera.coleg1) > 0:
+            colegi.append(camera.coleg1)
+        if len(camera.coleg2) > 0:
+            colegi.append(camera.coleg2)
+        if len(camera.coleg3) > 0:
+            colegi.append(camera.coleg3)
+        if len(camera.coleg4) > 0:
+            colegi.append(camera.coleg4)
+        if len(camera.coleg5) > 0:
+            colegi.append(camera.coleg5)
+
+        if len(colegi) > 1:
+            print(colegi)
+            for i in range(len(colegi)-1):
+                for j in range(i+1, len(colegi)):
+                    try:
+                        aux = Coleg(coleg1=colegi[i], coleg2=colegi[j])
+                        aux.save()
+                    except Exception:
+                        pass
+                        # este posibil ca cele 2 persoane sa mai fi stat in aceesi camera deci exista deja o intrare in baza de date
+
+
 def stocare(camere, camin):
     hostel = Camin.objects.filter(nume_camin=camin)
     numar_camere = []
@@ -938,7 +965,7 @@ class Administrator(View):
                 for camera in camere:
                     if 'empty' in camera:
                         camera.remove('empty')
-                print("Camere de 2 persoane", camere)
+                print("Camere de 2 persoane " + sex, camere)
                 stocare_2(camere, camin, 2, facultate)
 
     def camere_3(self, camin, sex):
@@ -955,7 +982,7 @@ class Administrator(View):
                 for camera in camere:
                     if 'empty' in camera:
                         camera.remove('empty')
-                print("Camere de 3 persoane", camere)
+                print("Camere de 3 persoane " + sex, camere)
                 stocare_2(camere, camin, 3, facultate)
 
     def camere_4(self, camin, sex):
@@ -975,7 +1002,7 @@ class Administrator(View):
                             camera.remove('empty')
                         else:
                             i += 1
-                print("Camere de 4 persoane", camere)
+                print("Camere de 4 persoane " + sex, camere)
                 stocare_2(camere, camin, 4, facultate)
 
     def camere_5(self, camin, sex):
@@ -992,10 +1019,9 @@ class Administrator(View):
                     o_camera = []
                     camere = []
                     for item in students:
-                        print("teeeest")
                         o_camera.append(item['name'])
                     camere.append(o_camera)
-                print("Repartizare camere 5 persoane", camere)
+                print("Repartizare camere 5 persoane " + sex, camere)
                 stocare(camere, camin)
 
     def get(self, request):
@@ -1101,7 +1127,7 @@ class Administrator(View):
 
                 p = 0
                 semafor = True
-                while semafor and p < 100:
+                while semafor and p < 150:
                     try:
                         self.camere_5(camin, "M")
                         semafor = False
@@ -1111,6 +1137,7 @@ class Administrator(View):
                         s += 1
 
         mesaj_succes = "Repartizarea a fost facuta cu succes." + str(p) + " -> " + str(s)
+        stocare_colegi_camera()
         if not semafor:
             return render(request, self.template_name, {'mesaj_succes': mesaj_succes})
         else:
@@ -1124,14 +1151,31 @@ class Resetare(View):
         return render(request, self.template_name)
 
     def post(self, request):
-        print("sterge date")
         aux = Repartizare.objects.filter(repartizare_camera=True)
         for item in aux:
             item.repartizare_camera = False
             item.save()
 
+        stable = MultimeStabila.objects.all()
+        for item in stable:
+            colegi = []
+            if len(item.coleg1) > 0:
+                colegi.append(item.coleg1)
+            if len(item.coleg2) > 0:
+                colegi.append(item.coleg2)
+            if len(item.coleg3) > 0:
+                colegi.append(item.coleg3)
+            if len(item.coleg4) > 0:
+                colegi.append(item.coleg4)
+            if len(item.coleg5) > 0:
+                colegi.append(item.coleg5)
+            for i in range(len(colegi)-1):
+                for j in range(i+1, len(colegi)):
+                    Coleg.objects.filter(coleg1=colegi[i], coleg2=colegi[j]).delete()
+                    Coleg.objects.filter(coleg1=colegi[j], coleg2=colegi[i]).delete()
+
         MultimeStabila.objects.all().delete()
-        return render(request, self.template_name)
+        return render(request, self.template_name, {'mesaj_succes': "Datele au fost resetate"})
 
 
 class Avansare(View):
@@ -1153,8 +1197,19 @@ class GenerareExcel(View):
         return render(request, self.template_name)
 
     def post(self, request):
-        export_repartizare()
-        return render(request, self.template_name)
+        ok = True
+        try:
+            export_repartizare()
+        except PermissionError:
+            mesaj_warning = "Un fișier cu același nume este deschis"
+            ok = False
+        except Exception:
+            mesaj_warning = "Eroare neașteptată, te rugăm să reîncerci"
+            ok = False
+        if ok:
+            return render(request, self.template_name, {'mesaj_succes': "Fișierul a fost generat"})
+        else:
+            return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
 
 
 class StatisticaCamine(View):
@@ -1199,11 +1254,9 @@ class StatisticaCamine(View):
                 if len(camere_fac) > 0:
                     camere_universitate[f].append(camere_fac)
 
-        pprint(camere_universitate)
         return render(request, self.template_name, {'repartizare': camere_universitate})
 
     def post(self, request):
-        print("da")
         return render(request, self.template_name)
 
 
@@ -1219,12 +1272,10 @@ class CreareConturi(View):
         except Exception as error:
             pass
         else:
-            print("2", lista)
             lungime = 1
             while lungime != 0:
                 content = lista.readline().decode('utf-8')
                 if len(content) > 0:
-                    print(content)
                     content = content.split(',')
                     query = Student(nume=content[1], numar_matricol=content[2], facultate=content[6][:-2], an=content[0],
                                     grupa=content[5], sex=content[4], email=content[3])
@@ -1241,7 +1292,7 @@ class CreareConturi(View):
                         # are deja contul inregistrat
 
                 lungime = len(content)
-        return render(request, self.template_name)
+        return render(request, self.template_name, {'mesaj_succes': "Conturile au fost create"})
 
 
 class Mesaj(View):
@@ -1254,7 +1305,6 @@ class Mesaj(View):
         titlu = request.POST.get('titlu', '')
         mesaj = request.POST.get('message', '')
         data = request.POST.get('data', '')
-        print(titlu, data, mesaj)
         query = Anunt(titlu=titlu, mesaj=mesaj, deadline=data)
         query.save()
         return render(request, self.template_name, {'mesaj_succes': "Succes! Anunțul a fost postat."})
@@ -1272,12 +1322,10 @@ class Repartizare_camin(View):
         except Exception as error:
             pass
         else:
-            print("2", lista)
             lungime = 1
             while lungime != 0:
                 content = lista.readline().decode('utf-8')
                 if len(content) > 0:
-                    print(content)
                     content = content.split(',')
                     query = Repartizare(numar_matricol=content[0], camin=content[1][:-2])
                     query.save()
