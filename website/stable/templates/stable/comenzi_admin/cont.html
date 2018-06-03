@@ -4,6 +4,7 @@
 {% block descriere_comanda %}
     <h2> Creare conturi </h2>
     <p> Cu ajutorul acestei comenzi se crează conturile studenților. </p>
+    <p> Fișierul trebuie să fie de forma "an, nume, număr matricol, email, sex, grupă, facultate". </p>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <input name="fisier_studenti" type="file" accept=".csv">

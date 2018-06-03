@@ -73,6 +73,7 @@ class Coleg(models.Model):
 
     coleg1 = models.CharField(max_length=30)
     coleg2 = models.CharField(max_length=30)
+    nume_camin = models.CharField(max_length=30)
 
     def __str__(self):
         return self.coleg1 + ' cu ' +self.coleg2

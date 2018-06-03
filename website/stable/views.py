@@ -234,6 +234,48 @@ ITEMS_ON_PAGE = 5
 class Recenzii(View):
     template_name = 'stable/recenzie.html'
 
+    def url_poze(self, recenzii):
+        poze = dict()
+        for item in recenzii:
+            aux = Student.objects.filter(nume=item[1])
+
+            if aux[0].poza_profil == '1':
+                if aux[0].sex == 'F':
+                    poze[item[1]] = '14.png'
+                else:
+                    poze[item[1]] = '13.png'
+            else:
+                poze[item[1]] = aux[0].poza_profil
+
+            aux = Student.objects.filter(nume=item[2])
+
+            if aux[0].poza_profil == '1':
+                if aux[0].sex == 'F':
+                    poze[item[2]] = '14.png'
+                else:
+                    poze[item[2]] = '13.png'
+            else:
+                poze[item[2]] = aux[0].poza_profil
+        return poze
+
+    def camin_cazat(self, recenzii):
+        camin = dict()
+        for item in recenzii:
+            st = Student.objects.filter(nume=item[1])
+            st2 = Student.objects.filter(nume=item[2])
+
+            aux = Coleg.objects.filter(coleg1=st[0].numar_matricol, coleg2=st2[0].numar_matricol)
+            aux2 = Coleg.objects.filter(coleg1=st2[0].numar_matricol, coleg2=st[0].numar_matricol)
+            print("aux", aux)
+            print("aux2", aux2)
+            if len(aux) > 0:
+                camin[item[1]] = aux[0].nume_camin
+                camin[item[2]] = aux[0].nume_camin
+            elif len(aux2) > 0:
+                camin[item[1]] = aux2[0].nume_camin
+                camin[item[2]] = aux2[0].nume_camin
+        return camin
+
     def get(self, request):
         page = request.GET.get('page', 1)
         if len(username) == 0:
@@ -241,10 +283,13 @@ class Recenzii(View):
 
         student = Student.objects.get(numar_matricol=username)
         recenzii = obtine_recenzii()
+
+        poze = self.url_poze(recenzii)
+        camin = self.camin_cazat(recenzii)
         p = Paginator(recenzii, ITEMS_ON_PAGE)
         colegi = colegii_de_camera()
         return render(request, self.template_name, {'student': student, 'recenzii': p.page(page), 'colegi': colegi,
-                                                    'nr_matricol': username})
+                                                    'nr_matricol': username, 'poze': poze, 'camin': camin})
 
     def post(self, request):
         page = request.GET.get('page', 1)
@@ -259,8 +304,10 @@ class Recenzii(View):
             colegi = colegii_de_camera()
             p = Paginator(recenzii, ITEMS_ON_PAGE)
             warning = "Nu a fost selectat nici un nume pentru recenzie"
+            poze = self.url_poze(recenzii)
+            camin = self.camin_cazat(recenzii)
             return render(request, self.template_name, {'student': student, 'recenzii': p.page(page), 'colegi': colegi,
-                                                        'warning': warning, "nr_matricol": username})
+                                                        'warning': warning, "nr_matricol": username, 'poze': poze, 'camin': camin})
         nume = data
         c = conn.cursor()
 
@@ -276,12 +323,14 @@ class Recenzii(View):
             recenzii = obtine_recenzii()
             warning = "Exista deja o recenzie facuta pentru " + nume
             p = Paginator(recenzii, ITEMS_ON_PAGE)
+            poze = self.url_poze(recenzii)
+            camin = self.camin_cazat(recenzii)
             return render(request, self.template_name, {'student': student, 'recenzii': p.page(page), 'colegi': colegi,
-                                                        'warning': warning, "nr_matricol": username})
+                                                        'warning': warning, "nr_matricol": username, 'poze': poze, 'camin': camin})
 
         c.execute("SELECT numar_matricol from stable_student where nume=%s", [nume])
         nr_matricol = c.fetchone()
-        print("numar matricol", nr_matricol)
+
         c.execute("INSERT into stable_recenzie(from_uid, to_uid, mesaj, calificativ, data) "
                   "VALUES(%s, %s, %s, %s, %s)", [username, nr_matricol, mesaj, calificativ, datetime.date.today()])
         conn.commit()
@@ -289,8 +338,10 @@ class Recenzii(View):
         recenzii = obtine_recenzii()
         succes = "Recenzia pentru " + nume + " " + " a fost adaugata."
         p = Paginator(recenzii, ITEMS_ON_PAGE)
+        poze = self.url_poze(recenzii)
+        camin = self.camin_cazat(recenzii)
         return render(request, self.template_name, {'student': student, 'recenzii': p.page(page), 'colegi': colegi,
-                                                    'succes': succes, "nr_matricol": username})
+                                                    'succes': succes, "nr_matricol": username, 'poze': poze, 'camin': camin})
 
 
 def aflare_nr_matricol(nume):
@@ -321,9 +372,9 @@ def display_info_coleg(request):
     }
     if data['Poza:'] == "1":
         if rez[4] == "M":
-            data['Poza:'] = "14.png"
+            data['Poza:'] = "13.png"
         else:
-            data['Poza:'] = "4.png"
+            data['Poza:'] = "14.png"
     return JsonResponse(data)
 
 
@@ -351,10 +402,52 @@ def recenzii_facute(request):
     data = {}
     it = 0
     for rec in recenzii:
-        for i in rec:
+        # nume camin
+        st = Student.objects.filter(nume=rec[1])
+        st2 = Student.objects.filter(nume=rec[2])
+
+        aux = Coleg.objects.filter(coleg1=st[0].numar_matricol, coleg2=st2[0].numar_matricol)
+        aux2 = Coleg.objects.filter(coleg1=st2[0].numar_matricol, coleg2=st[0].numar_matricol)
+        eticheta = 'info' + str(it)
+        it += 1
+        if len(aux) > 0:
+            data[eticheta] = aux[0].nume_camin
+        elif len(aux2) > 0:
+            data[eticheta] = aux2[0].nume_camin
+        else:
+            data[eticheta] = "-"
+
+        aux = Student.objects.filter(nume=rec[1])
+        eticheta = 'info' + str(it)
+        it += 1
+        if aux[0].poza_profil == '1':
+            if aux[0].sex == 'F':
+                data[eticheta] = '14.png'
+            else:
+                data[eticheta] = '13.png'
+        else:
+            data[eticheta] = str(aux[0].poza_profil)
+
+        eticheta = 'info' + str(it)
+        it += 1
+        data[eticheta] = rec[1]
+
+        aux = Student.objects.filter(nume=rec[2])
+        eticheta = 'info' + str(it)
+        it += 1
+        if aux[0].poza_profil == '1':
+            if aux[0].sex == 'F':
+                data[eticheta] = '14.png'
+            else:
+                data[eticheta] = '13.png'
+        else:
+            data[eticheta] = str(aux[0].poza_profil)
+
+        for i in range(2, len(rec)):
             eticheta = 'info' + str(it)
             it += 1
-            data[eticheta] = i
+            data[eticheta] = rec[i]
+
     return JsonResponse(data)
 
 
@@ -382,10 +475,52 @@ def recenzii_primite(request):
     data = {}
     it = 0
     for rec in recenzii:
-        for i in rec:
+        # nume camin
+        st = Student.objects.filter(nume=rec[1])
+        st2 = Student.objects.filter(nume=rec[2])
+
+        aux = Coleg.objects.filter(coleg1=st[0].numar_matricol, coleg2=st2[0].numar_matricol)
+        aux2 = Coleg.objects.filter(coleg1=st2[0].numar_matricol, coleg2=st[0].numar_matricol)
+        eticheta = 'info' + str(it)
+        it += 1
+        if len(aux) > 0:
+            data[eticheta] = aux[0].nume_camin
+        elif len(aux2) > 0:
+            data[eticheta] = aux2[0].nume_camin
+        else:
+            data[eticheta] = ""
+
+        # poza
+        aux = Student.objects.filter(nume=rec[1])
+        eticheta = 'info' + str(it)
+        it += 1
+        if aux[0].poza_profil == '1':
+            if aux[0].sex == 'F':
+                data[eticheta] = '14.png'
+            else:
+                data[eticheta] = '13.png'
+        else:
+            data[eticheta] = str(aux[0].poza_profil)
+
+        eticheta = 'info' + str(it)
+        it += 1
+        data[eticheta] = rec[1]
+
+        aux = Student.objects.filter(nume=rec[2])
+        eticheta = 'info' + str(it)
+        it += 1
+        if aux[0].poza_profil == '1':
+            if aux[0].sex == 'F':
+                data[eticheta] = '14.png'
+            else:
+                data[eticheta] = '13.png'
+        else:
+            data[eticheta] = str(aux[0].poza_profil)
+
+        for i in range(2, len(rec)):
             eticheta = 'info' + str(it)
             it += 1
-            data[eticheta] = i
+            data[eticheta] = rec[i]
     return JsonResponse(data)
 
 

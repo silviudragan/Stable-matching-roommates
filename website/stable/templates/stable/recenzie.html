@@ -29,7 +29,7 @@
                     <div class="form-group">
                       <label>Numele colegului:</label>
                       <form action="">
-                          <select class="form-control" name="numeColeg" onchange="showCustomer(this.value)">
+                          <select class="form-control" name="numeColeg" onchange="detaliiColeg(this.value)">
                             <option value="">Alege un student:</option>
                             {% for coleg in colegi %}
                                 <option>{{ coleg }}</option>
@@ -100,13 +100,48 @@
     {% endif %}
 
     <div class="recenziiRealizate">
-        <h2> Ultimele recenzii </h2>
+        <center><h2>Ultimele recenzii</h2></center>
         {% for rec in recenzii %}
-            <h5><span class="glyphicon glyphicon-time"></span> Postat de {{rec.1}}, {{rec.4}}.</h5>
-            <h5>Către: {{ rec.2 }} </h5>
-            <h5><span class="label label-danger">Coleg</span> <span class="label label-primary">C12</span></h5><br>
-            <p> {{ rec.3 }}</p>
-            <hr>
+            <div class="sticker">
+                <div class="col-md-3 col-sm-3">
+                    {% for cheie, valoare in poze.items %}
+                        {% if cheie == rec.1 %}
+                            <center><img src="/media/{{ valoare }}" height="100" width="100" />
+                            <p style="font-size:12px;">{{ rec.1 }}</p></center>
+                        {% endif %}
+                        {% if cheie == rec.2 %}
+                            <center><img src="/media/{{ valoare }}" height="100" width="100" />
+                            <p style="font-size:12px;">{{ rec.2 }}</p></center>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-3 col-sm-3">
+                    <br>
+                    <h5> Expeditor</h5>
+                    <p>Destinatar</p>
+                    <p>Data</p>
+                    <p>Cămin</p>
+                    <p>Rating</p>
+                    <p>Mesaj</p>
+                </div>
+
+                <div class="col-md-6 col-sm-6">
+                    <br>
+                    <h5>{{rec.1}}</h5>
+                    <p>{{ rec.2 }} </p>
+                    <p>{{rec.4}} </p>
+                    {% for c, v in camin.items %}
+                        {% if c == rec.1 %}
+                            <p> {{v}} </p>
+                        {% endif %}
+                    {% endfor %}
+                    <p> {{ rec.5 }}/5 <span class='glyphicon glyphicon-star'></span></p>
+                    <p> {{ rec.3 }}</p>
+                </div>
+
+                </div>
+                <br>
         {% endfor %}
 
         <center>

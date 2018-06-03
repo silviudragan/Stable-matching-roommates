@@ -704,7 +704,8 @@ def stocare_colegi_camera():
             for i in range(len(colegi)-1):
                 for j in range(i+1, len(colegi)):
                     try:
-                        aux = Coleg(coleg1=colegi[i], coleg2=colegi[j])
+                        camin = Repartizare.objects.get(numar_matricol=colegi[i])
+                        aux = Coleg(coleg1=colegi[i], coleg2=colegi[j], nume_camin=camin.camin)
                         aux.save()
                     except Exception:
                         pass
@@ -1327,8 +1328,12 @@ class Repartizare_camin(View):
                 content = lista.readline().decode('utf-8')
                 if len(content) > 0:
                     content = content.split(',')
-                    query = Repartizare(numar_matricol=content[0], camin=content[1][:-2])
-                    query.save()
+                    try:
+                        query = Repartizare(numar_matricol=content[0], camin=content[1][:-2])
+                        query.save()
+                    except Exception:
+                        pass
+                        # deja exista o intrare in baza de date, deci nu mai poate fi introdusa
                 lungime = len(content)
 
         return render(request, self.template_name, {'mesaj_succes': "Succes! Repartizarea căminelor a fost realizată."})
