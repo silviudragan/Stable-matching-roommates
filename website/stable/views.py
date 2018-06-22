@@ -139,7 +139,10 @@ class Profil(View):
         anunturi_de_afisat = []
         for item in anunturi:
             if today <= item.deadline:
-                anunturi_de_afisat.append((item.titlu, item.mesaj, item.deadline))
+                if str(item.deadline) == "2500-12-31":
+                    anunturi_de_afisat.append((item.titlu, item.mesaj, "-"))
+                else:
+                    anunturi_de_afisat.append((item.titlu, item.mesaj, str(item.deadline)))
         anunturi_de_afisat.sort(key=operator.itemgetter(2), reverse=True)
         return anunturi_de_afisat
 
@@ -218,12 +221,15 @@ def obtine_recenzii():
         # aflam numele expeditorului
         c.execute("SELECT nume FROM stable_student where numar_matricol=%s", [recenzii[i][1]])
         nume = c.fetchone()
+        print("asdasd", nume, nume[0])
         recenzii[i][1] = nume[0]
 
         # aflam numele destinatarului
         c.execute("SELECT nume FROM stable_student where numar_matricol=%s", [recenzii[i][2]])
         nume = c.fetchone()
         recenzii[i][2] = nume[0]
+        recenzii[i][4] = str(recenzii[i][4])
+
     c.close()
     return recenzii
 
@@ -266,8 +272,6 @@ class Recenzii(View):
 
             aux = Coleg.objects.filter(coleg1=st[0].numar_matricol, coleg2=st2[0].numar_matricol)
             aux2 = Coleg.objects.filter(coleg1=st2[0].numar_matricol, coleg2=st[0].numar_matricol)
-            print("aux", aux)
-            print("aux2", aux2)
             if len(aux) > 0:
                 camin[item[1]] = aux[0].nume_camin
                 camin[item[2]] = aux[0].nume_camin

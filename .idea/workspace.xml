@@ -2,14 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9acb5a2d-f1bb-440a-8b72-38fdb9cad39f" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/website/media/4.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/website/media/5.png" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Documentatie.docx" afterPath="$PROJECT_DIR$/Documentatie.docx" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/website/Repartizare.xlsx" afterPath="$PROJECT_DIR$/website/Repartizare.xlsx" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/website/stable/administrator.py" afterPath="$PROJECT_DIR$/website/stable/administrator.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/website/stable/models.py" afterPath="$PROJECT_DIR$/website/stable/models.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/website/stable/static/javascript.js" afterPath="$PROJECT_DIR$/website/stable/static/javascript.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/website/stable/templates/stable/comenzi_admin/cont.html" afterPath="$PROJECT_DIR$/website/stable/templates/stable/comenzi_admin/cont.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/website/stable/templates/stable/recenzie.html" afterPath="$PROJECT_DIR$/website/stable/templates/stable/recenzie.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/website/stable/views.py" afterPath="$PROJECT_DIR$/website/stable/views.py" />
     </list>
     <ignored path="test2.iws" />
@@ -33,68 +30,49 @@
       <file leaf-file-name="administrator.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/website/stable/administrator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="318">
-              <caret line="1147" column="8" selection-start-line="1147" selection-start-column="3" selection-end-line="1147" selection-end-column="8" />
+            <state relative-caret-position="296">
+              <caret line="237" column="0" selection-start-line="237" selection-start-column="0" selection-end-line="237" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="recenzie.html" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/website/stable/templates/stable/recenzie.html">
+      <file leaf-file-name="export.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/website/stable/export.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="726">
-              <caret line="135" column="37" selection-start-line="135" selection-start-column="37" selection-end-line="135" selection-end-column="37" />
-              <folding>
-                <element signature="n#style#0;n#div#1;n#div#0;n#form#0;n#div#1;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#div#2;n#div#0;n#form#0;n#div#1;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#div#3;n#div#0;n#form#0;n#div#1;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#div#4;n#div#0;n#form#0;n#div#1;n#!!top" expanded="true" />
-                <element signature="e#3625#3632#0" expanded="true" />
-                <element signature="n#style#0;n#p#0;n#center#0;n#div#0;n#div#0;n#div#4;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#p#0;n#center#1;n#div#0;n#div#0;n#div#4;n#!!top" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="camin.html" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/website/stable/templates/stable/comenzi_admin/camin.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="330">
-              <caret line="33" column="48" selection-start-line="33" selection-start-column="48" selection-end-line="33" selection-end-column="92" />
-              <folding>
-                <element signature="n#style#0;n#table#0;n#li#0;n#ul#0;n#li#0;n#ul#0;n#li#0;n#ul#0;n#li#0;n#ul#0;n#!!top" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="style.css" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/website/stable/static/style.css">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="402">
-              <caret line="91" column="22" selection-start-line="91" selection-start-column="22" selection-end-line="91" selection-end-column="22" />
+            <state relative-caret-position="704">
+              <caret line="119" column="24" selection-start-line="119" selection-start-column="24" selection-end-line="119" selection-end-column="24" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="javascript.js" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/website/stable/static/javascript.js">
+      <file leaf-file-name="login.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/website/stable/templates/stable/login.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="264">
-              <caret line="219" column="40" selection-start-line="219" selection-start-column="40" selection-end-line="219" selection-end-column="40" />
-              <folding>
-                <element signature="e#0#10892#0" expanded="false" />
-                <element signature="e#0#10892#0" expanded="false" />
-                <element signature="e#0#10892#0" expanded="false" />
-                <element signature="e#0#10892#0" expanded="false" />
-                <element signature="e#0#10892#0" expanded="false" />
-                <element signature="e#0#10892#0" expanded="false" />
-                <element signature="e#0#10892#0" expanded="false" />
-                <element signature="e#0#10892#0" expanded="false" />
-              </folding>
+            <state relative-caret-position="368">
+              <caret line="72" column="96" selection-start-line="72" selection-start-column="96" selection-end-line="72" selection-end-column="96" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/website/stable/templates/stable/index.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="9" column="21" selection-start-line="9" selection-start-column="21" selection-end-line="9" selection-end-column="21" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="avansareAn.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/website/stable/templates/stable/comenzi_admin/avansareAn.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="396">
+              <caret line="18" column="59" selection-start-line="18" selection-start-column="59" selection-end-line="18" selection-end-column="59" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -112,8 +90,8 @@
       <file leaf-file-name="models.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/website/stable/models.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="528">
-              <caret line="75" column="14" selection-start-line="75" selection-start-column="4" selection-end-line="75" selection-end-column="14" />
+            <state relative-caret-position="1148">
+              <caret line="87" column="22" selection-start-line="87" selection-start-column="4" selection-end-line="87" selection-end-column="22" />
               <folding />
             </state>
           </provider>
@@ -122,8 +100,8 @@
       <file leaf-file-name="profil.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/website/stable/templates/stable/profil.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="242">
-              <caret line="11" column="43" selection-start-line="11" selection-start-column="43" selection-end-line="11" selection-end-column="43" />
+            <state relative-caret-position="484">
+              <caret line="22" column="43" selection-start-line="22" selection-start-column="43" selection-end-line="22" selection-end-column="43" />
               <folding>
                 <element signature="n#style#0;n#h2#0;n#!!top" expanded="true" />
               </folding>
@@ -141,11 +119,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="views.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="views.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/website/stable/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="814">
-              <caret line="417" column="31" selection-start-line="417" selection-start-column="31" selection-end-line="417" selection-end-column="31" />
+            <state relative-caret-position="296">
+              <caret line="89" column="26" selection-start-line="89" selection-start-column="26" selection-end-line="89" selection-end-column="26" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
               </folding>
@@ -202,18 +180,18 @@
         <option value="$PROJECT_DIR$/website/stable/templates/stable/comenzi_admin/repartizare.html" />
         <option value="$PROJECT_DIR$/website/stable/templates/stable/comenzi_admin/resetare.html" />
         <option value="$PROJECT_DIR$/website/stable/templates/stable/comenzi_admin/dispozitie.html" />
-        <option value="$PROJECT_DIR$/website/stable/export.py" />
         <option value="$PROJECT_DIR$/website/website/urls.py" />
         <option value="$PROJECT_DIR$/website/website/settings.py" />
         <option value="$PROJECT_DIR$/website/stable/templates/stable/comenzi_admin/cont.html" />
         <option value="$PROJECT_DIR$/website/stable/templates/stable/base.html" />
-        <option value="$PROJECT_DIR$/website/stable/models.py" />
-        <option value="$PROJECT_DIR$/website/stable/administrator.py" />
         <option value="$PROJECT_DIR$/website/stable/static/style.css" />
-        <option value="$PROJECT_DIR$/website/stable/templates/stable/profil.html" />
         <option value="$PROJECT_DIR$/website/stable/templates/stable/recenzie.html" />
-        <option value="$PROJECT_DIR$/website/stable/views.py" />
         <option value="$PROJECT_DIR$/website/stable/static/javascript.js" />
+        <option value="$PROJECT_DIR$/website/stable/models.py" />
+        <option value="$PROJECT_DIR$/website/stable/templates/stable/profil.html" />
+        <option value="$PROJECT_DIR$/website/stable/export.py" />
+        <option value="$PROJECT_DIR$/website/stable/views.py" />
+        <option value="$PROJECT_DIR$/website/stable/administrator.py" />
       </list>
     </option>
   </component>
@@ -267,7 +245,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
       <pane id="Scope">
         <subPane subId="Project Files">
           <PATH>
@@ -506,6 +483,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -837,13 +815,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/website/stable/templates/stable/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="1" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/website/stable/export.html" />
     <entry file="file://$PROJECT_DIR$/website/stable/templates/stable/comenzi_admin/Creare conturi.html" />
     <entry file="file://$PROJECT_DIR$/website/media/25299168_1186950211439026_6662961107966150844_n.jpg">
@@ -858,13 +829,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/website/stable/templates/stable/login.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="368">
-          <caret line="72" column="96" selection-start-line="72" selection-start-column="96" selection-end-line="72" selection-end-column="96" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/website/stable/templates/stable/register.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="694">
@@ -876,13 +840,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="660">
           <caret line="30" column="59" selection-start-line="30" selection-start-column="59" selection-end-line="30" selection-end-column="59" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/website/stable/templates/stable/comenzi_admin/avansareAn.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="396">
-          <caret line="18" column="59" selection-start-line="18" selection-start-column="59" selection-end-line="18" selection-end-column="59" />
         </state>
       </provider>
     </entry>
@@ -921,11 +878,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/website/media/4.png">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/website/media/4.png" />
     <entry file="file://$PROJECT_DIR$/website/media/3.png" />
     <entry file="file://$PROJECT_DIR$/website/website/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -966,7 +919,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -974,7 +926,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="176">
           <caret line="9" column="74" selection-start-line="9" selection-start-column="74" selection-end-line="9" selection-end-column="74" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -982,7 +933,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1826">
           <caret line="83" column="23" selection-start-line="83" selection-start-column="23" selection-end-line="83" selection-end-column="23" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -990,10 +940,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="132">
           <caret line="6" column="98" selection-start-line="6" selection-start-column="98" selection-end-line="6" selection-end-column="98" />
-          <folding>
-            <element signature="n#style#0;n#div#0;n#form#0;n#!!top" expanded="false" />
-            <element signature="n#style#0;n#button#0;n#div#0;n#form#0;n#!!top" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1001,15 +947,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="374">
           <caret line="22" column="10" selection-start-line="22" selection-start-column="10" selection-end-line="22" selection-end-column="10" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/website/stable/export.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="318">
-          <caret line="86" column="80" selection-start-line="86" selection-start-column="74" selection-end-line="86" selection-end-column="80" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1017,6 +954,57 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="110">
           <caret line="6" column="64" selection-start-line="6" selection-start-column="56" selection-end-line="6" selection-end-column="64" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/website/stable/templates/stable/recenzie.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2904">
+          <caret line="132" column="37" selection-start-line="132" selection-start-column="37" selection-end-line="132" selection-end-column="37" />
+          <folding>
+            <element signature="n#style#0;n#div#1;n#div#0;n#form#0;n#div#1;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#div#2;n#div#0;n#form#0;n#div#1;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#div#3;n#div#0;n#form#0;n#div#1;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#div#4;n#div#0;n#form#0;n#div#1;n#!!top" expanded="false" />
+            <element signature="e#3625#3632#0" expanded="false" />
+            <element signature="n#style#0;n#p#0;n#center#0;n#div#0;n#div#0;n#div#4;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#p#0;n#center#1;n#div#0;n#div#0;n#div#4;n#!!top" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/website/stable/templates/stable/comenzi_admin/camin.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="726">
+          <caret line="33" column="48" selection-start-line="33" selection-start-column="48" selection-end-line="33" selection-end-column="92" />
+          <folding>
+            <element signature="n#style#0;n#table#0;n#li#0;n#ul#0;n#li#0;n#ul#0;n#li#0;n#ul#0;n#li#0;n#ul#0;n#!!top" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/website/stable/static/style.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2002">
+          <caret line="91" column="22" selection-start-line="91" selection-start-column="22" selection-end-line="91" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/website/stable/static/javascript.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4818">
+          <caret line="219" column="40" selection-start-line="219" selection-start-column="40" selection-end-line="219" selection-end-column="40" />
+          <folding>
+            <element signature="e#0#10892#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/website/website/wsgi.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -1029,97 +1017,70 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/website/stable/templates/stable/comenzi_admin/camin.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="33" column="48" selection-start-line="33" selection-start-column="48" selection-end-line="33" selection-end-column="92" />
-          <folding>
-            <element signature="n#style#0;n#table#0;n#li#0;n#ul#0;n#li#0;n#ul#0;n#li#0;n#ul#0;n#li#0;n#ul#0;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/website/stable/templates/stable/profil.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="242">
-          <caret line="11" column="43" selection-start-line="11" selection-start-column="43" selection-end-line="11" selection-end-column="43" />
+        <state relative-caret-position="484">
+          <caret line="22" column="43" selection-start-line="22" selection-start-column="43" selection-end-line="22" selection-end-column="43" />
           <folding>
             <element signature="n#style#0;n#h2#0;n#!!top" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/website/stable/administrator.py">
+    <entry file="file://$PROJECT_DIR$/website/stable/templates/stable/comenzi_admin/avansareAn.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="318">
-          <caret line="1147" column="8" selection-start-line="1147" selection-start-column="3" selection-end-line="1147" selection-end-column="8" />
+        <state relative-caret-position="396">
+          <caret line="18" column="59" selection-start-line="18" selection-start-column="59" selection-end-line="18" selection-end-column="59" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/website/stable/templates/stable/recenzie.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="726">
-          <caret line="135" column="37" selection-start-line="135" selection-start-column="37" selection-end-line="135" selection-end-column="37" />
-          <folding>
-            <element signature="n#style#0;n#div#1;n#div#0;n#form#0;n#div#1;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#div#2;n#div#0;n#form#0;n#div#1;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#div#3;n#div#0;n#form#0;n#div#1;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#div#4;n#div#0;n#form#0;n#div#1;n#!!top" expanded="true" />
-            <element signature="e#3625#3632#0" expanded="true" />
-            <element signature="n#style#0;n#p#0;n#center#0;n#div#0;n#div#0;n#div#4;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#p#0;n#center#1;n#div#0;n#div#0;n#div#4;n#!!top" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/website/stable/models.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="528">
-          <caret line="75" column="14" selection-start-line="75" selection-start-column="4" selection-end-line="75" selection-end-column="14" />
+        <state relative-caret-position="1148">
+          <caret line="87" column="22" selection-start-line="87" selection-start-column="4" selection-end-line="87" selection-end-column="22" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/website/website/wsgi.py">
+    <entry file="file://$PROJECT_DIR$/website/stable/export.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="704">
+          <caret line="119" column="24" selection-start-line="119" selection-start-column="24" selection-end-line="119" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/website/stable/templates/stable/login.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="368">
+          <caret line="72" column="96" selection-start-line="72" selection-start-column="96" selection-end-line="72" selection-end-column="96" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/website/stable/templates/stable/index.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <caret line="9" column="21" selection-start-line="9" selection-start-column="21" selection-end-line="9" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/website/stable/administrator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="296">
+          <caret line="237" column="0" selection-start-line="237" selection-start-column="0" selection-end-line="237" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/website/stable/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="814">
-          <caret line="417" column="31" selection-start-line="417" selection-start-column="31" selection-end-line="417" selection-end-column="31" />
+        <state relative-caret-position="296">
+          <caret line="89" column="26" selection-start-line="89" selection-start-column="26" selection-end-line="89" selection-end-column="26" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/website/stable/static/style.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="402">
-          <caret line="91" column="22" selection-start-line="91" selection-start-column="22" selection-end-line="91" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/website/stable/static/javascript.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="264">
-          <caret line="219" column="40" selection-start-line="219" selection-start-column="40" selection-end-line="219" selection-end-column="40" />
-          <folding>
-            <element signature="e#0#10892#0" expanded="false" />
-            <element signature="e#0#10892#0" expanded="false" />
-            <element signature="e#0#10892#0" expanded="false" />
-            <element signature="e#0#10892#0" expanded="false" />
-            <element signature="e#0#10892#0" expanded="false" />
-            <element signature="e#0#10892#0" expanded="false" />
-            <element signature="e#0#10892#0" expanded="false" />
-            <element signature="e#0#10892#0" expanded="false" />
           </folding>
         </state>
       </provider>

@@ -131,7 +131,7 @@ class MultimeStabila(models.Model):
 class Anunt(models.Model):
     titlu = models.CharField(max_length=100)
     mesaj = models.CharField(max_length=1000)
-    deadline = models.DateField(blank=True)
+    deadline = models.DateField(blank=True, default="2500-12-31")
 
     def __str__(self):
         return str(self.deadline) + " " + str(self.titlu)

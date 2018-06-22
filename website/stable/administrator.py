@@ -236,7 +236,7 @@ def preferinte_pentru_stable_3(camin, punctaje_perechi, facultate, sex):
 
     nr_studenti = len(lista_studenti(camin, facultate, sex))
 
-    # trebuie sa pastram atatea perechi cate camere vor fi - 1, iar pe celelalte le adaugam la single
+    # trebuie sa pastram atatea perechi cate camere vor fi, iar pe celelalte le adaugam la single
     while len(perechi) > round(nr_studenti / 3):
         # int(math.ceil(nr_studenti/3.0))
         max = -1
@@ -271,7 +271,7 @@ def preferinte_pentru_stable_3(camin, punctaje_perechi, facultate, sex):
                     st['preferences'].remove('empty')
         else:
             '''
-                numar impar de elemente, deci vom adauga un student fictiv pentru a avea numar impar
+                numar impar de elemente, deci vom adauga un student fictiv pentru a avea numar par
             '''
             punctaje_perechi['empty'] = 100
             single.append('empty')
@@ -1031,7 +1031,6 @@ class Administrator(View):
     def post(self, request):
         mesaj_warning = ""
         semafor = True
-        s = 0
         p = 0
         for camin in camine:
             print("\n")
@@ -1046,7 +1045,6 @@ class Administrator(View):
                     except:
                         mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
                         p += 1
-                        s += 1
                 if semafor:
                     return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
 
@@ -1058,7 +1056,6 @@ class Administrator(View):
                     except:
                         mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
                         p += 1
-                        s += 1
                 if semafor:
                     return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
 
@@ -1072,7 +1069,6 @@ class Administrator(View):
                     except:
                         mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
                         p += 1
-                        s += 1
                 if semafor:
                     return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
 
@@ -1085,7 +1081,6 @@ class Administrator(View):
                     except:
                         mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
                         p += 1
-                        s += 1
                 if semafor:
                     return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
 
@@ -1117,27 +1112,25 @@ class Administrator(View):
             if 5 in LOCURI[camin]:
                 p = 0
                 semafor = True
-                while semafor and p < 100:
+                while semafor and p < 50:
                     try:
                         self.camere_5(camin, "F")
                         semafor = False
                     except:
                         mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
                         p += 1
-                        s += 1
 
                 p = 0
                 semafor = True
-                while semafor and p < 150:
+                while semafor and p < 100:
                     try:
                         self.camere_5(camin, "M")
                         semafor = False
                     except:
                         mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
                         p += 1
-                        s += 1
 
-        mesaj_succes = "Repartizarea a fost facuta cu succes." + str(p) + " -> " + str(s)
+        mesaj_succes = "Repartizarea a fost facuta cu succes."
         stocare_colegi_camera()
         if not semafor:
             return render(request, self.template_name, {'mesaj_succes': mesaj_succes})
@@ -1186,8 +1179,10 @@ class Avansare(View):
         return render(request, self.template_name)
 
     def post(self, request):
-        print("avansare")
-        # de implementat
+        studenti = Student.objects.all()
+        for st in studenti:
+            st.an += 1
+            st.save()
         return render(request, self.template_name)
 
 
@@ -1306,7 +1301,10 @@ class Mesaj(View):
         titlu = request.POST.get('titlu', '')
         mesaj = request.POST.get('message', '')
         data = request.POST.get('data', '')
-        query = Anunt(titlu=titlu, mesaj=mesaj, deadline=data)
+        if len(data) > 0:
+            query = Anunt(titlu=titlu, mesaj=mesaj, deadline=data)
+        else:
+            query = Anunt(titlu=titlu, mesaj=mesaj)
         query.save()
         return render(request, self.template_name, {'mesaj_succes': "Succes! Anunțul a fost postat."})
 
