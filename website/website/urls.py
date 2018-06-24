@@ -10,7 +10,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^index/', include('stable.urls')),
     url(r'^login/$', views.Login.as_view(), name='login'),
-    url(r'^logout/$', views.Logout.as_view(), name='logout'),
+    url(r'^logout/(?P<token>[0-9a-zA-Z]+)/$', views.Logout.as_view(), name='logout'),
     url(r'^resetPass/$', views.ResetPass.as_view(), name='resetPass'),
     url(r'^administrator/$', administrator.Administrator.as_view(), name='administrator'),
     url(r'^administrator/resetare/$', administrator.Resetare.as_view(), name='resetare'),

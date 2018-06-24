@@ -26,8 +26,8 @@ conn = MySQLdb.connect(host="localhost",
                        db="test")
 
 
-def index(request):
-    return render(request, 'stable/index.html')
+def index(request, token):
+    return render(request, 'stable/index.html', {'token': token})
 
 
 class Login(View):
@@ -51,29 +51,41 @@ class Login(View):
                 login(request, user)
                 if username == "admin":
                     return redirect('administrator')
-                return redirect('index')
+
+                size = 8
+                chars = string.ascii_letters + string.digits
+                token = ''.join(random.choice(chars) for _ in range(size))
+                student = Student.objects.get(numar_matricol=username)
+                student.token = token
+                student.save()
+                return render(request, 'stable/index.html', {'token': token})
             else:
                 return render(request, 'stable/login.html')
         else:
             global email
             email = emailRecParola
-            if "@info.uaic.ro" not in email: ##################################################
-            #if "@yahoo.com" not in email and "gmail" not in email:
+            if "@info.uaic.ro" not in email:
                 mesaj = "Emailul introdus nu este falid sau nu apartine domeniului facultatii."
                 return render(request, 'stable/login.html', {'mesaj_email': mesaj})
             return redirect('resetPass')
 
 
 class Logout(View):
-    def get(self, request):
+    def get(self, request, token):
+        try:
+            student = Student.objects.get(token=token)
+            student.token = ""
+            student.save()
+        except Exception:
+            return redirect('login')
         logout(request)
         return redirect('login')
 
 
 class Profil(View):
 
-    def verificare_introducere_preferinte(self):
-        data = Preferinta.objects.filter(numar_matricol=username)
+    def verificare_introducere_preferinte(self, nr_matricol):
+        data = Preferinta.objects.filter(numar_matricol=nr_matricol)
         if len(data) == 0:
             return False
         else:
@@ -81,27 +93,30 @@ class Profil(View):
 
     template_name = 'stable/profil.html'
 
-    def incarcare_preferinte(self):
-        c = conn.cursor()
-        c.execute("SELECT * from stable_repartizare where numar_matricol=%s", [username])
-        data = c.fetchall()
+    def incarcare_preferinte(self, nr_matricol):
         nume_camin = ""
         colegi_camin = []
+        warning = ""
+        rep = Repartizare.objects.filter().all()
+        data = Repartizare.objects.filter(numar_matricol=nr_matricol)
         if len(data) == 0:
-            warning = "Din nefericire nu aveti loc in camin"
+            if len(rep) == 0:  # nimeni nu a fost repartizat la camin pana in momentul actual
+                warning = "Repartizarea încă nu a fost realizată"
+            else:
+                warning = "Din nefericire nu aveți loc în cămin"
         else:
-            st = Student.objects.get(numar_matricol=username)
+            st = Student.objects.get(numar_matricol=nr_matricol)
             d = conn.cursor()
             d.execute("SELECT s.nume from stable_student s "
                       "join stable_repartizare r on r.numar_matricol = s.numar_matricol "
-                      "where r.camin=%s and s.numar_matricol!=%s and s.sex=%s", [data[0][2], username, st.sex])
-            nume_camin = data[0][2]
+                      "where r.camin=%s and s.numar_matricol!=%s and s.sex=%s", [data[0].camin, nr_matricol, st.sex])
+            nume_camin = data[0].camin
             data = d.fetchall()
             for it in data:
                 colegi_camin.append(it[0])
-        return colegi_camin, nume_camin
+        return colegi_camin, nume_camin, warning
 
-    def colegi_repartizati(self, nume_camin):
+    def colegi_repartizati(self, nume_camin, nr_matricol):
         camere_repartizate = Camin.objects.filter(nume_camin=nume_camin)
         numar_camere = []
         for item in camere_repartizate:
@@ -119,10 +134,10 @@ class Profil(View):
                     studenti_camera.append(item.coleg3)
                     studenti_camera.append(item.coleg4)
                     studenti_camera.append(item.coleg5)
-                if username in studenti_camera:
+                if nr_matricol in studenti_camera:
                     numar_camera = nr
                     for item in studenti_camera:
-                        if len(item) > 0 and item != username:
+                        if len(item) > 0 and item != nr_matricol:
                             uid_colegii_repartizati.append(item)
 
         colegii_repartizati = []
@@ -146,58 +161,70 @@ class Profil(View):
         anunturi_de_afisat.sort(key=operator.itemgetter(2), reverse=True)
         return anunturi_de_afisat
 
-    def get(self, request):
-        if len(username) == 0:
+    def get(self, request, token):
+        try:
+            student = Student.objects.get(token=token)
+        except Exception:
             return redirect('login')
+        nr_matricol = student.numar_matricol
+        global username
+        username = nr_matricol
 
-        student = Student.objects.get(numar_matricol=username)
-        colegi_camin, nume_camin = self.incarcare_preferinte()
+        student = Student.objects.get(numar_matricol=nr_matricol)
+        colegi_camin, nume_camin, warning = self.incarcare_preferinte(nr_matricol)
         introdus_preferinte = False
 
-        colegii_repartizati, numar_camera = self.colegi_repartizati(nume_camin)
+        colegii_repartizati, numar_camera = self.colegi_repartizati(nume_camin, nr_matricol)
 
-        if self.verificare_introducere_preferinte():
+        if self.verificare_introducere_preferinte(nr_matricol):
             introdus_preferinte = True
 
         anunturi = self.mesaje_admin()
         return render(request, self.template_name, {'student': student, 'colegi_camin': colegi_camin, 'nume_camin': nume_camin,
                                                     'introdus_preferinte': introdus_preferinte, 'colegii_repartizati': colegii_repartizati,
-                                                    'numar_camera': numar_camera, 'anunturi': anunturi})
+                                                    'numar_camera': numar_camera, 'anunturi': anunturi, 'token': token,  'warning': warning})
 
-    def post(self, request):
+    def post(self, request, token):
+        try:
+            student = Student.objects.get(token=token)
+        except Exception:
+            return redirect('login')
+        nr_matricol = student.numar_matricol
         c = conn.cursor()
         try:
             poza_profil = request.FILES['poza_profil']
             fs = FileSystemStorage()
             fs.save(poza_profil.name, poza_profil)
-            c.execute("UPDATE stable_student set poza_profil=%s where numar_matricol=%s", [poza_profil, username])
+            c.execute("UPDATE stable_student set poza_profil=%s where numar_matricol=%s", [poza_profil, nr_matricol])
             conn.commit()
         except Exception:
             pass  # nu a fost incarcat nimic
-        student = Student.objects.get(numar_matricol=username)
+        student = Student.objects.get(numar_matricol=nr_matricol)
 
         introdus_preferinte = False
         colegi_camin = ""
-        if self.verificare_introducere_preferinte():
+        if self.verificare_introducere_preferinte(nr_matricol):
             introdus_preferinte = True
         else:
-            colegi_camin = self.incarcare_preferinte()
-        aux = Repartizare.objects.filter(numar_matricol=username)
-        nume_camin = aux[0].camin
+            colegi_camin, nume_camin, warning = self.incarcare_preferinte(nr_matricol)
+        aux = Repartizare.objects.filter(numar_matricol=nr_matricol)
+        nume_camin = ""
+        if len(aux) > 0:
+            nume_camin = aux[0].camin
 
         anunturi = self.mesaje_admin()
         return render(request, self.template_name, {'student': student, 'colegi_camin': colegi_camin, 'nume_camin': nume_camin,
-                                                    'introdus_preferinte': introdus_preferinte, 'anunturi': anunturi})
+                                                    'introdus_preferinte': introdus_preferinte, 'anunturi': anunturi, 'token': token})
 
 
 # o lista cu colegii de camera cu care a stat sau inca sta studentul cu respectivul numar matricol
-def colegii_de_camera():
+def colegii_de_camera(nr_matricol):
     c = conn.cursor()
-    c.execute("SELECT * from stable_coleg where coleg1=%s or coleg2=%s", [username, username])
+    c.execute("SELECT * from stable_coleg where coleg1=%s or coleg2=%s", [nr_matricol, nr_matricol])
     data = c.fetchall()
     nr_matricol_colegi = []
     for coleg in data:
-        if coleg[1] == username:
+        if coleg[1] == nr_matricol:
             nr_matricol_colegi.append(coleg[2])
         else:
             nr_matricol_colegi.append(coleg[1])
@@ -221,7 +248,6 @@ def obtine_recenzii():
         # aflam numele expeditorului
         c.execute("SELECT nume FROM stable_student where numar_matricol=%s", [recenzii[i][1]])
         nume = c.fetchone()
-        print("asdasd", nume, nume[0])
         recenzii[i][1] = nume[0]
 
         # aflam numele destinatarului
@@ -280,22 +306,31 @@ class Recenzii(View):
                 camin[item[2]] = aux2[0].nume_camin
         return camin
 
-    def get(self, request):
+    def get(self, request, token):
         page = request.GET.get('page', 1)
-        if len(username) == 0:
+        try:
+            student = Student.objects.get(token=token)
+            nr_matricol = student.numar_matricol
+        except Exception:
             return redirect('login')
 
-        student = Student.objects.get(numar_matricol=username)
+        student = Student.objects.get(numar_matricol=nr_matricol)
         recenzii = obtine_recenzii()
 
         poze = self.url_poze(recenzii)
         camin = self.camin_cazat(recenzii)
         p = Paginator(recenzii, ITEMS_ON_PAGE)
-        colegi = colegii_de_camera()
+        colegi = colegii_de_camera(nr_matricol)
         return render(request, self.template_name, {'student': student, 'recenzii': p.page(page), 'colegi': colegi,
-                                                    'nr_matricol': username, 'poze': poze, 'camin': camin})
+                                                    'nr_matricol': nr_matricol, 'poze': poze, 'camin': camin, 'token': token})
 
-    def post(self, request):
+    def post(self, request, token):
+        try:
+            student = Student.objects.get(token=token)
+            nr_matricol_token = student.numar_matricol
+        except Exception:
+            return redirect('login')
+
         page = request.GET.get('page', 1)
         nume_coleg = request.POST.get('numeColeg', '')
         calificativ = request.POST.get('notaColeg', '')
@@ -303,24 +338,24 @@ class Recenzii(View):
         data = nume_coleg
 
         if nume_coleg == '':
-            student = Student.objects.get(numar_matricol=username)
+            student = Student.objects.get(numar_matricol=nr_matricol_token)
             recenzii = obtine_recenzii()
-            colegi = colegii_de_camera()
+            colegi = colegii_de_camera(nr_matricol_token)
             p = Paginator(recenzii, ITEMS_ON_PAGE)
             warning = "Nu a fost selectat nici un nume pentru recenzie"
             poze = self.url_poze(recenzii)
             camin = self.camin_cazat(recenzii)
             return render(request, self.template_name, {'student': student, 'recenzii': p.page(page), 'colegi': colegi,
-                                                        'warning': warning, "nr_matricol": username, 'poze': poze, 'camin': camin})
+                                                        'warning': warning, "nr_matricol": nr_matricol_token, 'poze': poze, 'camin': camin, 'token': token})
         nume = data
         c = conn.cursor()
 
         c.execute("SELECT numar_matricol from stable_student where nume=%s", [nume])
         nr_matricol = c.fetchone()
 
-        colegi = colegii_de_camera()
-        student = Student.objects.get(numar_matricol=username)
-        c.execute("SELECT * from stable_recenzie where from_uid=%s and to_uid=%s", [username, nr_matricol])
+        colegi = colegii_de_camera(nr_matricol_token)
+        student = Student.objects.get(numar_matricol=nr_matricol_token)
+        c.execute("SELECT * from stable_recenzie where from_uid=%s and to_uid=%s", [nr_matricol_token, nr_matricol])
         data = c.fetchone()
 
         if data:
@@ -330,13 +365,13 @@ class Recenzii(View):
             poze = self.url_poze(recenzii)
             camin = self.camin_cazat(recenzii)
             return render(request, self.template_name, {'student': student, 'recenzii': p.page(page), 'colegi': colegi,
-                                                        'warning': warning, "nr_matricol": username, 'poze': poze, 'camin': camin})
+                                                        'warning': warning, "nr_matricol": nr_matricol_token, 'poze': poze, 'camin': camin, 'token': token})
 
         c.execute("SELECT numar_matricol from stable_student where nume=%s", [nume])
         nr_matricol = c.fetchone()
 
         c.execute("INSERT into stable_recenzie(from_uid, to_uid, mesaj, calificativ, data) "
-                  "VALUES(%s, %s, %s, %s, %s)", [username, nr_matricol, mesaj, calificativ, datetime.date.today()])
+                  "VALUES(%s, %s, %s, %s, %s)", [nr_matricol_token, nr_matricol, mesaj, calificativ, datetime.date.today()])
         conn.commit()
         c.close()
         recenzii = obtine_recenzii()
@@ -345,7 +380,7 @@ class Recenzii(View):
         poze = self.url_poze(recenzii)
         camin = self.camin_cazat(recenzii)
         return render(request, self.template_name, {'student': student, 'recenzii': p.page(page), 'colegi': colegi,
-                                                    'succes': succes, "nr_matricol": username, 'poze': poze, 'camin': camin})
+                                                    'succes': succes, "nr_matricol": nr_matricol_token, 'poze': poze, 'camin': camin, 'token': token})
 
 
 def aflare_nr_matricol(nume):
@@ -562,7 +597,6 @@ def preferinte_student(request):
     lista_preferinte = nume_preferinte.split('+')[:-1]
     c = conn.cursor()
     importanta = 1
-    print("preferinte_student")
     for item in lista_preferinte:
         nr_matricol = aflare_nr_matricol(item)
         c.execute('INSERT into stable_preferinta (numar_matricol, uid_preferinta, importanta) values (%s, %s, %s)',

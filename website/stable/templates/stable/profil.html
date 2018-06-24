@@ -64,7 +64,16 @@
         </div><br>
     {% endif %}
 
-    {% if introdus_preferinte == False %}
+    {% if warning|length > 0 %}
+        <div class="alert-success" style="padding: 15px;
+        background-color: #800000;
+        color: white;
+        margin-bottom: 15px;">
+                {{ warning }}
+            </div>
+    {% endif %}
+
+    {% if introdus_preferinte == False and warning|length == 0 %}
         <p>&nbsp;&nbsp;&nbsp; In lista de mai jos sunt studenții care au fost repartizați în {{nume_camin}}...așa ca tine, deci nu mai sta pe gânduri și alege cu cine
         ai vrea să stai în cameră în următorul an. </p>
         <p>&nbsp;&nbsp;&nbsp; Nu uita trebuie să selectezi persoanele în ordinea preferințelor, fie că este o singură persoană sau toate. </p><br>
@@ -92,7 +101,7 @@
             </div>
         </div>
     {% else %}
-        {% if colegii_repartizati|length == 0 %}
+        {% if colegii_repartizati|length == 0 and warning|length == 0 %}
             <div class="alert-success" style="padding: 15px;
         background-color: #800000;
         color: white;

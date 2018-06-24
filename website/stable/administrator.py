@@ -700,7 +700,6 @@ def stocare_colegi_camera():
             colegi.append(camera.coleg5)
 
         if len(colegi) > 1:
-            print(colegi)
             for i in range(len(colegi)-1):
                 for j in range(i+1, len(colegi)):
                     try:
@@ -809,7 +808,7 @@ def stocare_2(camere, camin, locuri, facultate):
                         coleg1=camere[i][0]
                     )
                 except:
-                    print("aici e eroarea")
+                    pass
 
                 '''
                     try - except pentru ca repartizarea poate fi facuta intr-o camera de 2/3/4 persoane, dar in camera sa
@@ -865,7 +864,6 @@ def stable(multime):
                     if accept == "":
                         st['propose'] = option
                         multime = propose(multime, st['name'], option)
-                        # print("a2")
                         break
                     else:
                         better_choice = who_is_beter(multime, st['name'], option, accept)
@@ -875,14 +873,11 @@ def stable(multime):
                             st['propose'] = option
 
                         multime = propose(multime, better_choice, option)
-                        # print("a3")
                         # stim ca studentul curent a facut o alegere valida, deci nu mai este nevoie sa caute in continuare
                         if better_choice == st['name']:
-                            # print("a4")
                             break
 
         if len([st for st in multime if st['propose'] == ""]) == 0:
-            # print("a5")
             break
     '''
         pasul 2
@@ -892,8 +887,7 @@ def stable(multime):
         try:
             to_delete = st['preferences'][st['preferences'].index(st['accept']) + 1:]
         except Exception as error:
-            print("1", error)
-        # print(to_delete)
+            pass
         for it in to_delete:
             for i in multime:
                 if it == i['name']:
@@ -901,7 +895,7 @@ def stable(multime):
                         i['preferences'].remove(st['name'])
                         st['preferences'].remove(it)
                     except Exception as error:
-                        print("2", error)
+                        pass
                     break
     '''
         pasul 3
@@ -914,7 +908,6 @@ def stable(multime):
         first_line = []
         second_line = []
         for st in multime:
-            #print("b1")
             if len(st['preferences']) > 1:
                 first_line.append(st['name'])
                 second_line.append(st['preferences'][1])
@@ -925,7 +918,7 @@ def stable(multime):
                             try:
                                 first_line.append(i['preferences'][-1])
                             except Exception as error:
-                                print("3", error)
+                                pass
                             break
                     for i in multime:
                         if i['name'] == first_line[-1]:
@@ -942,7 +935,7 @@ def stable(multime):
                     st['preferences'].remove(second_line[i - 1])
                 if st['name'] == second_line[i - 1]:
                     st['preferences'].remove(first_line[i])
-        # print("b7")
+
         if len([st for st in multime if len(st['preferences']) > 1]) == 0:
             break
     return multime
@@ -1043,7 +1036,7 @@ class Administrator(View):
                         self.camere_2(camin, "F")
                         semafor = False
                     except:
-                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!"
                         p += 1
                 if semafor:
                     return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
@@ -1054,7 +1047,7 @@ class Administrator(View):
                         self.camere_2(camin, "M")
                         semafor = False
                     except:
-                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!"
                         p += 1
                 if semafor:
                     return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
@@ -1067,7 +1060,7 @@ class Administrator(View):
                         self.camere_3(camin, "F")
                         semafor = False
                     except:
-                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!"
                         p += 1
                 if semafor:
                     return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
@@ -1079,7 +1072,7 @@ class Administrator(View):
                         self.camere_3(camin, "M")
                         semafor = False
                     except:
-                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!"
                         p += 1
                 if semafor:
                     return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
@@ -1092,7 +1085,7 @@ class Administrator(View):
                         self.camere_4(camin, "F")
                         semafor = False
                     except:
-                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!"
                         p += 1
                 if semafor:
                     return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
@@ -1104,7 +1097,7 @@ class Administrator(View):
                         self.camere_4(camin, "M")
                         semafor = False
                     except:
-                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!"
                         p += 1
                 if semafor:
                     return render(request, self.template_name, {'mesaj_warning': mesaj_warning})
@@ -1117,20 +1110,20 @@ class Administrator(View):
                         self.camere_5(camin, "F")
                         semafor = False
                     except:
-                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!"
                         p += 1
 
                 p = 0
                 semafor = True
-                while semafor and p < 100:
+                while semafor and p < 150:
                     try:
                         self.camere_5(camin, "M")
                         semafor = False
                     except:
-                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!" + str(p)
+                        mesaj_warning = "Ups, se pare ca ceva nu a mers bine, te rugam sa incerci din nou!"
                         p += 1
 
-        mesaj_succes = "Repartizarea a fost facuta cu succes."
+        mesaj_succes = "Repartizare realizată cu succes."
         stocare_colegi_camera()
         if not semafor:
             return render(request, self.template_name, {'mesaj_succes': mesaj_succes})
@@ -1334,4 +1327,4 @@ class Repartizare_camin(View):
                         # deja exista o intrare in baza de date, deci nu mai poate fi introdusa
                 lungime = len(content)
 
-        return render(request, self.template_name, {'mesaj_succes': "Succes! Repartizarea căminelor a fost realizată."})
+        return render(request, self.template_name, {'mesaj_succes': "Repartizare realizată cu succes."})

@@ -47,6 +47,7 @@ class Student(models.Model):
     poza_profil = models.FileField(default='1')
     email = models.CharField(max_length=50, default="")
     cod_reset_parola = models.CharField(max_length=8, default="", blank=True)
+    token = models.CharField(max_length=10, default="", blank=True)
 
     def __str__(self):
         return self.numar_matricol + ' - ' + self.nume

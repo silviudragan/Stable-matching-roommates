@@ -134,13 +134,12 @@ function recenziiFacute(nr_matricol){
                if(iterator % 8 == 6){ // data recenziei
                     rez += "<div class='col-md-3 col-sm-3'><br>";
                     rez += "<h5> Expeditor</h5>";
-                    rez += "<p>Destinatar</p><p>Data</p><p>Cămin</p><p>Rating</p><p>Mesaj</p>";
+                    rez += "<p>Destinatar</p><p>Data</p><p>Rating</p><p>Mesaj</p>";
                     rez += "</div>";
                     rez += "<div class='col-md-6 col-sm-6'><br>";
                     rez += "<h5>" + nume_expeditor + "</h5>";
                     rez += "<p>" + nume_destinatar + "</p>";
                     rez += "<p>" + data[it] + "</p>";
-                    rez += "<p>" + camin + "</p>";
                 }
                 if(iterator % 8 == 7){ // stele
                     rez += "<p>" + data[it] + "/5 <span class='glyphicon glyphicon-star'></span></p>";
@@ -211,13 +210,12 @@ function recenziiPrimite(nr_matricol){
                if(iterator % 8 == 6){ // data recenziei
                     rez += "<div class='col-md-3 col-sm-3'><br>";
                     rez += "<h5> Expeditor</h5>";
-                    rez += "<p>Destinatar</p><p>Data</p><p>Cămin</p><p>Rating</p><p>Mesaj</p>";
+                    rez += "<p>Destinatar</p><p>Data</p><p>Rating</p><p>Mesaj</p>";
                     rez += "</div>";
                     rez += "<div class='col-md-6 col-sm-6'><br>";
                     rez += "<h5>" + nume_expeditor + "</h5>";
                     rez += "<p>" + nume_destinatar + "</p>";
                     rez += "<p>" + data[it] + "</p>";
-                    rez += "<p>" + camin + "</p>";
                 }
                 if(iterator % 8 == 7){ // stele
                     rez += "<p>" + data[it] + "/5 <span class='glyphicon glyphicon-star'></span></p>";
@@ -258,10 +256,6 @@ function adaugareFavorit() {
         c.text = nameValue;
         x.options.add(c, options.length);
     }
-
-//    var queryString = document.getElementById("favoriti");
-//    options = queryString.getElementsByTagName("option");
-//    console.log(options[1].text);
 }
 
 function eliminareFavorit(){
@@ -279,8 +273,8 @@ function eliminareFavorit(){
     }
 }
 
-function salvareFavoriti(){
-
+function salvareFavoriti(numar_matricol){
+    console.log("aaaaaaa" + numar_matricol);
     var queryString = document.getElementById("favoriti");
     options = queryString.getElementsByTagName("option");
 
